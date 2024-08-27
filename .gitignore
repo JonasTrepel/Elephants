@@ -1,3 +1,8 @@
+
+data/spatialData/
+data/rawRawData/
+
+
 # History files
 .Rhistory
 .Rapp.history
