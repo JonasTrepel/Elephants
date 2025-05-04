@@ -1,0 +1,497 @@
+Report_Type,Report_Type_Internal_Value,Report_Id,Title,Priority,Priority_Internal_Value,Report_Status,Reported_By,Reported_At_(GMT+2:0),Latitude,Longitude,Number_of_Notes,Notes,Number_of_Related_Subjects,Collection_Report_IDs,Area,Perimeter,Attachments,CUSTOM_FIELDS_BEGIN_HERE,ID,Condition,Activity,Count,Additional_Information
+Elephant Sighting,elephant_monitoring_rep,3070,,Green,100,Resolved,MichaelH,2024-01-10 17:35,-24.077222278212986,27.81222826656707,0,,,,,,https://storage.googleapis.com/user-uploads-kaingo/image_fileuploads/2024/01/11/97e6112c-b8fd-4f67-9191-c7664565e0bb/Photo1.jpg?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=er-gcs-kaingo%40earthranger-78ca55ca.iam.gserviceaccount.com%2F20250228%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250228T055457Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=b5052be018966576e7335b7265c7b0e36673164319b5379876ef529b74b27dc9cb180f42ec962fc81353893d9d8a2a65b062a98b279d907cc0c63c34af708228b52939f55a6f8be0db4a6bb587a73484151643c2684093c9a802d9cbd0045cf374a31f2a4a20f088788040f188ad48951b848c694b908364bf598042306bc376eb417be26ba2c0001da40cee6cab2a7c9611f2923c53b001af24b4d0ac5e5d0edcae403848c0ac16127e300013c95e4a39b77adbce9c3b819135b5bc6a1c0503e3de819d3ae078c83981b4f93b675621912b7aecb2be6f9b979bc5e0a1c2c1b587dacf3a639622549ae2f4ae93e31f7471cd5a118cd5e4b8547d4f73dd108bc9,,Peanuts,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,2158,,Green,100,Resolved,FransM,2023-08-23 10:17,-24.04880166666667,27.777308333333334,0,,,,,,,,Kambaku,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,3816,,Green,100,Resolved,Jacque,2024-04-14 09:36,-24.098679034987185,27.792425079095295,0,,,,,,,,Kambaku,,Moving,,
+Elephant Sighting,elephant_monitoring_rep,5607,,Green,100,Resolved,MichaelH,2024-08-24 08:57,-24.04952041106375,27.85731492957111,0,,,,,,,,Kaingo Herd,5 (Good),Feeding,7,
+Elephant Sighting,elephant_monitoring_rep,905,,Green,100,Resolved,Jurie,2023-01-24 16:41,-24.106806620246743,27.7625667898661,0,,,,,,,,,,,1,
+Elephant Sighting,elephant_monitoring_rep,2253,,Green,100,Resolved,Royal Morubisi Guides,2023-09-04 06:57,-24.076969460340905,27.81238934320521,0,,,,,,,,Peanuts,,,,Abrie
+Elephant Sighting,elephant_monitoring_rep,4777,,Green,100,Resolved,WPS Camera,2024-06-12 18:34,-24.06495407351082,27.819998767106256,0,,,,,,,,Unknown Bull/s,,,,
+Elephant Sighting,elephant_monitoring_rep,2679,,Green,100,Resolved,Jacque,2023-11-06 19:12,-24.079603087285335,27.774052977087763,0,,,,,,,,Kambaku,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,812,,Green,100,Resolved,,2023-01-03 17:20,,,0,,,,,,,,,5 (Good),Feeding,1,Tiny
+Elephant Sighting,elephant_monitoring_rep,1794,,Green,100,Resolved,Jacque,2023-06-25 14:06,-24.11359744385291,27.790738533731684,0,,,,,,,,,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2957,,Green,100,Resolved,Royal Morubisi Guides,2023-12-28 06:56,-24.092401424850465,27.71011037108923,0,,,,,,,,Mokolo Herd,,,,Abrie
+Elephant Sighting,elephant_monitoring_rep,2448,,Green,100,Resolved,Jacque,2023-10-08 15:30,-24.075224726455787,27.782664516252908,0,,,,,,,,Kambaku,5 (Good),Feeding,2,Young bull with him
+Elephant Sighting,elephant_monitoring_rep,1411,,Green,100,Resolved,FransM,2023-04-12 10:09,-24.105025,27.726251666666666,0,,,,,,,,Kaingo Herd,5 (Good),Feeding,9,
+Elephant Sighting,elephant_monitoring_rep,2330,,Green,100,Resolved,Royal Morubisi Guides,2023-09-15 06:37,-24.073566874461278,27.76070309021327,0,,,,,,,,Kaingo Herd,,,,Jolandie
+Elephant Sighting,elephant_monitoring_rep,2966,,Green,100,Resolved,Royal Morubisi Guides,2023-12-29 09:30,-24.06728229517698,27.75855023492295,0,,,,,,,,Mokolo Herd,,,,Abrie
+Elephant Sighting,elephant_monitoring_rep,6195,,Green,100,Resolved,Jurie,2024-10-18 11:09,-24.112481133805957,27.749348471875493,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,3902,,Green,100,Resolved,Royal Morubisi Guides,2024-04-15 06:47,-24.07148046233199,27.81423286225612,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,5483,,Green,100,Resolved,WPS Camera,2024-08-14 00:50,-24.051227873550914,27.887300832441525,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,1694,,Green,100,Resolved,,2023-06-07 10:09,-24.065265954627876,27.77723352698831,0,,,,,,,,Tiny,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2296,,Green,100,Resolved,Royal Morubisi Guides,2023-09-10 06:54,-24.07349751340557,27.76385714301898,0,,,,,,,,Unknown Herd,,,,And tiny jolandie
+Elephant Sighting,elephant_monitoring_rep,6748,,Green,100,Resolved,WPS Camera,2024-12-09 08:34,-24.1156891368002,27.717451150641438,0,,,,,,,,Unknown Bull/s,,Moving,1,
+Elephant Sighting,elephant_monitoring_rep,3066,,Green,100,Resolved,MichaelH,2024-01-09 16:35,-24.07090525623356,27.754427598202724,0,,,,,,,,Mokolo Herd,5 (Good),Moving,13,
+Elephant Sighting,elephant_monitoring_rep,6396,,Green,100,Resolved,WPS Camera,2024-11-09 18:39,-24.079872962284966,27.741580241936987,0,,,,,,,,Mokolo Herd,,,7,
+Elephant Sighting,elephant_monitoring_rep,3136,,Green,100,Resolved,Royal Morubisi Guides,2024-01-20 09:32,-24.084107885487768,27.77487909531561,0,,,,,,,,Unknown Herd,,,10,Abrie
+Elephant Sighting,elephant_monitoring_rep,1462,,Green,100,Resolved,,2023-04-19 08:45,-24.067247542431332,27.755101963396186,0,,,,,,,,Unknown Bull/s,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2814,,Green,100,Resolved,MichaelH,2023-12-04 12:19,-24.105820784194023,27.725169149167353,0,,,,,,,,Peanuts,5 (Good),Drinking Water,2,
+Elephant Sighting,elephant_monitoring_rep,2483,,Green,100,Resolved,Jacque,2023-10-10 19:38,-24.079611874441326,27.77393786404113,0,,,,,,,,Kaingo Herd,5 (Good),Drinking Water,10,
+Elephant Sighting,elephant_monitoring_rep,2897,,Green,100,Resolved,FransM,2023-12-21 13:10,-24.10749333333333,27.727504999999997,0,,,,,,,,Tiny,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,5441,,Green,100,Resolved,WPS Camera,2024-08-13 06:35,-24.079286057777125,27.83328517802292,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,4724,,Green,100,Resolved,WPS Camera,2024-06-07 18:36,-24.111880942601587,27.78008970348685,0,,,,,,,,Unknown Herd,,Drinking Water,2,
+Elephant Sighting,elephant_monitoring_rep,1770,,Green,100,Resolved,Jacque,2023-06-21 18:02,-24.08402373835648,27.84822870958564,1,Matswani guide Antonia,,,,,,,Tiny,5 (Good),Feeding,2,With a young bull
+Elephant Sighting,elephant_monitoring_rep,6027,,Green,100,Resolved,Elzet,2024-10-02 14:01,-24.08060762565583,27.776357671245933,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2456,,Green,100,Resolved,Piet,2023-10-08 15:51,-24.07215127753976,27.811821961194767,0,,,,,,,,Kaingo Herd,5 (Good),Moving,,
+Elephant Sighting,elephant_monitoring_rep,7125,,Green,100,Resolved,Jurie Willemse,2025-01-25 08:22,-24.12078408782648,27.701417727846774,0,,,,,,,,Peanuts,,,3,Tiny and short tuskbull
+Elephant Sighting,elephant_monitoring_rep,6052,,Green,100,Resolved,WPS Camera,2024-10-01 17:31,-24.115495427998866,27.717220617893048,0,,,,,,,,Unknown Bull/s,,,2,
+Elephant Sighting,elephant_monitoring_rep,3030,,Green,100,Resolved,Jurie,2024-01-06 13:42,-24.087043123762868,27.77481779000476,0,,,,,,,,Tiny,,,,
+Elephant Sighting,elephant_monitoring_rep,4532,,Green,100,Resolved,WPS Camera,2024-05-25 16:10,-24.017378341734968,27.852051883986064,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,6635,,Green,100,Resolved,WPS Camera,2024-11-30 19:36,-24.146424963015406,27.77293538382588,0,,,,,,,,Peanuts,,,,
+Elephant Sighting,elephant_monitoring_rep,3719,,Green,100,Resolved,WPS Camera,2024-04-06 01:36,-24.051308883795926,27.887306113131842,0,,,,,,,,Unknown Herd,,,3,3+
+Elephant Sighting,elephant_monitoring_rep,1271,,Green,100,Resolved,Jacque,2023-03-22 17:18,-24.07896816582773,27.77359808159534,0,,,,,,,,Mokolo Herd,5 (Good),Feeding,14,Kumbako was in the herd. Cheeky was not in the herd.
+Elephant Sighting,elephant_monitoring_rep,972,,Green,100,Resolved,Jacque,2023-02-06 17:46,-24.074807834772415,27.808230653969275,0,,,,,,,,,,Feeding,11,
+Elephant Sighting,elephant_monitoring_rep,1811,,Green,100,Resolved,MichaelH,2023-06-22 11:01,-24.092229234777776,27.759858846504358,0,,,,,,,,Mokolo Herd,5 (Good),Feeding,8,
+Elephant Sighting,elephant_monitoring_rep,6262,,Green,100,Resolved,FransM,2024-10-25 12:38,-24.07991833333333,27.774366666666666,0,,,,,,,,Kambaku,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,3923,,Green,100,Resolved,WPS Camera,2024-04-18 04:44,-24.107485362505457,27.69656714173209,0,,,,,,,,Unknown Herd,,,7,
+Elephant Sighting,elephant_monitoring_rep,6633,,Green,100,Resolved,WPS Camera,2024-11-30 19:38,-24.146128985586543,27.77303051771557,0,,,,,,,,Tiny,,,2,
+Elephant Sighting,elephant_monitoring_rep,2611,,Green,100,Resolved,Jacque,2023-10-28 06:08,-24.079648127631728,27.773948371404856,0,,,,,,,,Kambaku,5 (Good),Drinking Water,,
+Elephant Sighting,elephant_monitoring_rep,5997,,Green,100,Resolved,WPS Camera,2024-09-28 20:02,-24.10657048278111,27.81485843653107,0,,,,,,,,Mokolo Herd,,,9,
+Elephant Sighting,elephant_monitoring_rep,3282,,Green,100,Resolved,Royal Morubisi Guides,2024-02-14 20:13,-24.079624305378417,27.773831349973847,0,,,,,,,,Unknown Bull/s,,,1,Zandile
+Elephant Sighting,elephant_monitoring_rep,3323,,Green,100,Resolved,Royal Morubisi Guides,2024-02-17 06:43,-24.080059793301913,27.740992746329937,0,,,,,,,,Kaingo Herd,,,10,Abrie
+Elephant Sighting,elephant_monitoring_rep,2573,,Green,100,Resolved,Matswani Guides,2023-10-22 17:59,-24.075786014542473,27.76097032545519,1,Dalien,,,,,,,Unknown Herd,5 (Good),Resting,10,
+Elephant Sighting,elephant_monitoring_rep,1138,,Green,100,Resolved,Piet,2023-03-02 13:04,-24.07973258233207,27.82252446545604,0,,,,,,,,,5 (Good),Other,1,
+Elephant Sighting,elephant_monitoring_rep,3806,,Green,100,Resolved,Royal Morubisi Guides,2024-04-12 20:03,-24.082814606389846,27.769187465089487,0,,,,,,,,Mokolo Herd,,,,Abrie
+Elephant Sighting,elephant_monitoring_rep,5633,,Green,100,Resolved,WPS Camera,2024-08-25 22:06,-24.078699232965548,27.798042006889176,0,,,,,,,,Kaingo Herd,,,1,
+Elephant Sighting,elephant_monitoring_rep,676,,Green,100,Resolved,Jacque,2022-12-11 14:10,-24.076323902409854,27.76826146791626,0,,,,,,,,,5 (Good),Feeding,19,Both breedng herds with Kumbaku together.
+Elephant Sighting,elephant_monitoring_rep,2844,,Green,100,Resolved,MichaelH,2023-12-13 14:32,-24.094877049362495,27.720831356558094,0,,,,,,,,Peanuts,5 (Good),Standing,1,
+Elephant Sighting,elephant_monitoring_rep,6831,,Green,100,Resolved,,2024-12-16 09:19,,,0,,,,,,,,Kaingo Herd,,,13,
+Elephant Sighting,elephant_monitoring_rep,2514,,Green,100,Resolved,Matswani Guides,2023-10-14 10:45,-24.07574993959497,27.76337479441989,1,Megan,,,,,,,Unknown Herd,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,739,,Green,100,Resolved,Jurie,2022-12-20 17:10,-24.10635957714925,27.81415180757716,0,,,,,,,,,,,,
+Elephant Sighting,elephant_monitoring_rep,2267,,Green,100,Resolved,Matswani Guides,2023-09-06 19:47,-24.07742439579704,27.812469072873682,1,Casper,,,,,,,Kambaku,,Standing,,
+Elephant Sighting,elephant_monitoring_rep,1810,,Green,100,Resolved,MichaelH,2023-06-22 11:08,-24.091332692553323,27.765255286212692,0,,,,,,,,Peanuts,5 (Good),Moving,1,Mock charged me 
+Elephant Sighting,elephant_monitoring_rep,4474,,Green,100,Resolved,Elzet,2024-05-21 16:37,-24.076329,27.748347,1,Hole in ear and tear at bottom of same ear,,,,,https://storage.googleapis.com/user-uploads-kaingo/image_fileuploads/2024/05/23/682779b4-231f-4bf6-bf49-a3a4cf69a070/1000041407.jpg?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=er-gcs-kaingo%40earthranger-78ca55ca.iam.gserviceaccount.com%2F20250228%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250228T055458Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=371d9d2c38c2cd14affee64a0d39e8fc631be76406a725416bc5e7528b6361e7544a1a20a0f0184fa15c81e91af93d7c1d176171333db2a3f99e3f3c8a0363cacb1d5d6ad2d1c4d832e22cc3f4b10b2d26ec9b303a7e78566694828b556e1ee84988a95a205fbcbef0df1de85328d26f04f5db703e63d3c023a9307733f55671098905a9166bfde5e7d00be173c9a40f10bdc550877506beb2a7e9acef2f37d73040fdd182517d5d64b74ceca587824e7c67cde43002ec65f36c18d06156629c9d7d63b41e283c0b84f6fc4938c3fef0f6f645265f07e8eb0181290d0e2e5a5eef66cf16c34c74ade587cf115758c2ae6ca2f2b1ba99cd91fa687b1036536d93,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,1853,,Green,100,Resolved,FransM,2023-07-05 14:04,-24.096058333333335,27.77075,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,6453,,Green,100,Resolved,WPS Camera,2024-11-15 23:17,-24.017957325771533,27.851614515089267,0,,,,,,,,Mokolo Herd,,,0.9,
+Elephant Sighting,elephant_monitoring_rep,2951,,Green,100,Resolved,FransM,2023-12-28 17:25,-24.111978333333333,27.781066666666668,0,,,,,,,,Unknown Bull/s,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,776,,Green,100,Resolved,Jacque,2022-12-27 19:00,-24.078197881818028,27.806908146966407,0,,,,,,,,,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,3994,,Green,100,Resolved,MichaelH,2024-04-22 15:16,-24.06195044660647,27.74961747347897,0,,,,,,,,Tiny,,,1,
+Elephant Sighting,elephant_monitoring_rep,4163,,Green,100,Resolved,WPS Camera,2024-04-30 18:15,-24.11578498310149,27.717377966734688,0,,,,,,,,Unknown Herd,,,5,
+Elephant Sighting,elephant_monitoring_rep,3301,,Green,100,Resolved,Royal Morubisi Guides,2024-02-15 17:31,-24.074204409722967,27.814697564640483,0,,,,,,,,Unknown Bull/s,,,1,Abrie believes it was scout 
+Elephant Sighting,elephant_monitoring_rep,3152,,Green,100,Resolved,Jacque,2024-01-24 14:34,-24.05516354696279,27.74478389694906,0,,,,,,,,Peanuts,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,2488,,Green,100,Resolved,Jacque,2023-10-11 15:37,-24.07631231197375,27.771854296867275,0,,,,,,,,Kaingo Herd,5 (Good),Moving,10,
+Elephant Sighting,elephant_monitoring_rep,6994,,Green,100,Resolved,WPS Camera,2025-01-04 15:12,-24.097016628264015,27.76852936487876,0,,,,,,,,Tiny,,,,
+Elephant Sighting,elephant_monitoring_rep,1676,,Green,100,Resolved,FransM,2023-06-05 08:56,-24.07644,27.766380000000005,0,,,,,,,,Mokolo Herd,5 (Good),Feeding,9,
+Elephant Sighting,elephant_monitoring_rep,2581,,Green,100,Resolved,Jacque,2023-10-23 19:55,-24.07516570081887,27.783701840494047,0,,,,,,,,Unknown Bull/s,5 (Good),Drinking Water,2,
+Elephant Sighting,elephant_monitoring_rep,2866,,Green,100,Resolved,Royal Morubisi Guides,2023-12-16 20:01,-24.070208476995703,27.754863434490744,1,Abrie,,,,,,,Kambaku,,Drinking Water,,
+Elephant Sighting,elephant_monitoring_rep,3341,,Green,100,Resolved,Matswani Guides,2024-02-21 17:21,-24.06041663356085,27.742218074366804,1,Megan,,,,,,,Peanuts,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,5760,,Green,100,Resolved,WPS Camera,2024-09-04 16:40,-24.064001590479066,27.819476589212,0,,,,,,,,Kambaku,,,1,
+Elephant Sighting,elephant_monitoring_rep,6830,,Green,100,Resolved,Jurie Willemse,2024-12-16 09:19,-24.13522241319332,27.778331692534152,0,,,,,,,,Kambaku,,,,
+Elephant Sighting,elephant_monitoring_rep,5568,,Green,100,Resolved,WPS Camera,2024-08-18 11:53,-24.050749549481722,27.854659818647576,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,4738,,Green,100,Resolved,FransM,2024-06-08 12:23,-24.100411666666666,27.781363333333335,0,,,,,,,,Unknown Herd,5 (Good),Moving,12,
+Elephant Sighting,elephant_monitoring_rep,1355,,Green,100,Resolved,FransM,2023-04-05 08:57,-24.09922,27.72138,0,,,,,,,,Mokolo Herd,5 (Good),Feeding,9,
+Elephant Sighting,elephant_monitoring_rep,2224,,Green,100,Resolved,Jacque,2023-09-01 11:46,-24.089247870522527,27.815318844129592,0,,,,,,,,Peanuts,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2384,,Green,100,Resolved,FransM ,2023-09-28 08:42,-24.046862,27.754825,0,,,,,,,,Kambaku,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,6788,,Green,100,Resolved,Elzet,2024-12-11 17:14,-24.093058775179088,27.752873674035072,0,,,,,,,,,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2496,,Green,100,Resolved,Royal Morubisi Guides,2023-10-10 17:23,-24.07676062475342,27.76635691562845,0,,,,,,,,Unknown Herd,,,10,Abrie
+Elephant Sighting,elephant_monitoring_rep,2609,,Green,100,Resolved,MichaelH,2023-10-27 10:55,-24.091971251861867,27.765582069001617,0,,,,,,,,Kaingo Herd,5 (Good),Drinking Water,9,
+Elephant Sighting,elephant_monitoring_rep,2398,,Green,100,Resolved,Jacque,2023-10-01 13:48,-24.064647371383757,27.751651391892693,0,,,,,,,,Peanuts,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,6248,,Green,100,Resolved,WPS Camera,2024-10-23 17:10,-24.111997857833558,27.780546101005115,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,2747,,Green,100,Resolved,Jacque,2023-11-20 10:27,-24.080160523222816,27.77986286082728,0,,,,,,,,Kambaku,,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,2291,,Green,100,Resolved,Jacque,2023-09-10 19:19,-24.07950459706423,27.77423968699992,0,,,,,,,,Kambaku,,Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,827,,Green,100,Resolved,,2023-01-07 18:34,-24.0876447,27.7831513,0,,,,,,,,,5 (Good),Feeding,10,With new baby
+Elephant Sighting,elephant_monitoring_rep,5548,,Green,100,Resolved,Royal Morubisi Guides,2024-08-20 10:32,-24.06084223090167,27.792773038353545,0,,,,,,,,Kaingo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,4105,,Green,100,Resolved,WPS Camera,2024-04-26 20:10,-24.107447438669922,27.79855143156118,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,1073,,Green,100,Resolved,FransM,2023-02-21 15:16,-24.074969891827337,27.807219857374974,0,,,,,,,,,5 (Good),Moving,8,
+Elephant Sighting,elephant_monitoring_rep,5569,,Green,100,Resolved,WPS Camera,2024-08-21 19:15,-24.06373033687251,27.819421731115654,0,,,,,,,,Mokolo Herd,,,10,tiny with them
+Elephant Sighting,elephant_monitoring_rep,2499,,Green,100,Resolved,Royal Morubisi Guides,2023-10-11 22:57,-24.079303529669716,27.7739061177881,0,,,,,,,,Unknown Bull/s,,,2,Jolandie 
+Elephant Sighting,elephant_monitoring_rep,3509,,Green,100,Resolved,Matswani Guides,2024-03-21 17:56,-24.09932014226787,27.7214001158122,1,Johnson,,,,,,,Unknown Bull/s,,Moving,,
+Elephant Sighting,elephant_monitoring_rep,2824,,Green,100,Resolved,Jacque,2023-12-10 12:31,-24.121564411582867,27.737258543269206,0,,,,,,,,Kambaku,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,3013,,Green,100,Resolved,,2024-01-03 09:05,-24.099964999999997,27.780963333333336,0,,,,,,,,Unknown Bull/s,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,6545,,Green,100,Resolved,Elzet,2024-11-22 16:29,-24.083234136924148,27.791042597964406,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2548,,Green,100,Resolved,Matswani Guides,2023-10-17 14:58,-24.089169512460145,27.772285739910046,1,Janelle,,,,,,,Unknown Bull/s,,Moving,1,
+Elephant Sighting,elephant_monitoring_rep,2566,,Green,100,Resolved,Royal Morubisi Guides,2023-10-20 08:20,-24.075045104602097,27.79621333289049,0,,,,,,,,Kambaku,,,3,Abrie 
+Elephant Sighting,elephant_monitoring_rep,5820,,Green,100,Resolved,WPS Camera,2024-09-10 23:52,-24.094992822707113,27.690118756444946,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,2532,,Green,100,Resolved,MichaelH,2023-10-16 08:59,-24.092046587566095,27.76177910630455,0,,,,,,,,Peanuts,5 (Good),Feeding,1,"Relaxed , no sign of agrression "
+Elephant Sighting,elephant_monitoring_rep,6101,,Green,100,Resolved,WPS Camera,2024-10-08 06:00,-24.07984662954651,27.74153666555685,0,,,,,,,,Kambaku,,,2,
+Elephant Sighting,elephant_monitoring_rep,802,,Green,100,Resolved,Jurie,2023-01-01 09:31,-24.07834289662445,27.836425737005356,0,,,,,,,,,,,,
+Elephant Sighting,elephant_monitoring_rep,3051,,Green,100,Resolved,Royal Morubisi Guides,2024-01-08 06:44,-24.066385078604014,27.760196424393627,0,,,,,,,,Tiny,,,3,Abrie
+Elephant Sighting,elephant_monitoring_rep,4943,,Green,100,Resolved,Jacque,2024-06-28 14:29,-24.078310674056496,27.812749926624832,0,,,,,,,,Unknown Bull/s,,Moving,1,
+Elephant Sighting,elephant_monitoring_rep,3787,,Green,100,Resolved,WPS Camera,2024-04-11 16:30,-24.10741530225286,27.6965424967822,0,,,,,,,,Kaingo Herd,,,10,
+Elephant Sighting,elephant_monitoring_rep,7118,,Green,100,Resolved,Jacque,2025-01-24 10:08,-24.084468067138985,27.72873341418307,0,,,,,,,,Mokolo Herd,,,14,
+Elephant Sighting,elephant_monitoring_rep,1442,,Green,100,Resolved,Lucas,2023-04-16 08:52,-24.064229861222415,27.819905879706795,0,,,,,,,,Unknown Bull/s,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,2533,,Green,100,Resolved,MichaelH,2023-10-16 12:02,-24.101028467290185,27.781858412533104,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,5567,,Green,100,Resolved,WPS Camera,2024-08-18 17:26,-24.06414425172801,27.819600042958285,0,,,,,,,,Mokolo Herd,,,13,tiny with them
+Elephant Sighting,elephant_monitoring_rep,5716,,Green,100,Resolved,WPS Camera,2024-08-31 13:37,-24.01708864046472,27.852038645908323,0,,,,,,,,Tiny,,,2,Young Bull with Tiny
+Elephant Sighting,elephant_monitoring_rep,2626,,Green,100,Resolved,Jacque,2023-10-29 12:18,-24.083272249925002,27.793401394311047,0,,,,,,,,Kambaku,5 (Good),Moving,,
+Elephant Sighting,elephant_monitoring_rep,6671,,Green,100,Resolved,Elzet,2024-12-03 17:18,-24.08883106894791,27.779053207486868,0,,,,,,,,Unknown Bull/s,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3957,,Green,100,Resolved,WPS Camera,2024-04-19 20:19,-24.069479200183537,27.734189162629406,0,,,,,,,,Tiny,,,,
+Elephant Sighting,elephant_monitoring_rep,4796,,Green,100,Resolved,WPS Camera,2024-06-14 18:49,,,0,,,,,,,,Unknown Bull/s,,Drinking Water,,
+Elephant Sighting,elephant_monitoring_rep,2989,,Green,100,Resolved,Royal Morubisi Guides,2024-01-02 16:35,-24.088437975561533,27.822554366294014,1,Casper,,,,,,,Peanuts,,Moving,,
+Elephant Sighting,elephant_monitoring_rep,1535,,Green,100,Resolved,FransM,2023-05-02 15:02,-24.081450000000004,27.75475666666667,0,,,,,,,,Kambaku,5 (Good),,1,
+Elephant Sighting,elephant_monitoring_rep,3743,,Green,100,Resolved,WPS Camera,2024-04-08 17:05,-24.11570766800031,27.717347499611606,0,,,,,,,,Kambaku,,,1,
+Elephant Sighting,elephant_monitoring_rep,5839,,Green,100,Resolved,Jacque,2024-09-12 16:35,-24.07005378,27.73628672,0,,,,,,,,Tiny,5 (Good),Feeding,2,
+Elephant Sighting,elephant_monitoring_rep,1916,,Green,100,Resolved,Matswani Guides,2023-07-13 18:08,-24.09520044617547,27.82480987126135,1,Megan.,,,,,,,Unknown Herd,5 (Good),Moving,,
+Elephant Sighting,elephant_monitoring_rep,6604,,Green,100,Resolved,WPS Camera,2024-11-27 00:41,-24.09782413175411,27.768514380984612,0,,,,,,,,Kambaku,,,1,
+Elephant Sighting,elephant_monitoring_rep,761,,Green,100,Resolved,Jurie,2022-12-25 10:27,-24.079222861229056,27.8335326028714,0,,,,,,,,,,,1,
+Elephant Sighting,elephant_monitoring_rep,6261,,Green,100,Resolved,Jacque,2024-10-26 08:17,-24.06622146414709,27.776397052229356,0,,,,,,,,Kambaku,,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,1184,,Green,100,Resolved,FransM,2023-03-08 16:19,-24.080049999999996,27.744365000000002,0,,,,,,,,,5 (Good),Moving,1,Still fine moving towards to diamond mind area
+Elephant Sighting,elephant_monitoring_rep,1165,,Green,100,Resolved,,2023-03-08 17:36,-24.097388839830458,27.768952197479535,0,,,,,,,,,5 (Good),Feeding,22,
+Elephant Sighting,elephant_monitoring_rep,3389,,Green,100,Resolved,MichaelH,2024-03-01 14:32,-24.079205611227298,27.742135325689226,0,,,,,,,,Kambaku,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,1719,,Green,100,Resolved,Jacque,2023-06-11 17:05,-24.077409954912255,27.842612349233093,0,,,,,,,,Kambaku,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,4285,,Green,100,Resolved,WPS Camera,2024-05-07 01:03,-24.112128742004046,27.780664675140173,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,4727,,Green,100,Resolved,WPS Camera,2024-06-07 18:44,-24.14854678365046,27.770981560415066,0,,,,,,,,Kambaku,,,,
+Elephant Sighting,elephant_monitoring_rep,2617,,Green,100,Resolved,Jacque,2023-10-28 14:14,-24.07664057414432,27.768086040963283,0,,,,,,,,Kaingo Herd,,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,2225,,Green,100,Resolved,Jacque,2023-08-31 11:46,-24.089247870522527,27.815318844129592,0,,,,,,,,Peanuts,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2600,,Green,100,Resolved,MichaelH,2023-10-26 09:45,-24.099067702238095,27.780270223943365,0,,,,,,,,Kambaku,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,1344,,Green,100,Resolved,FransM,2023-04-03 10:18,-24.080364999999997,27.741476666666667,1,Still looking good,,,,,,,Tiny,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2813,,Green,100,Resolved,Royal Morubisi Guides,2023-12-03 06:40,-24.08220928726358,27.77005645033512,0,,,,,,,,Mokolo Herd,,,,Abrie
+Elephant Sighting,elephant_monitoring_rep,3351,,Green,100,Resolved,Royal Morubisi Guides,2024-02-22 06:59,-24.07541355413116,27.819215556024744,0,,,,,,,,Unknown Herd,,,12,Abrie
+Elephant Sighting,elephant_monitoring_rep,1392,,Green,100,Resolved,MichaelH,2023-04-11 09:34,-24.072253610041994,27.795342566253634,0,,,,,,https://storage.googleapis.com/user-uploads-kaingo/image_fileuploads/2023/04/11/ed485104-aa87-4f17-b099-9129623c3376/Photo1.jpg?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=er-gcs-kaingo%40earthranger-78ca55ca.iam.gserviceaccount.com%2F20250228%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250228T055458Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=9ab689e9a628cdd03c69bcdb287f89cb7be57d61fe96b94b86a392b39ea2fc54a36076b2b0a5d2f02b2a907472af4ca861bcfd42703c70dc26014b4ff370d44f4ad27d4b45c30e9c56c9e3c68cfdac7055bf6bddfee10306761d338d2ecfbb435262a91e0fac21c0382e1303cb777750de1edf650697d6c68fef85ad71c62f5176b271680ebd3f9a98cc8623473f2b9c6b25aaed16d4786d53800e27cc7cddfd344ac9c74919ccadf313444cf86db02e432f9c3b9b76dd7f248369e329708b4e37922965a2e389c9fa40afe2de1dd6baf02712c7bf0217e883e6278dbdc64d6d6bf58b824ffab78b5136473056147dd75a9f0fec41e7c5f69e7eccb2ab775dfd,,Tiny,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,1256,,Green,100,Resolved,,2023-03-21 10:50,-24.09639916452288,27.814348146058734,0,,,,,,,,Peanuts,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,5951,,Green,100,Resolved,MichaelH,2024-09-26 11:01,-24.0685493,27.7311863,0,,,,,,,,Mokolo Herd,,,12,
+Elephant Sighting,elephant_monitoring_rep,3080,,Green,100,Resolved,MichaelH,2024-01-11 15:11,-24.116629162522642,27.704797934093886,1,16 with tiny and one young bull,,,,,,,Mokolo Herd,5 (Good),Drinking Water,16,
+Elephant Sighting,elephant_monitoring_rep,1891,,Green,100,Resolved,,2023-07-11 20:03,-24.11788830195816,27.70665907381101,0,,,,,,,,Unknown Bull/s,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,1644,,Green,100,Resolved,FransM,2023-05-29 15:21,-24.029190000000003,27.863596666666663,0,,,,,,,,Kambaku,5 (Good),Drinking Water,1,Drinking water from the pipe at zandput 
+Elephant Sighting,elephant_monitoring_rep,971,,Green,100,Resolved,Jacque,2023-02-06 17:42,-24.077402500107098,27.812496072270562,0,,,,,,,,,5 (Good),,,
+Elephant Sighting,elephant_monitoring_rep,630,,Green,100,Resolved,Jurie,2022-12-01 16:45,-24.084340908019882,27.740053355503335,0,,,,,,,,,,,1,"full of nonsense, agressive"
+Elephant Sighting,elephant_monitoring_rep,5359,,Green,100,Resolved,WPS Camera,2024-08-10 12:59,-24.063977066603243,27.819935469731604,0,,,,,,,,Kambaku,5 (Good),,1,
+Elephant Sighting,elephant_monitoring_rep,5902,,Green,100,Resolved,Jacque,2024-09-18 14:56,-24.07015932031483,27.754884308590334,0,,,,,,,,Kambaku,,Drinking Water,,
+Elephant Sighting,elephant_monitoring_rep,6991,,Green,100,Resolved,WPS Camera,2025-01-04 19:42,-24.097072462468503,27.76850932517391,0,,,,,,,,Mokolo Herd,,,,;
+Elephant Sighting,elephant_monitoring_rep,4715,,Green,100,Resolved,Matswani Guides,2024-06-06 18:42,-24.090796445776206,27.779891891732802,1,Megan,,,,,,,Unknown Bull/s,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,1877,,Green,100,Resolved,Jacque,2023-07-08 14:28,-24.09586168165677,27.788081908661212,0,,,,,,,,Mokolo Herd,5 (Good),Drinking Water,14,
+Elephant Sighting,elephant_monitoring_rep,7268,,Green,100,Resolved,Elzet,2025-02-12 17:13,-24.083540956489742,27.774455565959215,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2706,,Green,100,Resolved,Jacque,2023-11-13 09:25,-24.1031875982773,27.783992031949253,0,,,,,,,,Mokolo Herd,,Feeding,15,Tiny with
+Elephant Sighting,elephant_monitoring_rep,6940,,Green,100,Resolved,Jurie,2024-12-29 11:27,-24.107592817150874,27.727687869381555,0,,,,,,,,Kambaku,,,,
+Elephant Sighting,elephant_monitoring_rep,6532,,Green,100,Resolved,WPS Camera,2024-11-22 21:48,-24.064218058678435,27.819578863784272,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,4529,,Green,100,Resolved,WPS Camera,2024-05-25 17:08,-24.017368847906326,27.852357941968165,0,,,,,,,,Mokolo Herd,,,12,Peanuts with them
+Elephant Sighting,elephant_monitoring_rep,2585,,Green,100,Resolved,Royal Morubisi Guides,2023-10-23 06:40,-24.08057234792311,27.798422037316072,0,,,,,,,,Unknown Bull/s,,,2,Abrie
+Elephant Sighting,elephant_monitoring_rep,2498,,Green,100,Resolved,Royal Morubisi Guides,2023-10-11 22:57,-24.08288383376832,27.7757857195418,0,,,,,,,,Unknown Bull/s,,,1,Jolandie 
+Elephant Sighting,elephant_monitoring_rep,6832,,Green,100,Resolved,Jurie Willemse,2024-12-16 09:19,-24.110362621345757,27.721574140452134,0,,,,,,,,Tiny,,,,
+Elephant Sighting,elephant_monitoring_rep,4394,,Green,100,Resolved,WPS Camera,2024-05-16 01:18,-24.100054594064986,27.790238173089136,0,,,,,,,,Unknown Herd,,,4,
+Elephant Sighting,elephant_monitoring_rep,3848,,Green,100,Resolved,WPS Camera,2024-04-14 00:39,-24.07729316738883,27.81306783630967,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,7203,,Green,100,Resolved,MichaelH,2025-02-04 06:45,-24.07479192598171,27.796187493976014,0,,,,,,,,Tiny,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,1046,,Green,100,Resolved,Jurie,2023-02-16 18:52,-24.07784664953138,27.8097440078065,0,,,,,,,,,,,,
+Elephant Sighting,elephant_monitoring_rep,6741,,Green,100,Resolved,Royal Morubisi Guides,2024-12-08 10:58,-24.117414990012463,27.723939654223585,0,,,,,,,,Kambaku,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,4720,,Green,100,Resolved,Jurie,2024-06-07 17:01,-24.075437709107007,27.78245103091072,0,,,,,,,,Peanuts,,,3,Tiny Bull with short thick tusks
+Elephant Sighting,elephant_monitoring_rep,1077,,Green,100,Resolved,Jacque,2023-02-21 15:00,-24.07599514418642,27.817855963593985,0,,,,,,,,,5 (Good),Moving,,
+Elephant Sighting,elephant_monitoring_rep,1759,,Green,100,Resolved,Jacque,2023-06-19 17:33,-24.074944680024288,27.815758053104446,0,,,,,,,,Kambaku,5 (Good),Feeding,2,Tiny with him
+Elephant Sighting,elephant_monitoring_rep,1070,,Green,100,Resolved,Piet,2023-02-20 15:23,-24.079443644113653,27.84599262207871,0,,,,,,,,,,,2,
+Elephant Sighting,elephant_monitoring_rep,1776,,Green,100,Resolved,,2023-06-22 18:52,-24.083965454255434,27.766809301737794,0,,,,,,,,Kaingo Herd,5 (Good),Moving,9,
+Elephant Sighting,elephant_monitoring_rep,2202,,Green,100,Resolved,Matswani Guides,2023-08-29 17:15,-24.088792089311625,27.772469724871854,1,Louis,,,,,,,Kambaku,,Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,5233,,Green,100,Resolved,WPS Camera,2024-07-18 18:30,-24.017020573271054,27.852022017220946,0,,,,,,,,Mokolo Herd,,,11,
+Elephant Sighting,elephant_monitoring_rep,3229,,Green,100,Resolved,Matswani Guides,2024-02-07 11:40,-24.090161492746418,27.802676693761867,1,Jacques,,,,,,,Peanuts,5 (Good),Feeding,2,
+Elephant Sighting,elephant_monitoring_rep,1764,,Green,100,Resolved,Jacque,2023-06-20 18:00,-24.074259041604407,27.76297459581096,1,Matswani guide Basil,,,,,,,Kaingo Herd,5 (Good),Mating,,
+Elephant Sighting,elephant_monitoring_rep,996,,Green,100,Resolved,Jacque,2023-02-08 17:20,-24.11450734670686,27.768629263471553,0,,,,,,,,,5 (Good),Moving,,
+Elephant Sighting,elephant_monitoring_rep,6391,,Green,100,Resolved,WPS Camera,2024-11-08 19:54,-24.06427007391045,27.81990008929614,0,,,,,,,,Kambaku,,,1,
+Elephant Sighting,elephant_monitoring_rep,1042,,Green,100,Resolved,Jacque,2023-02-16 08:17,-24.108587849285954,27.785364229440972,0,,,,,,,,,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,3024,,Green,100,Resolved,Jacque,2024-01-05 17:08,-24.075742353762095,27.819364147785905,0,,,,,,,,Peanuts,5 (Good),Moving,,
+Elephant Sighting,elephant_monitoring_rep,7284,,Green,100,Resolved,MichaelH,2025-02-16 12:02,-24.110955466263913,27.718564007837916,0,,,,,,,,Tiny,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,3354,,Green,100,Resolved,MichaelH,2024-02-23 14:46,-24.07726326419579,27.77126180170862,0,,,,,,,,Kambaku,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,1488,,Green,100,Resolved,Jacque,2023-04-23 16:52,-24.07836510186931,27.830264631030474,0,,,,,,,,Kambaku,5 (Good),Feeding,2,In company of a younger bull
+Elephant Sighting,elephant_monitoring_rep,7232,,Green,100,Resolved,Jacque,2025-02-08 19:54,-24.108505808054957,27.76580829968438,0,,,,,,,,Mokolo Herd,,Moving,13,
+Elephant Sighting,elephant_monitoring_rep,4396,,Green,100,Resolved,WPS Camera,2024-05-15 17:39,-24.110114972531377,27.783509093246153,0,,,,,,,,Unknown Herd,,,7,
+Elephant Sighting,elephant_monitoring_rep,3139,,Green,100,Resolved,,2024-01-22 11:37,-24.070451666666667,27.72838166666667,0,,,,,,,,Tiny,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,5044,,Green,100,Resolved,WPS Camera,2024-06-29 08:35,-24.111889477758282,27.780806374883298,0,,,,,,,,Kaingo Herd,,,8,
+Elephant Sighting,elephant_monitoring_rep,6199,,Green,100,Resolved,WPS Camera,2024-10-18 21:12,-24.108539326214057,27.698846320238886,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,1123,,Green,100,Resolved,,2023-03-02 08:43,-24.08096519302545,27.797941504152618,0,,,,,,,,,5 (Good),Moving,1,Khumbakwe
+Elephant Sighting,elephant_monitoring_rep,5592,,Green,100,Resolved,WPS Camera,2024-08-22 20:34,-24.115690652365515,27.717393659562106,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,3204,,Green,100,Resolved,,2024-02-01 10:50,-24.123616666666667,27.704866666666664,0,,,,,,,,Unknown Herd,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,3913,,Green,100,Resolved,WPS Camera,2024-04-16 17:51,-24.0997747328489,27.79036663827179,0,,,,,,,,Unknown Herd,,,3,
+Elephant Sighting,elephant_monitoring_rep,3226,,Green,100,Resolved,Matswani Guides,2024-02-06 16:45,-24.077993949329468,27.81231722125881,1,Casper,,,,,,,Unknown Bull/s,5 (Good),Drinking Water,2,
+Elephant Sighting,elephant_monitoring_rep,2261,,Green,100,Resolved,Matswani Guides,2023-09-05 19:37,-24.084100186793464,27.81183593853413,1,Dalien,,,,,,,Unknown Bull/s,,Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,4184,,Green,100,Resolved,MichaelH,2024-05-03 12:49,-24.077679830942742,27.812341018343663,0,,,,,,,,Kambaku,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,2054,,Green,100,Resolved,Matswani Guides,2023-08-08 18:26,-24.072139469198504,27.728700401925266,1,Basil,,,,,,,,,Moving,1,
+Elephant Sighting,elephant_monitoring_rep,3350,,Green,100,Resolved,Royal Morubisi Guides,2024-02-22 06:58,-24.070746475628184,27.754876622566627,0,,,,,,,,Kambaku,,,1,Abrie
+Elephant Sighting,elephant_monitoring_rep,5351,,Green,100,Resolved,WPS Camera,2024-08-10 19:24,-24.079581370556127,27.742254665380784,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,2735,,Green,100,Resolved,Jacque,2023-11-19 16:59,-24.064270882737887,27.743399983593434,0,,,,,,,,Unknown Herd,5 (Good),Moving,7,
+Elephant Sighting,elephant_monitoring_rep,5677,,Green,100,Resolved,WPS Camera,2024-08-28 20:11,-24.079769427319604,27.802289498944987,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,5905,,Green,100,Resolved,Elzet,2024-09-18 17:16,-24.07606631051749,27.817710964009166,0,,,,,,,,Kambaku,5 (Good),Standing,1,
+Elephant Sighting,elephant_monitoring_rep,3158,,Green,100,Resolved,Matswani Guides,2024-01-25 11:38,-24.07281894631518,27.73112625222916,1,Basil,,,,,,,Peanuts,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,1065,,Green,100,Resolved,,2023-02-21 14:00,-24.07616606850503,27.819207235670575,0,,,,,,,,,5 (Good),Feeding,1,Khumbakwe
+Elephant Sighting,elephant_monitoring_rep,6783,,Green,100,Resolved,WPS Camera,2024-12-11 16:44,-24.07954104776445,27.742373749922592,0,,,,,,,,Tiny,,Drinking Water,3,
+Elephant Sighting,elephant_monitoring_rep,3308,,Green,100,Resolved,Matswani Guides,2024-02-18 10:48,-24.074457739232727,27.763810061514107,1,Phuti,,,,,,,Peanuts,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,2917,,Green,100,Resolved,Royal Morubisi Guides,2023-12-24 08:58,-24.09924509322525,27.79075910115651,1,Abrie,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,3960,,Green,100,Resolved,WPS Camera,2024-04-19 17:34,-24.08918217180053,27.72416556128934,0,,,,,,,,Unknown Herd,,,4,
+Elephant Sighting,elephant_monitoring_rep,3258,,Green,100,Resolved,Royal Morubisi Guides,2024-02-10 20:32,-24.077649923638745,27.812329074082612,0,,,,,,,,Kambaku,,,1,Jolandie 
+Elephant Sighting,elephant_monitoring_rep,1187,,Green,100,Resolved,FransM,2023-03-13 13:01,-24.049436666666665,27.857210000000002,0,,,,,,,,,5 (Good),Standing,1,Still doing good
+Elephant Sighting,elephant_monitoring_rep,2243,,Green,100,Resolved,Royal Morubisi Guides,2023-09-03 18:36,-24.080171425901767,27.774617536077614,1,Abrie,,,,,,,Kambaku,,Moving,1,
+Elephant Sighting,elephant_monitoring_rep,1255,,Green,100,Resolved,FransM,2023-03-21 16:54,-24.107016666666663,27.788073333333333,0,,,,,,,,,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,5937,,Green,100,Resolved,WPS Camera,2024-09-24 17:54,,,0,,,,,,,,Peanuts,,,,
+Elephant Sighting,elephant_monitoring_rep,2904,,Green,100,Resolved,FransM,2023-12-22 12:43,-24.102250000000005,27.695541666666667,0,,,,,,,,Peanuts,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,5353,,Green,100,Resolved,WPS Camera,2024-08-10 18:52,-24.06374309501244,27.819998757904983,0,,,,,,,,Tiny,,,1,
+Elephant Sighting,elephant_monitoring_rep,4091,,Green,100,Resolved,WPS Camera,2024-04-28 15:29,-24.069234877023376,27.73373793549021,0,,,,,,,,Tiny,,,1,
+Elephant Sighting,elephant_monitoring_rep,2580,,Green,100,Resolved,Jacque,2023-10-23 19:52,-24.076023101133487,27.818200191080223,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,674,,Green,100,Resolved,FransM,2022-12-11 10:00,-24.08796173990568,27.756551352027543,0,,,,,,,,,,Feeding,4,
+Elephant Sighting,elephant_monitoring_rep,6049,,Green,100,Resolved,WPS Camera,2024-10-02 20:29,-24.106513149999145,27.814748470394107,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,1657,,Green,100,Resolved,FransM,2023-06-01 10:51,-24.047424999999997,27.859915,0,,,,,,,,Kambaku,5 (Good),Drinking Water,,
+Elephant Sighting,elephant_monitoring_rep,2967,,Green,100,Resolved,Royal Morubisi Guides,2023-12-30 09:31,-24.078073160892842,27.83391114855658,0,,,,,,,,Kambaku,,,1,Zandile
+Elephant Sighting,elephant_monitoring_rep,7247,,Green,100,Resolved,Helicopter,2025-02-09 08:35,-24.05385320534066,27.85451857616738,0,,,,,,,,,,,50,
+Elephant Sighting,elephant_monitoring_rep,2247,,Green,100,Resolved,MichaelH,2023-08-27 07:46,-24.074749942449678,27.795899985714023,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3027,,Green,100,Resolved,Jacque,2024-01-05 17:13,-24.09418860400268,27.74578296127899,0,,,,,,,,Mokolo Herd,,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,4910,,Green,100,Resolved,WPS Camera,2024-06-23 23:28,-24.077293756078802,27.81274644241236,0,,,,,,,,Unknown Herd,,,3,
+Elephant Sighting,elephant_monitoring_rep,2181,,Green,100,Resolved,MichaelH,2023-08-26 15:22,-24.08213245638006,27.770250372844682,0,,,,,,,,Tiny,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,2979,,Green,100,Resolved,Royal Morubisi Guides,2024-01-01 10:22,-24.10263477826463,27.749915130582764,0,,,,,,,,Unknown Bull/s,,,,Abrie
+Elephant Sighting,elephant_monitoring_rep,3578,,Green,100,Resolved,Royal Morubisi Guides,2024-03-24 06:53,-24.05744452475308,27.889699412607285,0,,,,,,,,Tiny,,,1,Abrie
+Elephant Sighting,elephant_monitoring_rep,4735,,Green,100,Resolved,Jacque,2024-06-08 11:49,-24.098073423923324,27.782740271720968,0,,,,,,,,Unknown Bull/s,,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,3277,,Green,100,Resolved,Royal Morubisi Guides,2024-02-14 20:07,-24.094012857953132,27.78889286308319,0,,,,,,,,Unknown Herd,,,,Zandile
+Elephant Sighting,elephant_monitoring_rep,6150,,Green,100,Resolved,Jurie,2024-10-12 07:04,-24.139312329709256,27.75613139445565,0,,,,,,,,Peanuts,,,2,
+Elephant Sighting,elephant_monitoring_rep,6615,,Green,100,Resolved,MichaelH,2024-11-28 13:53,-24.106292939012352,27.75298562900312,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,1597,,Green,100,Resolved,MichaelH,2023-05-15 08:41,-24.103398230068404,27.784397015625864,0,,,,,,,,Mokolo Herd,5 (Good),Moving,13,
+Elephant Sighting,elephant_monitoring_rep,6201,,Green,100,Resolved,WPS Camera,2024-10-18 16:43,-24.079815900717477,27.741560852521417,0,,,,,,,,Tiny,,,3,
+Elephant Sighting,elephant_monitoring_rep,2046,,Green,100,Resolved,Royal Morubisi Guides,2023-08-06 20:38,-24.07632664611286,27.76666349100799,0,,,,,,,,Unknown Herd,,,,zandile
+Elephant Sighting,elephant_monitoring_rep,1777,,Green,100,Resolved,,2023-06-22 18:53,-24.08357050838508,27.76583205521152,0,,,,,,,,Kambaku,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,2742,,Green,100,Resolved,Royal Morubisi Guides,2023-11-18 19:58,-24.082412041499197,27.783118416776034,0,,,,,,,,Unknown Herd,,,,Jolandie
+Elephant Sighting,elephant_monitoring_rep,938,,Green,100,Resolved,Piet,2023-01-31 10:08,-24.034334547175717,27.869118623342757,0,,,,,,,,,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,773,,Green,100,Resolved,Jurie,2022-12-26 19:37,-24.08302321611467,27.77189460661532,0,,,,,,,,,,,3,
+Elephant Sighting,elephant_monitoring_rep,6528,,Green,100,Resolved,WPS Camera,2024-11-23 10:05,-24.081543561664418,27.797695743891552,0,,,,,,,,Kambaku,,,1,
+Elephant Sighting,elephant_monitoring_rep,3518,,Green,100,Resolved,MichaelH,2024-03-24 17:53,-24.083320664021755,27.756309088388807,1,With peanuts,,,,,,,Tiny,5 (Good),Fighting,2,
+Elephant Sighting,elephant_monitoring_rep,2503,,Green,100,Resolved,FransM,2023-10-13 09:03,-24.05734166666667,27.74197333333333,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,6666,,Green,100,Resolved,WPS Camera,2024-12-02 16:35,-24.097900626365913,27.768575535021313,0,,,,,,,,Mokolo Herd,,,16,Olus Tiny and Kambaku
+Elephant Sighting,elephant_monitoring_rep,2150,,Green,100,Resolved,MichaelH,2023-08-22 08:27,-24.07384776362269,27.76442478325656,0,,,,,,,,Kaingo Herd,5 (Good),Feeding,11,
+Elephant Sighting,elephant_monitoring_rep,2524,,Green,100,Resolved,Jacque,2023-10-15 12:20,-24.099206952236756,27.791832737618563,0,,,,,,,,Kambaku,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,6149,,Green,100,Resolved,Jurie,2024-10-12 07:04,-24.125886957334288,27.773318644660037,0,,,,,,,,Mokolo Herd,,,14,
+Elephant Sighting,elephant_monitoring_rep,6100,,Green,100,Resolved,WPS Camera,2024-10-07 16:12,-24.10849392685357,27.69893766395495,0,,,,,,,,Kambaku,,,,
+Elephant Sighting,elephant_monitoring_rep,1143,,Green,100,Resolved,,2023-03-06 08:59,-24.0746788,27.7327954,0,,,,,,,,,5 (Good),Feeding,20,
+Elephant Sighting,elephant_monitoring_rep,1917,,Green,100,Resolved,Royal Morubisi Guides,2023-07-13 18:52,-24.108739481506788,27.826201814678996,0,,,,,,,,Unknown Bull/s,5 (Good),Feeding,1,Abrie 
+Elephant Sighting,elephant_monitoring_rep,4672,,Green,100,Resolved,WPS Camera,2024-06-02 13:22,-24.061615782427594,27.780129647201562,0,,,,,,,,,,Moving,,
+Elephant Sighting,elephant_monitoring_rep,7305,,Green,100,Resolved,MichaelH,2025-02-19 13:24,-24.11850786770146,27.706156298543984,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3021,,Green,100,Resolved,,2024-01-05 12:16,-24.099063333333334,27.72141333333333,0,,,,,,,,Kambaku,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,1569,,Green,100,Resolved,FransM,2023-05-09 13:57,-24.04663333333333,27.815121666666663,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,873,,Green,100,Resolved,Jacque,2023-01-16 17:17,-24.09466349619376,27.81935626397936,0,,,,,,,,,5 (Good),,,
+Elephant Sighting,elephant_monitoring_rep,1231,,Green,100,Resolved,FransM,2023-03-18 09:14,-24.10574,27.725725000000004,0,,,,,,,,,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,2667,,Green,100,Resolved,Royal Morubisi Guides,2023-11-04 06:30,-24.092575510105675,27.784382562715138,0,,,,,,,,Kambaku,,,1,Jolandie
+Elephant Sighting,elephant_monitoring_rep,6533,,Green,100,Resolved,WPS Camera,2024-11-22 20:22,-24.064465881912355,27.819819367005437,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,2864,,Green,100,Resolved,Royal Morubisi Guides,2023-12-16 09:42,-24.07442217173866,27.73350168665681,1,Abrie,,,,,,,Mokolo Herd,,Moving,,Tiny and Kumbako 
+Elephant Sighting,elephant_monitoring_rep,5982,,Green,100,Resolved,WPS Camera,2024-09-27 00:04,-24.06734309925234,27.77566535784024,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,982,,Green,100,Resolved,Jacque,2023-02-07 19:54,-24.075997134784586,27.817900090188914,0,,,,,,,,,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2542,,Green,100,Resolved,Royal Morubisi Guides,2023-10-16 06:50,-24.083713851212792,27.773269640449627,0,,,,,,,,Kambaku,,,,Jolandie
+Elephant Sighting,elephant_monitoring_rep,3255,,Green,100,Resolved,Royal Morubisi Guides,2024-02-10 20:28,-24.10663363791012,27.696591748550105,0,,,,,,,,Unknown Herd,,,,Carmen
+Elephant Sighting,elephant_monitoring_rep,2602,,Green,100,Resolved,Jacque,2023-10-26 20:00,-24.07887040675334,27.770924084929845,0,,,,,,,,Kaingo Herd,5 (Good),Moving,11,
+Elephant Sighting,elephant_monitoring_rep,4317,,Green,100,Resolved,Royal Morubisi Guides,2024-05-09 15:48,-24.07586584163461,27.802350573342522,0,,,,,,,,Tiny,,,2,Abrie
+Elephant Sighting,elephant_monitoring_rep,7231,,Green,100,Resolved,Jacque,2025-02-08 19:50,-24.110179382534966,27.767593578593562,0,,,,,,,,,,Moving,2,Bull long legs and bull short legs
+Elephant Sighting,elephant_monitoring_rep,5720,,Green,100,Resolved,,2024-08-31 20:43,-24.079599352008188,27.74163928086935,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,6703,,Green,100,Resolved,WPS Camera,2024-12-06 06:23,-24.115038887457928,27.71764274485915,0,,,,,,,,Peanuts,,,,
+Elephant Sighting,elephant_monitoring_rep,3708,,Green,100,Resolved,WPS Camera,2024-04-02 18:44,-24.017268495813695,27.852342165239946,0,,,,,,,,Kambaku,,,10,10+ Animals as he was with a herd but not recognizable which one
+Elephant Sighting,elephant_monitoring_rep,2685,,Green,100,Resolved,Matswani Guides,2023-11-07 20:11,-24.091296966798936,27.763713127344772,1,Janelle,,,,,,,Mokolo Herd,5 (Good),Feeding,14,
+Elephant Sighting,elephant_monitoring_rep,1704,,Green,100,Resolved,Jacque,2023-06-09 16:30,-24.064785194981113,27.751606985359047,0,,,,,,,,Tiny,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,1285,,Green,100,Resolved,,2023-03-26 09:16,-24.013272064156723,27.847937730005185,0,,,,,,,,Kaingo Herd,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,3742,,Green,100,Resolved,WPS Camera,2024-04-08 16:32,-24.115777095361437,27.717347499611606,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,7318,,Green,100,Active,MichaelH,2025-02-23 12:04,-24.04460785094072,27.768964820011345,0,,,,,,,,Mokolo Herd,5 (Good),Feeding,9,
+Elephant Sighting,elephant_monitoring_rep,6194,,Green,100,Resolved,Jurie,2024-10-18 11:08,-24.059283305642936,27.766984304339246,0,,,,,,,,Kambaku,,,4,"Kambaku, Tiny, Groot olifant met kort tande, klein olifant met kort tande"
+Elephant Sighting,elephant_monitoring_rep,1996,,Green,100,Resolved,Royal Morubisi Guides,2023-07-29 06:51,-24.05032604910413,27.852063891393698,0,,,,,,,,Unknown Bull/s,,,1,Carmen
+Elephant Sighting,elephant_monitoring_rep,6390,,Green,100,Resolved,WPS Camera,2024-11-08 19:30,-24.145983281129034,27.773012041037646,0,,,,,,,,Mokolo Herd,,,9,
+Elephant Sighting,elephant_monitoring_rep,5496,,Green,100,Resolved,WPS Camera,2024-08-15 18:36,-24.088416311507643,27.8399121665652,0,,,,,,,,Kambaku,,,1,
+Elephant Sighting,elephant_monitoring_rep,5976,,Green,100,Resolved,WPS Camera,2024-09-26 23:57,-24.0795088687741,27.74168028555377,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,5411,,Green,100,Resolved,WPS Camera,2024-08-13 05:09,-24.0791339714621,27.83322774833593,0,,,,,,,,Tiny,,,1,
+Elephant Sighting,elephant_monitoring_rep,2228,,Green,100,Resolved,Matswani Guides,2023-09-01 11:57,-24.09816043618285,27.701921084586388,1,Sagrys,,,,,,,Unknown Herd,,Moving,,
+Elephant Sighting,elephant_monitoring_rep,985,,Green,100,Resolved,Jacque,2023-02-07 20:01,-24.076122434013783,27.76909219491168,0,,,,,,,,,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,6045,,Green,100,Resolved,WPS Camera,2024-10-03 18:12,-24.064196108225843,27.819418784141476,0,,,,,,,,Mokolo Herd,,,10,
+Elephant Sighting,elephant_monitoring_rep,2205,,Green,100,Resolved,Jacque,2023-08-29 17:18,-24.07655236999541,27.76710547382166,0,,,,,,,,Mokolo Herd,,Feeding,10,
+Elephant Sighting,elephant_monitoring_rep,4399,,Green,100,Resolved,WPS Camera,2024-05-14 20:00,-24.077259988130493,27.812822719205798,0,,,,,,,,Unknown Herd,,,3,
+Elephant Sighting,elephant_monitoring_rep,5171,,Green,100,Resolved,Jacque,2024-07-29 10:19,-24.077205777647052,27.843106221275775,0,,,,,,,,Unknown Bull/s,,Moving,,
+Elephant Sighting,elephant_monitoring_rep,3053,,Green,100,Resolved,Royal Morubisi Guides,2024-01-06 06:46,-24.08598307555478,27.81293122323524,0,,,,,,,,Peanuts,,,1,Abrie
+Elephant Sighting,elephant_monitoring_rep,1481,,Green,100,Resolved,FransM,2023-04-21 13:49,-24.078353333333332,27.754928333333336,0,,,,,,,,Mokolo Herd,5 (Good),Moving,9,
+Elephant Sighting,elephant_monitoring_rep,2794,,Green,100,Resolved,Royal Morubisi Guides,2023-12-02 17:30,-24.094115728118638,27.78915828430482,0,,,,,,,,Tiny,,,1,Jolandie
+Elephant Sighting,elephant_monitoring_rep,3820,,Green,100,Resolved,Jurie,2024-04-14 13:51,-24.087016566129975,27.824834163700473,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,5750,,Green,100,Resolved,WPS Camera,2024-08-29 22:21,-24.017021066057282,27.852120386936434,0,,,,,,,,Tiny,,,1,
+Elephant Sighting,elephant_monitoring_rep,6699,,Green,100,Resolved,WPS Camera,2024-12-05 20:33,-24.079629645864074,27.74224703609471,0,,,,,,,,Unknown Bull/s,,Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,2710,,Green,100,Resolved,Matswani Guides,2023-11-14 11:24,-24.080028649027042,27.773781081199445,1,Danelle,,,,,,,Tiny,,Moving,,
+Elephant Sighting,elephant_monitoring_rep,4785,,Green,100,Resolved,WPS Camera,2024-06-13 20:23,-24.112290636271084,27.791199533300443,0,,,,,,,,Unknown Herd,,,2,
+Elephant Sighting,elephant_monitoring_rep,7030,,Green,100,Resolved,MichaelH,2025-01-13 10:33,-24.099750886686568,27.721256129469467,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3145,,Green,100,Resolved,MichaelH,2024-01-22 11:02,-24.071547310359815,27.728155354679373,0,,,,,,,,Peanuts,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3399,,Green,100,Resolved,Royal Morubisi Guides,2024-03-01 06:43,-24.076941538315083,27.80157318461221,0,,,,,,,,Unknown Bull/s,,,1,Jolandie
+Elephant Sighting,elephant_monitoring_rep,6808,,Green,100,Resolved,Jurie Willemse,2024-12-13 20:32,-24.14106998612128,27.763254952329703,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,3942,,Green,100,Resolved,MichaelH,2024-04-18 16:08,-24.07835504108727,27.817934901121667,0,,,,,,,,Unknown Herd,5 (Good),,6,
+Elephant Sighting,elephant_monitoring_rep,924,,Green,100,Resolved,Jacque,2023-01-27 15:54,-24.09396913612221,27.77655575936427,0,,,,,,,,,5 (Good),Feeding,3,
+Elephant Sighting,elephant_monitoring_rep,4223,,Green,100,Resolved,WPS Camera,2024-05-03 21:47,-24.05085901238928,27.85473267384171,0,,,,,,,,Unknown Herd,,,8,
+Elephant Sighting,elephant_monitoring_rep,3580,,Green,100,Resolved,Royal Morubisi Guides,2024-03-24 06:54,-24.06383252377873,27.89078765374265,0,,,,,,,,Kaingo Herd,,,,Abrie
+Elephant Sighting,elephant_monitoring_rep,953,,Green,100,Resolved,,2023-02-02 16:13,-24.07746893527532,27.82401561470209,0,,,,,,,,,5 (Good),Moving,1,Kumbakwe
+Elephant Sighting,elephant_monitoring_rep,5384,,Green,100,Resolved,WPS Camera,2024-08-04 18:43,-24.01706910455134,27.852085787336136,0,,,,,,,,Mokolo Herd,,,9,
+Elephant Sighting,elephant_monitoring_rep,3160,,Green,100,Resolved,MichaelH,2024-01-25 13:57,-24.106113480338866,27.72529060008783,0,,,,,,,,Tiny,,,1,
+Elephant Sighting,elephant_monitoring_rep,2576,,Green,100,Resolved,MichaelH,2023-10-23 12:27,-24.077770995105826,27.81108809524184,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,1987,,Green,100,Resolved,Royal Morubisi Guides,2023-07-27 20:03,-24.078674291023987,27.832404203826343,0,,,,,,,,Kambaku,,,1,Zandile
+Elephant Sighting,elephant_monitoring_rep,2700,,Green,100,Resolved,Matswani Guides,2023-11-12 11:45,-24.072406622409744,27.770772873678766,0,,,,,,,,Unknown Herd,,,,Casper
+Elephant Sighting,elephant_monitoring_rep,1096,,Green,100,Resolved,MichaelH,2023-02-25 13:28,-24.077583911576056,27.812276583456235,0,,,,,,https://storage.googleapis.com/user-uploads-kaingo/image_fileuploads/2023/02/26/b77e62de-2e07-4e0f-94b2-b0a7b2a15528/Photo1.jpg?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=er-gcs-kaingo%40earthranger-78ca55ca.iam.gserviceaccount.com%2F20250228%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250228T055458Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=6a3db2d5345ddedcd385ccd4757abab5b1218c024c35e1a935908f124fda5fca45533203e14b023d024e59a1668c6b77021b0682cea6625e18b62da000107ac3e52364c2d4dab9cf6a9836015c16e02a43bfa4608e42e83028a9573fa838706af412625dc63a2a8f40c6564017b00cc63dffc84ef8b5dfb96938d4cbdf4bc687729d4791b8e519e95614dfc8fb0bc5b6de77f761f89c9d0dd9b3dea3fbf492e9ba1f7669d9420f0a876813388bba349bc9481a459eb9e7660adf8014e93917cd72f2d46800cba6e266a59c891d96d3148f76241e0eee019060631969ddbff0210bace2fd9bf95865a080e33f94d2c374ec9d0e754eeb8ea70422bf3c34ee681a,,,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,1027,,Green,100,Resolved,Jacque,2023-02-14 15:30,-24.04954831593797,27.78401309896995,0,,,,,,,,,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,2307,,Green,100,Resolved,Jacque,2023-09-12 19:16,-24.075687472509927,27.764128093867868,0,,,,,,,,Kaingo Herd,,Resting,9,
+Elephant Sighting,elephant_monitoring_rep,3314,,Green,100,Resolved,Jurie,2024-02-18 20:24,-24.08298087432179,27.83181294477268,0,,,,,,,,Unknown Bull/s,,,,
+Elephant Sighting,elephant_monitoring_rep,5373,,Green,100,Resolved,WPS Camera,2024-08-09 20:43,-24.079422475768993,27.832763140902586,0,,,,,,,,Mokolo Herd,,,11,
+Elephant Sighting,elephant_monitoring_rep,4369,,Green,100,Resolved,Jacque,2024-05-14 15:58,-24.077412684802653,27.81228705898704,0,,,,,,,,Tiny,5 (Good),Drinking Water,3,Peanuts and young bull.
+Elephant Sighting,elephant_monitoring_rep,2662,,Green,100,Resolved,Royal Morubisi Guides,2023-11-02 06:25,-24.078891445622048,27.83372231468178,0,,,,,,,,Tiny,,,2,Jolandie
+Elephant Sighting,elephant_monitoring_rep,6799,,Green,100,Resolved,Jurie Willemse,2024-12-12 18:47,-24.133100305301596,27.780893770273337,0,,,,,,,,Kambaku,,,,
+Elephant Sighting,elephant_monitoring_rep,2793,,Green,100,Resolved,Royal Morubisi Guides,2023-12-01 17:30,-24.09404586773796,27.789314070227533,0,,,,,,,,Unknown Herd,,,,Zandile
+Elephant Sighting,elephant_monitoring_rep,1166,,Green,100,Resolved,,2023-03-08 17:37,-24.084991006062637,27.758633274064948,0,,,,,,,,,5 (Good),Feeding,1,Could not ID
+Elephant Sighting,elephant_monitoring_rep,2557,,Green,100,Resolved,FransM,2023-10-19 07:11,-24.113220000000002,27.792260000000002,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,1884,,Green,100,Resolved,Jacque,2023-07-11 19:12,-24.105383271977303,27.78608593869953,0,,,,,,,,Unknown Herd,5 (Good),Feeding,5,
+Elephant Sighting,elephant_monitoring_rep,5311,,Green,100,Resolved,Jacque,2024-08-07 17:00,-24.070828190191577,27.781254553297515,0,,,,,,,,Mokolo Herd,,Moving,12,
+Elephant Sighting,elephant_monitoring_rep,1267,,Green,100,Resolved,,2023-03-22 10:32,-24.105003145899346,27.813176797773366,0,,,,,,,,Peanuts,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2759,,Green,100,Resolved,MichaelH,2023-11-22 12:21,-24.12908230148525,27.757701146474858,0,,,,,,,,Kaingo Herd,5 (Good),Moving,9,
+Elephant Sighting,elephant_monitoring_rep,5439,,Green,100,Resolved,WPS Camera,2024-08-12 02:15,-24.063870863627045,27.819909406207643,0,,,,,,,,Kambaku,,,1,
+Elephant Sighting,elephant_monitoring_rep,6067,,Green,100,Resolved,WPS Camera,2024-10-04 14:50,-24.111871170588586,27.78068470828518,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,2092,,Green,100,Resolved,Matswani Guides,2023-08-15 19:03,-24.071922364320898,27.74143699001641,1,Basil,,,,,,,Peanuts,5 (Good),Standing,,
+Elephant Sighting,elephant_monitoring_rep,4660,,Green,100,Resolved,Royal Morubisi Guides,2024-06-01 14:58,-24.090414260773926,27.784846629094034,1,Jolandie,,,,,,,Tiny,5 (Good),Feeding,3,Peanuts and young bull
+Elephant Sighting,elephant_monitoring_rep,5440,,Green,100,Resolved,WPS Camera,2024-08-12 02:25,-24.05128923277198,27.887272021868228,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,2151,,Green,100,Resolved,MichaelH,2023-08-22 09:14,-24.077616677700636,27.763038753932378,1,Peanuts also here,,,,,,,Tiny,5 (Good),Feeding,2,
+Elephant Sighting,elephant_monitoring_rep,6030,,Green,100,Resolved,Jacque,2024-10-03 07:47,-24.05014631,27.7771184,0,,,,,,,,Kambaku,4,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,6446,,Green,100,Resolved,FransM,2024-11-15 07:33,-24.121271666666665,27.782733333333333,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,5097,,Green,100,Resolved,WPS Camera,2024-07-16 08:54,-24.01709113392593,27.852070621374196,0,,,,,,,,Tiny,,,,Plus Mokolo Herd
+Elephant Sighting,elephant_monitoring_rep,4194,,Green,100,Resolved,Jurie,2024-05-04 13:24,-24.09279448652488,27.784062073052866,0,,,,,,,,Kambaku,,,,
+Elephant Sighting,elephant_monitoring_rep,3240,,Green,100,Resolved,Royal Morubisi Guides,2024-02-08 06:49,-24.091655458712125,27.784415534845948,0,,,,,,,,Kaingo Herd,,,12,Abrie
+Elephant Sighting,elephant_monitoring_rep,5980,,Green,100,Resolved,WPS Camera,2024-09-27 00:02,-24.079711004345526,27.74175325460061,0,,,,,,,,Mokolo Herd,,,10,
+Elephant Sighting,elephant_monitoring_rep,3011,,Green,100,Resolved,,2024-01-03 09:05,-24.099964999999997,27.780963333333336,0,,,,,,,,Unknown Bull/s,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,5358,,Green,100,Resolved,WPS Camera,2024-08-10 15:07,-24.146177306049623,27.77296204533377,0,,,,,,,,Kaingo Herd,,,8,
+Elephant Sighting,elephant_monitoring_rep,1175,,Green,100,Resolved,Jacque,2023-03-11 17:00,-24.079166815971675,27.83384625335995,0,,,,,,,,,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,2773,,Green,100,Resolved,MichaelH,2023-11-22 12:21,-24.12908230148525,27.757701146474858,0,,,,,,,,Kaingo Herd,5 (Good),Moving,9,
+Elephant Sighting,elephant_monitoring_rep,4649,,Green,100,Resolved,WPS Camera,2024-05-30 18:57,-24.099889503627764,27.79015862137271,0,,,,,,,,Unknown Herd,,,3,
+Elephant Sighting,elephant_monitoring_rep,1515,,Green,100,Resolved,Lucas,2023-04-28 12:02,-24.026644422161283,27.86153797412149,0,,,,,,,,,5 (Good),Feeding,3,Bulls
+Elephant Sighting,elephant_monitoring_rep,3877,,Green,100,Resolved,FransM,2024-04-15 14:07,-24.105298333333334,27.72548,0,,,,,,,,Kambaku,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,2184,,Green,100,Resolved,Royal Morubisi Guides,2023-08-25 17:18,-24.083289708692902,27.768480974688828,0,,,,,,,,Unknown Herd,,,15,Abrie
+Elephant Sighting,elephant_monitoring_rep,4767,,Green,100,Resolved,WPS Camera,2024-06-10 16:47,-24.077984730920406,27.81231588271342,0,,,,,,,,Tiny,,,,
+Elephant Sighting,elephant_monitoring_rep,6116,,Green,100,Resolved,WPS Camera,2024-10-08 19:48,-24.080357122978498,27.77457126021764,0,,,,,,,,Unknown Bull/s,,,2,
+Elephant Sighting,elephant_monitoring_rep,2301,,Green,100,Resolved,Royal Morubisi Guides,2023-09-11 06:51,-24.080477749748084,27.775794842903764,0,,,,,,,,Kambaku,,,1,Abrie
+Elephant Sighting,elephant_monitoring_rep,2597,,Green,100,Resolved,Jacque,2023-10-25 20:23,-24.09654271006943,27.789768854217897,0,,,,,,,,Mokolo Herd,5 (Good),Drinking Water,14,
+Elephant Sighting,elephant_monitoring_rep,2308,,Green,100,Resolved,Matswani Guides,2023-09-13 19:02,-24.074533474060345,27.797049529895872,1,Basil,,,,,,,Kambaku,,Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,1634,,Green,100,Resolved,Jacque,2023-05-26 10:29,-24.07815451963785,27.824878774657435,0,,,,,,,,Kambaku,4,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,960,,Green,100,Resolved,Jacque,2023-02-05 07:28,-24.076102769630737,27.818755552853077,0,,,,,,,,,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,3609,,Green,100,Resolved,WPS Camera,2024-03-30 20:41,-24.107451909925473,27.696551568803386,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,2665,,Green,100,Resolved,Royal Morubisi Guides,2023-11-04 06:28,-24.079155851226304,27.833403318873422,0,,,,,,,,Kambaku,,,1,Zandile
+Elephant Sighting,elephant_monitoring_rep,5474,,Green,100,Resolved,WPS Camera,2024-08-14 19:17,-24.079398985935057,27.8327915267854,0,,,,,,,,Mokolo Herd,,,10,
+Elephant Sighting,elephant_monitoring_rep,5096,,Green,100,Resolved,WPS Camera,2024-07-16 16:41,-24.017018954210442,27.852149336026997,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,3450,,Green,100,Resolved,,2024-03-12 07:20,-24.097899999999996,27.79212166666667,0,,,,,,,,,5 (Good),Moving,13,
+Elephant Sighting,elephant_monitoring_rep,4102,,Green,100,Resolved,WPS Camera,2024-04-27 20:03,-24.077421541280188,27.81334403334725,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,2460,,Green,100,Resolved,Royal Morubisi Guides,2023-10-07 16:04,-24.07136243230798,27.754807096445916,0,,,,,,,,Peanuts,,,1,Jolandie
+Elephant Sighting,elephant_monitoring_rep,6742,,Green,100,Resolved,WPS Camera,2024-12-08 11:04,-24.11225803493963,27.78110266663589,0,,,,,,,,Peanuts,5 (Good),Drinking Water,2,
+Elephant Sighting,elephant_monitoring_rep,7096,,Green,100,Resolved,MichaelH,2025-01-21 17:34,-24.08243429383643,27.79527747074868,1,With moKolo herd close by,,,,,,,Kambaku,,,9,
+Elephant Sighting,elephant_monitoring_rep,811,,Green,100,Resolved,Jurie,2023-01-03 13:59,-24.050630108522455,27.855004828983766,0,,,,,,,,,,,,newborn calf
+Elephant Sighting,elephant_monitoring_rep,3280,,Green,100,Resolved,Royal Morubisi Guides,2024-02-14 20:10,-24.07810008324168,27.770599029925762,0,,,,,,,,Unknown Herd,,,,Abrie
+Elephant Sighting,elephant_monitoring_rep,6939,,Green,100,Resolved,Jurie,2024-12-29 11:26,-24.135603867657593,27.749460735409087,0,,,,,,,,Peanuts,,,3,Peanuts en al twee kort tande bulle
+Elephant Sighting,elephant_monitoring_rep,6058,,Green,100,Resolved,Elzet,2024-10-04 10:48,-24.077425645664334,27.812225595116615,0,,,,,,,,Kambaku,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,4930,,Green,100,Resolved,MichaelH,2024-06-26 19:22,-24.080717158450458,27.77575335681736,0,,,,,,,,Kaingo Herd,5 (Good),Feeding,7,
+Elephant Sighting,elephant_monitoring_rep,1489,,Green,100,Resolved,Jacque,2023-04-23 16:35,-24.076266223381324,27.80764757797209,0,,,,,,,,Tiny,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,7233,,Green,100,Resolved,Jacque,2025-02-08 19:54,-24.11936832094193,27.71258163337407,0,,,,,,,,Tiny,,,2,Tiny and Peanuts 
+Elephant Sighting,elephant_monitoring_rep,3249,,Green,100,Resolved,MichaelH,2024-02-08 13:35,-24.048483092762794,27.8470322969447,1,Kambaku also with them,,,,,,,Mokolo Herd,,,15,
+Elephant Sighting,elephant_monitoring_rep,3805,,Green,100,Resolved,Royal Morubisi Guides,2024-04-12 20:02,-24.092384605133233,27.76275181232586,0,,,,,,,,Tiny,,,1,Abrie
+Elephant Sighting,elephant_monitoring_rep,3418,,Green,100,Resolved,MichaelH,2024-03-08 14:57,-24.103010956286095,27.695311935195992,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3138,,Green,100,Resolved,,2024-01-15 14:14,-24.088418333333333,27.746818333333334,0,,,,,,,,Peanuts,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,1816,,Green,100,Resolved,MichaelH,2023-06-28 13:00,-24.043021518313125,27.874459682914587,0,,,,,,,,Kambaku,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,4757,,Green,100,Resolved,WPS Camera,2024-06-09 18:56,-24.111750436023783,27.78106689480407,0,,,,,,,,,,,,
+Elephant Sighting,elephant_monitoring_rep,6829,,Green,100,Resolved,Jurie Willemse,2024-12-16 09:18,-24.127570131021656,27.75735686125165,0,,,,,,,,Peanuts,,,2,Peanuts en langbeen bul
+Elephant Sighting,elephant_monitoring_rep,4162,,Green,100,Resolved,WPS Camera,2024-05-01 15:40,-24.144525701434702,27.770349592562013,0,,,,,,,,Mokolo Herd,,,7,Cheeky visible in photo
+Elephant Sighting,elephant_monitoring_rep,6115,,Green,100,Resolved,WPS Camera,2024-10-08 19:51,-24.111999063906126,27.702518327745622,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,3270,,Green,100,Resolved,Jacque,2024-02-14 08:06,-24.098860377150956,27.694841369685406,0,,,,,,,,Kambaku,5 (Good),Feeding,2,Youmg bull with him
+Elephant Sighting,elephant_monitoring_rep,6612,,Green,100,Resolved,MichaelH,2024-11-28 13:53,-24.106292939012352,27.75298562900312,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3298,,Green,100,Resolved,Jurie,2024-02-16 19:06,-24.064563248504044,27.7425742248912,0,,,,,,,,Kambaku,,,,
+Elephant Sighting,elephant_monitoring_rep,4696,,Green,100,Resolved,WPS Camera,2024-06-04 19:13,-24.143800126987202,27.760552955497957,0,,,,,,,,,,,,
+Elephant Sighting,elephant_monitoring_rep,6857,,Green,100,Resolved,WPS Camera,2024-12-20 07:22,-24.07976624285827,27.741489391394254,0,,,,,,,,Unknown Bull/s,,,3,
+Elephant Sighting,elephant_monitoring_rep,939,,Green,100,Resolved,Lucas,2023-01-31 10:27,-24.040018639338385,27.889270748448837,0,,,,,,,,,5 (Good),Feeding,1,Young bull
+Elephant Sighting,elephant_monitoring_rep,7219,,Green,100,Resolved,WPS Camera,2025-02-05 20:23,-24.017504501836555,27.852280391747456,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,840,,Green,100,Resolved,Jacque,2023-01-09 05:50,-24.078449859732828,27.83463969523862,0,,,,,,,,,5 (Good),,2,
+Elephant Sighting,elephant_monitoring_rep,6198,,Green,100,Resolved,WPS Camera,2024-10-18 21:44,-24.09719979746012,27.767521497772776,0,,,,,,,,Kambaku,,,,
+Elephant Sighting,elephant_monitoring_rep,2186,,Green,100,Resolved,MichaelH,2023-08-26 15:22,-24.082186590308872,27.770224338772472,0,,,,,,,,Mokolo Herd,5 (Good),Feeding,14,
+Elephant Sighting,elephant_monitoring_rep,2633,,Green,100,Resolved,Royal Morubisi Guides,2023-10-27 09:00,-24.078409366614807,27.770586888838153,0,,,,,,,,Unknown Herd,,,,Carmen
+Elephant Sighting,elephant_monitoring_rep,6404,,Green,100,Resolved,WPS Camera,2024-11-10 16:54,-24.10905506274665,27.697920360962343,0,,,,,,,,Mokolo Herd,,,11,
+Elephant Sighting,elephant_monitoring_rep,4230,,Green,100,Resolved,WPS Camera,2024-05-03 20:28,-24.08150059297151,27.79800559455896,0,,,,,,,,Unknown Herd,,,3,
+Elephant Sighting,elephant_monitoring_rep,2248,,Green,100,Resolved,MichaelH,2023-09-04 06:36,-24.074804839964983,27.79621797862563,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3007,,Green,100,Resolved,Royal Morubisi Guides,2024-01-03 06:54,-24.085190613465087,27.821802450976236,0,,,,,,,,Peanuts,,,1,Abrie
+Elephant Sighting,elephant_monitoring_rep,4716,,Green,100,Resolved,Matswani Guides,2024-06-06 18:43,-24.093321819854467,27.78276911599815,1,Megan,,,,,,,Peanuts,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,4030,,Green,100,Resolved,MichaelH,2024-04-24 11:23,-24.081177405017065,27.798283484215727,0,,,,,,,,Kambaku,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,1063,,Green,100,Resolved,Jacque,2023-02-19 08:45,-24.05303107441773,27.86613403673718,0,,,,,,,,,5 (Good),,8,
+Elephant Sighting,elephant_monitoring_rep,3239,,Green,100,Resolved,Royal Morubisi Guides,2024-02-07 06:48,-24.076005833647102,27.801368571596868,0,,,,,,,,Kambaku,,,,Jolandie
+Elephant Sighting,elephant_monitoring_rep,3222,,Green,100,Resolved,Royal Morubisi Guides,2024-02-03 06:49,-24.056659403042417,27.837784506809896,0,,,,,,,,Kambaku,,,,no count and mokolo herd with them Jolandie
+Elephant Sighting,elephant_monitoring_rep,5333,,Green,100,Resolved,WPS Camera,2024-08-09 17:55,-24.01701312670683,27.8520300100096,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,3801,,Green,100,Resolved,WPS Camera,2024-04-12 07:21,-24.107433980448505,27.696518343880996,0,,,,,,,,Kambaku,,,1,
+Elephant Sighting,elephant_monitoring_rep,2852,,Green,100,Resolved,Matswani Guides,2023-12-14 19:56,-24.093829961134645,27.773529062232086,1,Megan,,,,,,,Unknown Herd,5 (Good),Moving,,
+Elephant Sighting,elephant_monitoring_rep,4426,,Green,100,Resolved,Jurie,2024-05-19 13:57,-24.108909714313086,27.7861137481066,0,,,,,,,,Peanuts,,,,
+Elephant Sighting,elephant_monitoring_rep,1296,,Green,100,Resolved,,2023-03-25 11:58,-24.112808,27.815437,0,,,,,,,,Peanuts,5 (Good),Standing,,
+Elephant Sighting,elephant_monitoring_rep,1107,,Green,100,Resolved,,2023-02-28 08:02,-24.0760297,27.817188,0,,,,,,,,,5 (Good),Feeding,1,Tiny 
+Elephant Sighting,elephant_monitoring_rep,7002,,Green,100,Resolved,Elzet,2024-12-11 17:14,-24.093058775179088,27.752873674035072,0,,,,,,,,,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,4525,,Green,100,Resolved,WPS Camera,2024-05-26 20:36,-24.06472750110953,27.81983936136257,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,4165,,Green,100,Resolved,WPS Camera,2024-04-30 20:16,-24.118356664481553,27.70658451070784,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,5969,,Green,100,Resolved,WPS Camera,2024-09-26 01:04,-24.09782301377726,27.768588531220814,0,,,,,,,,Unknown Bull/s,,,2,
+Elephant Sighting,elephant_monitoring_rep,5577,,Green,100,Resolved,MichaelH,2024-08-22 13:23,-24.079523896367053,27.77393778944961,0,,,,,,,,Kambaku,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,2935,,Green,100,Resolved,Royal Morubisi Guides,2023-12-26 20:10,-24.127852097855907,27.753974393059906,1,Abrie,,,,,,,,,Feeding,,Young bull on its own
+Elephant Sighting,elephant_monitoring_rep,2246,,Green,100,Resolved,MichaelH,2023-08-26 15:22,-24.08213245638006,27.770250372844682,0,,,,,,,,Tiny,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,3590,,Green,100,Resolved,MichaelH,2024-03-28 16:43,-24.05620825535912,27.836072663418413,1,With Kambaku,,,,,,,Kaingo Herd,,,11,
+Elephant Sighting,elephant_monitoring_rep,2361,,Green,100,Resolved,Royal Morubisi Guides,2023-09-23 12:00,-24.042867871043853,27.87453259628319,0,,,,,,,,Unknown Herd,,,17,Abrie
+Elephant Sighting,elephant_monitoring_rep,3248,,Green,100,Resolved,Jacque,2024-02-10 18:52,-24.09346661916821,27.819651705513337,0,,,,,,,,Tiny,5 (Good),Feeding,2,Peanuts 
+Elephant Sighting,elephant_monitoring_rep,4222,,Green,100,Resolved,WPS Camera,2024-05-04 10:58,-24.077166044874147,27.813280670592803,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,7276,,Green,100,Resolved,FransM,2025-02-14 09:31,-24.070365,27.774138333333333,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3933,,Green,100,Resolved,WPS Camera,2024-04-17 12:21,-24.050810339453335,27.85445021011421,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,7025,,Green,100,Resolved,MichaelH,2025-01-12 08:56,-24.119869591690712,27.70503345879512,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3442,,Green,100,Resolved,MichaelH,2024-03-11 15:54,-24.055984916181593,27.84271267060374,0,,,,,,,,Mokolo Herd,5 (Good),Feeding,14,
+Elephant Sighting,elephant_monitoring_rep,2170,,Green,100,Resolved,Matswani Guides,2023-08-24 19:43,-24.077173768607494,27.771322642912935,1,Jacques,,,,,,,Unknown Bull/s,,Moving,,
+Elephant Sighting,elephant_monitoring_rep,2892,,Green,100,Resolved,Jacque,2023-12-20 16:20,-24.07936422742185,27.773718878333682,0,,,,,,,,Kambaku,,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,4481,,Green,100,Resolved,Jacque,2024-05-22 21:01,-24.092368970730973,27.819874632707325,0,,,,,,,,Unknown Herd,,Moving,,
+Elephant Sighting,elephant_monitoring_rep,4734,,Green,100,Resolved,Jacque,2024-06-08 11:48,-24.11209870318106,27.78081514218033,0,,,,,,,,Kambaku,,Drinking Water,,
+Elephant Sighting,elephant_monitoring_rep,6607,,Green,100,Resolved,WPS Camera,2024-11-26 13:00,-24.09786841004218,27.768569592958897,0,,,,,,,,Mokolo Herd,,,14,
+Elephant Sighting,elephant_monitoring_rep,3215,,Green,100,Resolved,Matswani Guides,2024-02-04 11:56,-24.06482381789,27.82042607828552,1,Themba,,,,,,,Unknown Bull/s,5 (Good),Moving,,
+Elephant Sighting,elephant_monitoring_rep,2467,,Green,100,Resolved,Jacque,2023-10-09 19:40,-24.051817956538258,27.84960095583628,0,,,,,,,,Kaingo Herd,5 (Good),Feeding,10,
+Elephant Sighting,elephant_monitoring_rep,2529,,Green,100,Resolved,Matswani Guides,2023-10-15 12:32,-24.072420561250325,27.766709635959074,1,Casper,,,,,,,Peanuts,5 (Good),Moving,,
+Elephant Sighting,elephant_monitoring_rep,7068,,Green,100,Resolved,MichaelH,2025-01-16 16:25,-24.099497543670328,27.768198056172363,1,Plus scout and small bull,,,,,,,Tiny,,,3,
+Elephant Sighting,elephant_monitoring_rep,2506,,Green,100,Resolved,Matswani Guides,2023-10-13 09:40,-24.076357136408063,27.79721995114454,1,Ruan,,,,,,,Unknown Bull/s,,,3,
+Elephant Sighting,elephant_monitoring_rep,1705,,Green,100,Resolved,Jacque,2023-06-09 16:30,-24.073078220842106,27.765435557224777,0,,,,,,,,Kaingo Herd,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,5231,,Green,100,Resolved,WPS Camera,2024-07-18 19:23,-24.01701575571866,27.85200443873788,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,951,,Green,100,Resolved,Jacque,2023-02-02 11:49,-24.080362672517566,27.847577060925346,0,,,,,,,,,,Feeding,8,
+Elephant Sighting,elephant_monitoring_rep,2997,,Green,100,Resolved,MichaelH,2024-01-03 11:43,-24.085709603447285,27.703646213082294,0,,,,,,,,Kambaku,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,4570,,Green,100,Resolved,WPS Camera,2024-05-20 20:17,-24.061169545981954,27.78045695276944,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,6099,,Green,100,Resolved,Royal Morubisi Guides,2024-10-07 18:23,-24.108222289525926,27.696761982845004,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,1665,,Green,100,Resolved,MichaelH,2023-06-01 11:09,-24.048446902946782,27.7754081602419,0,,,,,,,,Peanuts,5 (Good),Feeding,1,In muhst
+Elephant Sighting,elephant_monitoring_rep,3180,,Green,100,Resolved,Royal Morubisi Guides,2024-01-28 06:54,-24.085071985387273,27.773331095670983,0,,,,,,,,Unknown Bull/s,,,1,Jolandie
+Elephant Sighting,elephant_monitoring_rep,6552,,Green,100,Resolved,WPS Camera,2024-11-25 02:52,-24.097926146162465,27.768558064836526,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,6924,,Green,100,Resolved,Jacque,2024-12-27 18:35,-24.101020623492417,27.73113736159064,0,,,,,,,,Peanuts,,Moving,3,2 young bulls. Long legs and short legs bulls.
+Elephant Sighting,elephant_monitoring_rep,5582,,Green,100,Resolved,MichaelH,2024-08-22 16:18,-24.12183891591253,27.706236630244337,0,,,,,,,,Peanuts,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,1018,,Green,100,Resolved,Jacque,2023-02-13 14:47,-24.080094395179643,27.772512446185175,0,,,,,,,,,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,3889,,Green,100,Resolved,WPS Camera,2024-04-15 23:30,-24.115827073533666,27.717368149477664,0,,,,,,,,Unknown Herd,,,3,3 visible on camera but looks like mokolo herd but unable to positive ID
+Elephant Sighting,elephant_monitoring_rep,671,,Green,100,Resolved,Jacque,2022-12-11 08:18,-24.086522292684805,27.703930531033905,0,,,,,,,,,5 (Good),Feeding,2,
+Elephant Sighting,elephant_monitoring_rep,3068,,Green,100,Resolved,Jacque,2024-01-09 16:47,-24.070190308118526,27.755030442655965,0,,,,,,,,Tiny,,Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,1869,,Green,100,Resolved,Jacque,2023-07-07 17:06,-24.07545225806713,27.815740701445435,0,,,,,,,,,5 (Good),Moving,9,
+Elephant Sighting,elephant_monitoring_rep,2219,,Green,100,Resolved,Matswani Guides,2023-08-30 17:53,-24.047292517756645,27.799056006116217,1,Casper,,,,,,,Mokolo Herd,,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,1651,,Green,100,Resolved,,2023-05-31 15:12,-24.07647005952998,27.76294828279734,0,,,,,,,,Mokolo Herd,5 (Good),Feeding,15,
+Elephant Sighting,elephant_monitoring_rep,5733,,Green,100,Resolved,WPS Camera,2024-09-02 00:23,-24.064091764451007,27.81972257787956,0,,,,,,,,Tiny,,,1,
+Elephant Sighting,elephant_monitoring_rep,1240,,Green,100,Resolved,Jacque,2023-03-19 09:59,-24.084029973415227,27.8128872865324,0,,,,,,,,,5 (Good),,1,
+Elephant Sighting,elephant_monitoring_rep,2171,,Green,100,Resolved,Jacque,2023-08-24 19:44,-24.078557863136226,27.770691406780344,0,,,,,,,,Tiny,5 (Good),Feeding,,Kaingo herd with Tiny
+Elephant Sighting,elephant_monitoring_rep,2217,,Green,100,Resolved,Matswani Guides,2023-08-30 17:49,-24.090576905149447,27.78009015129166,1,Jacques,,,,,,,Kambaku,,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,6077,,Green,100,Resolved,WPS Camera,2024-10-06 16:32,-24.145766493520327,27.773137697851524,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,5854,,Green,100,Resolved,WPS Camera,2024-09-14 20:48,-24.079810262508772,27.741979279878592,0,,,,,,,,Mokolo Herd,,,10,
+Elephant Sighting,elephant_monitoring_rep,2755,,Green,100,Resolved,Matswani Guides,2023-11-21 20:10,-24.128308313595383,27.756820903446226,1,Janelle,,,,,,,Tiny,,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,3385,,Green,100,Resolved,MichaelH,2024-02-29 16:49,-24.07174547061479,27.742148982384546,0,,,,,,,,Kambaku,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,5617,,Green,100,Resolved,WPS Camera,2024-08-26 13:25,-24.065242654097915,27.751863000821515,0,,,,,,,,Unknown Bull/s,,,1,
+Elephant Sighting,elephant_monitoring_rep,5460,,Green,100,Resolved,WPS Camera,2024-08-14 01:57,-24.07923500966065,27.833203536707288,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,940,,Green,100,Resolved,Piet,2023-01-31 12:03,-24.07747254953648,27.81178670129637,0,,,,,,,,,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,1176,,Green,100,Resolved,MichaelH,2023-03-11 15:18,-24.07830196271871,27.83306126602865,0,,,,,,https://storage.googleapis.com/user-uploads-kaingo/image_fileuploads/2023/03/12/9410bfbf-0301-455e-8a52-78581eba084f/Photo1.jpg?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=er-gcs-kaingo%40earthranger-78ca55ca.iam.gserviceaccount.com%2F20250228%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250228T055459Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=719dca33f99aa6d4815a5b47e5546aa453fefc9a9a3a7aa42d3dea3e9b595927ff5ac7add24c24ad4d8ffd1ea00b203b86033d4f8e24612e7b9e12c88a4ea2373b39cfb18bb601dd75db2d6515a8aba65df30102341f6530321da16b2c20288fcab4b5dbb0f3643a56edc98af4bf2402df277de80b59e46c2efc14e86e8abc5e550c5f189009e0039a90d3185bbcbb3d984c7b13856962cae5f91f7e4207aa8169ec032af05d9c0c465df2deecc9c159e4376feab390fef33e01f53d7a7a517726cbcc8660706732ccc5942120bd09910b0ba7c81095505fe2836054ea3e2f0ffd9026b7dd42fbd9edf55ece139b018747b8731892d8d0728850d34f5a2ecfc1,,,5 (Good),Other,1,
+Elephant Sighting,elephant_monitoring_rep,6485,,Green,100,Resolved,WPS Camera,2024-11-19 13:09,-24.077275841584864,27.812979176018104,0,,,,,,,,Kambaku,,,1,
+Elephant Sighting,elephant_monitoring_rep,2635,,Green,100,Resolved,Royal Morubisi Guides,2023-10-28 09:02,-24.07769397915864,27.81201830035127,0,,,,,,,,Unknown Herd,,,20,Zandile
+Elephant Sighting,elephant_monitoring_rep,7148,,Green,100,Resolved,Jacque,2025-01-27 19:24,-24.121532733886596,27.701369525152046,0,,,,,,,,Mokolo Herd,,,16,
+Elephant Sighting,elephant_monitoring_rep,2123,,Green,100,Resolved,MichaelH,2023-08-18 16:07,-24.071197354269028,27.755172568016977,1,Peanuts also here,,,,,,,Kambaku,4,Drinking Water,2,
+Elephant Sighting,elephant_monitoring_rep,1514,,Green,100,Resolved,Jacque,2023-04-28 09:29,-24.09325582799285,27.760491584212872,0,,,,,,,,Peanuts,5 (Good),,1,
+Elephant Sighting,elephant_monitoring_rep,1030,,Green,100,Resolved,MichaelH,2023-02-12 09:56,-24.123971010768713,27.7599283925819,0,,,,,,https://storage.googleapis.com/user-uploads-kaingo/file_uploads/2023/02/14/a41494cc-905a-470c-8db4-28697d001d43/Photo1.?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=er-gcs-kaingo%40earthranger-78ca55ca.iam.gserviceaccount.com%2F20250228%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20250228T055459Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=58b9b151a8dc4217c6b198b3cb43488ceb4cc69f69c3d692562b39707fd5254528ed19997760d2ba27e8db4e194bfbed65abad284ef018e68605bdbc64f33bbdc79b886c2a69efb19514c6946fb406d19422d9af78256eeba361e467ae0ca1a211682da523ff207bdb1d376f763bbdb9fd169b0ecbed6ad71d5c7a7214e63cd8a997c41fdd8eafdbce1de3d4d6824b777e3c3497ef437b1d85920e01fb9971d3f85191e257ba5cb82fed2cdfee1a363246cae1d85f18791e022f5204cc94028226cc764cdfad01df2af7d8c49bfdf1c3d33f23d6b7afe68eecc15538495bd7123d43bb7d533ed6a94f9d7889299f52edbee8feaebc9bc4081a42a2e21a0d3d22,,,5 (Good),Moving,1,
+Elephant Sighting,elephant_monitoring_rep,3065,,Green,100,Resolved,MichaelH,2024-01-09 16:33,-24.068345520260984,27.75185899157589,0,,,,,,,,Tiny,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,1351,,Green,100,Resolved,,2023-04-04 07:15,-24.092982476263984,27.78374586071706,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2900,,Green,100,Resolved,Jacque,2023-12-21 16:39,-24.078082650304367,27.816967724833802,0,,,,,,,,Unknown Herd,,Moving,,Tiny
+Elephant Sighting,elephant_monitoring_rep,2271,,Green,100,Resolved,Matswani Guides,2023-09-07 19:48,-24.084091510430028,27.819051724279376,1,Jacques,,,,,,,Unknown Bull/s,,Moving,1,
+Elephant Sighting,elephant_monitoring_rep,2546,,Green,100,Resolved,Matswani Guides,2023-10-17 14:55,-24.106546568411687,27.813231587839454,1,Janelle,,,,,,,Unknown Bull/s,,Moving,1,
+Elephant Sighting,elephant_monitoring_rep,1831,,Green,100,Resolved,Jacque,2023-06-30 10:45,-24.01973436431743,27.852854013291648,0,,,,,,,,Tiny,5 (Good),Drinking Water,2,Young bull with Tiny
+Elephant Sighting,elephant_monitoring_rep,2290,,Green,100,Resolved,Matswani Guides,2023-09-10 19:18,-24.075075990496472,27.762175475935493,1,Megan,,,,,,,Unknown Herd,,Mating,,
+Elephant Sighting,elephant_monitoring_rep,1483,,Green,100,Resolved,MichaelH,2023-04-22 09:50,-24.07879812966138,27.832484933497547,0,,,,,,,,Kambaku,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,5376,,Green,100,Resolved,WPS Camera,2024-08-07 18:58,-24.05058169014643,27.854560262854648,0,,,,,,,,Tiny,,,1,
+Elephant Sighting,elephant_monitoring_rep,6410,,Green,100,Resolved,WPS Camera,2024-11-06 23:37,-24.115779488555205,27.71738454416544,0,,,,,,,,Tiny,,,1,
+Elephant Sighting,elephant_monitoring_rep,2023,,Green,100,Resolved,Royal Morubisi Guides,2023-08-03 18:02,-24.078328727175403,27.83522780735808,0,,,,,,,,Kambaku,,,,abrie
+Elephant Sighting,elephant_monitoring_rep,4236,,Green,100,Resolved,Royal Morubisi Guides,2024-05-03 08:14,-24.07862543323627,27.834099432486028,0,,,,,,,,Kambaku,,,2,young bull with him
+Elephant Sighting,elephant_monitoring_rep,1708,,Green,100,Resolved,Piet,2023-06-09 16:34,-24.104549751471083,27.81359583365372,0,,,,,,,,Kambaku,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,1068,,Green,100,Resolved,Jacque,2023-02-20 10:30,-24.08546688128503,27.769372949493004,0,,,,,,,,,5 (Good),Feeding,,
+Elephant Sighting,elephant_monitoring_rep,6078,,Green,100,Resolved,WPS Camera,2024-10-06 13:23,-24.06554825837884,27.751681402432354,0,,,,,,,,Tiny,,,1,
+Elephant Sighting,elephant_monitoring_rep,5936,,Green,100,Resolved,WPS Camera,2024-09-24 19:46,-24.063966376350777,27.81923604718648,0,,,,,,,,Mokolo Herd,,,,
+Elephant Sighting,elephant_monitoring_rep,1563,,Green,100,Resolved,Jacque,2023-05-07 12:00,-24.016542931148052,27.85263734560465,1,Reported by Jaco,,,,,,,Unknown Bull/s,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,6712,,Green,100,Resolved,WPS Camera,2024-12-06 20:28,-24.09771978815094,27.7694031119847,0,,,,,,,,Mokolo Herd,,Drinking Water,,
+Elephant Sighting,elephant_monitoring_rep,6606,,Green,100,Resolved,WPS Camera,2024-11-26 16:35,-24.077235305695993,27.813191987698218,0,,,,,,,,Tiny,,,3,With peanuts and unknown bull
+Elephant Sighting,elephant_monitoring_rep,1149,,Green,100,Resolved,FransM,2023-03-07 10:19,-24.103533333333335,27.7231,0,,,,,,,,,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2279,,Green,100,Resolved,Royal Morubisi Guides,2023-09-07 21:55,-24.046844176757432,27.780306728012278,0,,,,,,,,Peanuts,,,1,Zandile
+Elephant Sighting,elephant_monitoring_rep,2475,,Green,100,Resolved,MichaelH,2023-10-10 14:25,-24.082924558830467,27.77350642200378,0,,,,,,,,Kambaku,5 (Good),Moving,2,Young bull with kambaku 
+Elephant Sighting,elephant_monitoring_rep,2737,,Green,100,Resolved,Royal Morubisi Guides,2023-11-17 19:54,-24.113287570305047,27.768661470990054,0,,,,,,,,Kambaku,,,1,Kambaku
+Elephant Sighting,elephant_monitoring_rep,1809,,Green,100,Resolved,MichaelH,2023-06-22 11:14,-24.090791316817146,27.771698311682428,0,,,,,,,,Kaingo Herd,5 (Good),Feeding,12,
+Elephant Sighting,elephant_monitoring_rep,1547,,Green,100,Resolved,Jacque,2023-05-04 17:55,-24.08591461311606,27.82427692334855,0,,,,,,,,Kambaku,4,Moving,,
+Elephant Sighting,elephant_monitoring_rep,952,,Green,100,Resolved,,2023-02-02 16:13,-24.07746893527532,27.82401561470209,0,,,,,,,,,5 (Good),Moving,1,Kumbakwe
+Elephant Sighting,elephant_monitoring_rep,3517,,Green,100,Resolved,MichaelH,2024-03-23 11:34,-24.06219244851642,27.88119595866097,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,2631,,Green,100,Resolved,Royal Morubisi Guides,2023-10-27 08:59,-24.079977785758217,27.82209040058396,0,,,,,,,,Tiny,,,2,Abrie
+Elephant Sighting,elephant_monitoring_rep,5680,,Green,100,Resolved,WPS Camera,2024-08-28 15:24,-24.063720829217786,27.819480247810702,0,,,,,,,,Tiny,,,2,Young Bull with Tiny
+Elephant Sighting,elephant_monitoring_rep,5310,,Green,100,Resolved,Elzet,2024-08-08 12:31,-24.079628703184426,27.832945995032787,1,Tiny with him,,,,,,,Peanuts,5 (Good),Drinking Water,,
+Elephant Sighting,elephant_monitoring_rep,7230,,Green,100,Resolved,Jacque,2025-02-08 19:50,-24.070124471525148,27.77383207158715,0,,,,,,,,Kambaku,,Feeding,,
+Elephant Sighting,elephant_monitoring_rep,1423,,Green,100,Resolved,,2023-04-13 16:23,-24.08505278581724,27.75649906927393,0,,,,,,,,Mokolo Herd,5 (Good),Feeding,15,
+Elephant Sighting,elephant_monitoring_rep,4004,,Green,100,Resolved,WPS Camera,2024-04-22 20:44,-24.06148898550515,27.780285961156295,0,,,,,,,,Unknown Herd,5 (Good),,6,
+Elephant Sighting,elephant_monitoring_rep,6050,,Green,100,Resolved,WPS Camera,2024-10-02 00:36,-24.112105707065297,27.780713444617362,0,,,,,,,,Peanuts,,,1,
+Elephant Sighting,elephant_monitoring_rep,6318,,Green,100,Resolved,WPS Camera,2024-10-31 17:45,-24.145987624676025,27.77304611033577,0,,,,,,,,Mokolo Herd,,,11,
+Elephant Sighting,elephant_monitoring_rep,2129,,Green,100,Resolved,Matswani Guides,2023-08-18 17:32,-24.0701396206897,27.754914985648014,1,Sagrys,,,,,,,Kambaku,5 (Good),Drinking Water,1,
+Elephant Sighting,elephant_monitoring_rep,5753,,Green,100,Resolved,WPS Camera,2024-09-02 18:18,-24.11581436521061,27.717362143458814,0,,,,,,,,Unknown Bull/s,,,1,Scout !
+Elephant Sighting,elephant_monitoring_rep,4743,,Green,100,Resolved,WPS Camera,2024-06-08 19:02,-24.11342565120384,27.78094402301278,0,,,,,,,,Unknown Herd,,Drinking Water,6,
+Elephant Sighting,elephant_monitoring_rep,2473,,Green,100,Resolved,MichaelH,2023-10-07 10:09,-24.10732811161306,27.79890772330363,0,,,,,,,,Kambaku,5 (Good),Feeding,1,
+Elephant Sighting,elephant_monitoring_rep,3115,,Green,100,Resolved,MichaelH,2024-01-18 17:42,-24.058107035420864,27.868444592631025,0,,,,,,,,Mokolo Herd,5 (Good),Feeding,13,

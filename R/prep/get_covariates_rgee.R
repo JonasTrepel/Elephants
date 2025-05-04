@@ -1,0 +1,385 @@
+library(rgee)
+library(data.table)
+library(tidyverse)
+library(googledrive)
+library("enerscape")
+library(terra)
+
+############################# HOUSEKEEPING #############################
+
+source("R/functions/monitor_gee_task.R")
+
+
+ee_Initialize(project = "ee-jonastrepel", drive = TRUE)
+drive_auth(email = "jonas.trepel@bio.au.dk")
+
+### Get sub-saharan Africa extent
+ssa_ext <- ee$Geometry$Rectangle(
+  coords = c(7.5, -35.0, 45.0, 5.0), # xmin, ymin, xmax, ymax
+  proj = "EPSG:4326",
+  geodesic = FALSE
+)
+
+
+
+############################# COVARIATES #############################
+
+
+##### EVI Mean ------------------------
+
+evi_img <- ee$
+  ImageCollection("MODIS/061/MOD13A1")$
+  map(function(img) {
+  qa <- img$select("SummaryQA")
+  img$updateMask(qa$eq(0))
+})$ ## select only high quality data
+  select("EVI")$
+  filterDate("2001-01-01", "2024-12-31")$
+  mean()
+
+export_evi <- ee_image_to_drive(
+  image = evi_img,
+  region = ssa_ext,
+  folder = "rgee_backup_evi",
+  description = "evi",
+  scale = 500,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_evi$start()
+
+Sys.sleep(60)
+monitor_gee_task(pattern = "evi", path = "rgee_backup_evi")
+
+drive_files_evi <- drive_ls(path = "rgee_backup_evi", pattern = "evi") %>%
+  dplyr::select(name) %>% 
+  unique()
+
+# since it's only one tile we can save it directly 
+filename_evi <- unique(drive_files_evi$name)
+drive_download(file = filename_evi, path = "data/spatial_data/covariates/raster/mean_evi_2001_2024.tif", overwrite = TRUE)
+googledrive::drive_rm(unique(filename_evi$name))
+googledrive::drive_rm("rgee_backup_evi")
+
+evi_r <- rast("data/spatial_data/covariates/raster/mean_evi_2001_2024.tif")
+plot(evi_r)
+
+
+##### EVI Dry Season (May - September) ---------------------------------
+#https://www.cpc.ncep.noaa.gov/products/assessments/assess_96/safr.html
+
+evi_dry <- ee$ImageCollection("MODIS/061/MOD13A1")$
+  filterDate("2001-01-01", "2024-12-31")$
+  filter(ee$Filter$calendarRange(5, 9, 'month'))$  #Filter for May to September
+  map(function(img) {
+    qa <- img$select("SummaryQA")
+    img$updateMask(qa$eq(0))$select("EVI")
+  })$
+  mean()
+
+export_evi_dry <- ee_image_to_drive(
+  image = evi_dry,
+  region = ssa_ext,
+  folder = "rgee_backup_evi_dry",
+  description = "evi",
+  scale = 500,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_evi$start()
+Sys.sleep(60)
+monitor_gee_task(pattern = "evi_dry", path = "rgee_backup_evi_dry")
+
+drive_files_evi_dry <- drive_ls(path = "rgee_backup_evi_dry", pattern = "evi_dry") %>%
+  dplyr::select(name) %>% 
+  unique()
+
+# since it's only one tile we can save it directly 
+filename_evi_dry <- unique(drive_files_evi_dry$name)
+drive_download(file = filename_evi_dry, path = "data/spatial_data/covariates/raster/dry_season_mean_evi_2001_2024.tif", overwrite = TRUE)
+googledrive::drive_rm(unique(filename_evi_dry$name))
+googledrive::drive_rm("rgee_backup_evi-dry")
+
+evi_dry_r <- rast("data/spatial_data/covariates/raster/dry_season_mean_evi_2001_2024.tif")
+plot(evi_dry_r)
+
+
+##### EVI Wet Season (October - April) --------------------------------------------------
+#https://www.cpc.ncep.noaa.gov/products/assessments/assess_96/safr.html
+
+
+evi_wet <- ee$ImageCollection("MODIS/061/MOD13A1")$
+  filterDate("2001-01-01", "2024-12-31")$
+  filter(ee$Filter$calendarRange(10, 4, 'month'))$  #Filter for October to April
+  map(function(img) {
+    qa <- img$select("SummaryQA")
+    img$updateMask(qa$eq(0))$select("EVI")
+  })$
+  mean()
+
+export_evi_wet <- ee_image_to_drive(
+  image = evi_wet,
+  region = ssa_ext,
+  folder = "rgee_backup_evi_wet",
+  description = "evi",
+  scale = 500,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_evi$start()
+Sys.sleep(60)
+monitor_gee_task(pattern = "evi_wet", path = "rgee_backup_evi_wet")
+
+drive_files_evi_wet <- drive_ls(path = "rgee_backup_evi_wet", pattern = "evi_wet") %>%
+  dplyr::select(name) %>% 
+  unique()
+
+# since it's only one tile we can save it directly 
+filename_evi_wet <- unique(drive_files_evi_wet$name)
+drive_download(file = filename_evi_wet, path = "data/spatial_data/covariates/raster/wet_season_mean_evi_2001_2024.tif", overwrite = TRUE)
+googledrive::drive_rm(unique(filename_evi_wet$name))
+googledrive::drive_rm("rgee_backup_evi-wet")
+
+evi_wet_r <- rast("data/spatial_data/covariates/raster/wet_season_mean_evi_2001_2024.tif")
+plot(evi_wet_r)
+
+
+
+##### ESA World Cover -------------------------------------------------
+esa_wc_img <- ee$ImageCollection("ESA/WorldCover/v200")$
+  select("Map")$
+  first()
+
+Map$addLayer(esa_wc_img)
+
+export_esa_wc <- ee_image_to_drive(
+  image = esa_wc_img,
+  region = ssa_ext,
+  folder = "rgee_backup_esa_wc",
+  description = "esa_world_cover",
+  scale = 10,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_esa_wc$start()
+
+
+Sys.sleep(60)
+monitor_gee_task(pattern = "esa_world_cover", path = "rgee_backup_esa_wc")
+
+Sys.sleep(600)
+(esa_wc_drive_files <- drive_ls(path = "rgee_backup_esa_wc", pattern = "esa_world_cover") %>%
+  dplyr::select(name) %>% 
+  unique())
+
+for(filename in unique(esa_wc_drive_files$name)){
+  
+  path_name = paste0("data/spatial_data/raw_tiles/", filename)
+  drive_download(file = filename, path = path_name, overwrite = TRUE)
+}
+
+googledrive::drive_rm(unique(esa_wc_drive_files$name))
+googledrive::drive_rm("rgee_backup_esa_wc")
+
+esa_wc_files <- list.files("data/spatial_data/raw_tiles", full.names = T, pattern = "esa_world_cover")
+
+esa_wc_raster_list <- lapply(esa_wc_files, rast)
+
+esa_wc_file_name_merge <- paste0("data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif")
+
+data_type_esa_wc <- terra::datatype(esa_wc_raster_list[[1]])
+
+esa_wc_r <- do.call(terra::merge, c(esa_wc_raster_list))
+plot(esa_wc_r)
+writeRaster(esa_wc_r,
+            filename = esa_wc_file_name_merge,
+            overwrite = TRUE,
+            datatype = data_type_esa_wc)
+
+file.remove(esa_wc_files)
+
+##### Water ESA worldcover -----------------------------
+
+esa_img <- ee$ImageCollection("ESA/WorldCover/v200")$
+  select("Map")$
+  first()
+
+esa_water <- esa_img$eq(80)$rename("water_binary")
+Map$addLayer(esa_water, list(min = 0, max = 1), "ESA Water")
+
+export_esa_water <- ee_image_to_drive(
+  image = esa_water,
+  region = ssa_ext,
+  folder = "rgee_backup_esa_water",
+  description = "esa_water",
+  scale = 10,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_esa_water$start()
+
+
+Sys.sleep(60)
+monitor_gee_task(pattern = "esa_water", path = "rgee_backup_esa_water")
+
+Sys.sleep(600)
+(esa_water_drive_files <- drive_ls(path = "rgee_backup_esa_water", pattern = "esa_water") %>%
+  dplyr::select(name) %>% 
+  unique())
+
+for(filename in unique(esa_water_drive_files$name)){
+  
+  path_name = paste0("data/spatial_data/raw_tiles/", filename)
+  drive_download(file = filename, path = path_name, overwrite = TRUE)
+}
+
+googledrive::drive_rm(unique(esa_water_drive_files$name))
+googledrive::drive_rm("rgee_backup_esa_water")
+
+esa_water_files <- list.files("data/spatial_data/raw_tiles", full.names = T, pattern = "esa_water")
+
+esa_water_raster_list <- lapply(esa_water_files, rast)
+
+data_type_esa_water <- terra::datatype(esa_water_raster_list[[1]])
+
+esa_water_file_name_merge <- paste0("data/spatial_data/covariates/raster/esa_wc_water_2021_10m.tif")
+
+esa_water_r <- do.call(terra::merge, c(esa_water_raster_list))
+plot(esa_water_r)
+writeRaster(esa_water_r,
+            filename = esa_water_file_name_merge,
+            overwrite = TRUE,
+            datatype = data_type_esa_water)
+
+file.remove(esa_water_files)
+
+esa_water_r[esa_water_r == 0] <- NA
+plot(esa_water_r)
+
+writeRaster(esa_water_r,
+            "data/spatial_data/covariates/raster/esa_wc_water_2021_10m_1_or_NA.tif",
+            overwrite = TRUE,
+            datatype = data_type_esa_water)
+
+
+##### DEM -------------------------------------------
+
+dem_img <- ee$Image("NASA/NASADEM_HGT/001")$
+  select("elevation")
+
+dem_img$getInfo()
+
+export_dem <- ee_image_to_drive(
+  image = dem_img,
+  region = ssa_ext,
+  folder = "rgee_backup_dem",
+  description = "dem",
+  scale = 30,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_dem$start()
+
+Sys.sleep(60)
+monitor_gee_task(pattern = "dem", path = "rgee_backup_dem")
+
+Sys.sleep(600)
+(drive_files_dem <- drive_ls(path = "rgee_backup_dem", pattern = "dem") %>%
+  dplyr::select(name) %>% 
+  unique())
+
+for(filename in unique(drive_files_dem$name)){
+  
+  path_name = paste0("data/spatial_data/raw_tiles/", filename)
+  drive_download(file = filename, path = path_name, overwrite = TRUE)
+}
+
+googledrive::drive_rm(unique(drive_files_dem$name))
+googledrive::drive_rm("rgee_backup_dem")
+
+dem_files <- list.files("data/spatial_data/raw_tiles", full.names = T, pattern = "dem")
+
+dem_raster_list <- lapply(dem_files, rast)
+
+data_type_dem <-  terra::datatype(dem_raster_list[[1]])
+
+dem_file_name_merge <- paste0("data/spatial_data/covariates/raster/nasa_dem_30m.tif")
+
+dem_r <- do.call(terra::merge, c(dem_raster_list))
+plot(dem_r)
+writeRaster(dem_r, filename = dem_file_name_merge, overwrite = TRUE, datatype = data_type_dem)
+
+file.remove(dem_files)
+
+
+
+##### ENERSCAPE -------------------------------------------------
+# While we're at it....
+
+dem_r <- rast("data/spatial_data/covariates/raster/nasa_dem_30m.tif")
+target_crs <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs" #Mollweide metric whatever 
+
+dem_trans <- project(dem_r, y = target_crs, method = "bilinear", threads = 4)
+en <- enerscape(dem = dem_trans, m = 4400, unit = "kcal")
+
+##### World Settlement Footprint 2015 -----------------------------------------------
+# https://www.nature.com/articles/s41597-020-00580-5
+
+wsf_img <- ee$Image("DLR/WSF/WSF2015/v1")$
+  select("WSF")
+
+Map$addLayer(wsf_img)
+
+export_wsf <- ee_image_to_drive(
+  image = wsf_img,
+  region = ssa_ext,
+  folder = "rgee_backup_wsf",
+  description = "wsf",
+  scale = 10,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_wsf$start()
+Sys.sleep(60)
+monitor_gee_task(pattern = "wsf", path = "rgee_backup_wsf")
+
+Sys.sleep(600)
+(drive_files_wsf <- drive_ls(path = "rgee_backup_wsf", pattern = "wsf") %>%
+  dplyr::select(name) %>% 
+  unique())
+
+for(filename in unique(drive_files_wsf$name)){
+  
+  path_name = paste0("data/spatial_data/raw_tiles/", filename)
+  drive_download(file = filename, path = path_name, overwrite = TRUE)
+}
+
+googledrive::drive_rm(unique(drive_files_wsf$name))
+googledrive::drive_rm("rgee_backup_wsf")
+
+wsf_files <- list.files("data/spatial_data/raw_tiles", full.names = T, pattern = "wsf")
+
+wsf_raster_list <- lapply(wsf_files, rast)
+
+data_type_wsf <-  terra::datatype(wsf_raster_list[[1]])
+
+wsf_file_name_merge <- paste0("data/spatial_data/covariates/raster/nasa_wsf_30m.tif")
+
+wsf_r <- do.call(terra::merge, c(wsf_raster_list))
+plot(wsf_r)
+writeRaster(wsf_r, 
+            filename = wsf_file_name_merge, 
+            overwrite = TRUE,
+            datatype = data_type_wsf)
+
+file.remove(wsf_files)
+
+
+
+##### Roads -> not available at GEE, but there's a vector layer: 
+#https://www.globio.info/download-grip-dataset
+
+
+
+
+
