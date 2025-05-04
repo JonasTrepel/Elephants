@@ -189,12 +189,11 @@ esa_wc_file_name_merge <- paste0("data/spatial_data/covariates/raster/esa_world_
 
 data_type_esa_wc <- terra::datatype(esa_wc_raster_list[[1]])
 
-esa_wc_r <- do.call(terra::merge, c(esa_wc_raster_list))
+esa_wc_r <- merge(sprc(esa_wc_raster_list),
+                  filename = esa_wc_file_name_merge,
+                  overwrite = TRUE,
+                  datatype = data_type_esa_wc)
 plot(esa_wc_r)
-writeRaster(esa_wc_r,
-            filename = esa_wc_file_name_merge,
-            overwrite = TRUE,
-            datatype = data_type_esa_wc)
 
 file.remove(esa_wc_files)
 
@@ -244,15 +243,15 @@ data_type_esa_water <- terra::datatype(esa_water_raster_list[[1]])
 
 esa_water_file_name_merge <- paste0("data/spatial_data/covariates/raster/esa_wc_water_2021_10m.tif")
 
-esa_water_r <- do.call(terra::merge, c(esa_water_raster_list))
-plot(esa_water_r)
-writeRaster(esa_water_r,
+esa_water_r <- merge(sprc(esa_water_raster_list),
             filename = esa_water_file_name_merge,
             overwrite = TRUE,
             datatype = data_type_esa_water)
-
+plot(esa_water_r)
+ 
 file.remove(esa_water_files)
 
+# convert to 1 or NA (may save storage)
 esa_water_r[esa_water_r == 0] <- NA
 plot(esa_water_r)
 
@@ -305,10 +304,11 @@ data_type_dem <-  terra::datatype(dem_raster_list[[1]])
 
 dem_file_name_merge <- paste0("data/spatial_data/covariates/raster/nasa_dem_30m.tif")
 
-dem_r <- do.call(terra::merge, c(dem_raster_list))
+dem_r <- merge(sprc(dem_raster_list), 
+               filename = dem_file_name_merge,
+               overwrite = TRUE,
+               datatype = data_type_dem)
 plot(dem_r)
-writeRaster(dem_r, filename = dem_file_name_merge, overwrite = TRUE, datatype = data_type_dem)
-
 file.remove(dem_files)
 
 
@@ -365,13 +365,11 @@ data_type_wsf <-  terra::datatype(wsf_raster_list[[1]])
 
 wsf_file_name_merge <- paste0("data/spatial_data/covariates/raster/nasa_wsf_30m.tif")
 
-wsf_r <- do.call(terra::merge, c(wsf_raster_list))
+wsf_r <- merge(sprc(wsf_raster_list), 
+               filename = wsf_file_name_merge, 
+               overwrite = TRUE,
+               datatype = data_type_wsf)
 plot(wsf_r)
-writeRaster(wsf_r, 
-            filename = wsf_file_name_merge, 
-            overwrite = TRUE,
-            datatype = data_type_wsf)
-
 file.remove(wsf_files)
 
 
