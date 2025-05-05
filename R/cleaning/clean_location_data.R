@@ -405,6 +405,9 @@ for(ind in unique(t_res$individual_id)){
   print(paste0(ind, " done. Home range diameter: km ", round(hr_diameter_km, 2)))
 }
 
+st_write(hr_mcps, "data/spatial_data/elephants/mcp_home_ranges.gpkg")
+st_write(hr_locohs, "data/spatial_data/elephants/locohs_home_ranges.gpkg")
+
 quantile(hr_meta$hr_diameter_km)
 summary(hr_meta)
 mean(hr_meta$hr_diameter_km)
