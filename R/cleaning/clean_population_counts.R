@@ -54,5 +54,5 @@ dt_comb %>%
   dplyr::select(mean_population_count) %>% pull() %>% sum()
 
 
-fwrite(dt_comb, "data/clean_data/all_population_counts.csv")
+fwrite(dt_comb, "data/processed_data/clean_data/all_population_counts.csv")
 # on average 139706 Elephants 

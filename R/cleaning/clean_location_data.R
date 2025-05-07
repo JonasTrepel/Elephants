@@ -15,7 +15,7 @@ library(amt)
 
 # Park Boundaries 
 
-pas <- st_read("data/spatial_data/park_boundaries.gpkg")
+pas <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg")
 
 # Africa 
 
@@ -436,7 +436,7 @@ dt_final <- dt_res %>%
   left_join(hr_meta)
 
 
-fwrite(dt_final, "data/clean_data/all_location_data.csv")
+fwrite(dt_final, "data/processed_data/clean_data/all_location_data.csv")
 
 ######################### Vizualize ########################## 
 

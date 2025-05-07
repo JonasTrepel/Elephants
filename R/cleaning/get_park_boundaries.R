@@ -4,10 +4,10 @@ library(tidyverse)
 
 # Population counts 
 
-dt_pc <- fread("data/clean_data/all_population_counts.csv")
+dt_pc <- fread("data/processed_data/clean_data/all_population_counts.csv")
 
 # Load all PAs 
-files <- list.files("data/spatial_data/wdpa_raw", pattern = "polygons.shp", recursive = T, full.names = T)
+files <- list.files("data/spatial_data/protected_areas/wdpa_raw", pattern = "polygons.shp", recursive = T, full.names = T)
 
 pas_all <- data.frame()
 for(i in 1:length(files)){
@@ -78,7 +78,7 @@ pas_all[grepl("Mavinga", pas_all$NAME), ]
 
 pas_sub <- pas_all[pas_all$NAME %in% c(names_v_count), ] %>% 
   filter(WDPA_PID != 555705347)
-st_write(pas_sub, "data/spatial_data/park_boundaries.gpkg", append = FALSE)
+st_write(pas_sub, "data/spatial_data/protected_areas/park_boundaries.gpkg", append = FALSE)
 mapview(pas_sub)
 
 #not found: 
