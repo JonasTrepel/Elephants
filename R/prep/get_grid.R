@@ -272,5 +272,5 @@ sf_grid_comb <- sf_grid_raw %>%
   left_join(dt_comb)
 
 
-fwrite(dt_comb, "data/clean_data/data_fragments/relative_occurance_and_roads.csv")
+fwrite(dt_comb, "data/processed_data/data_fragments/relative_occurance_and_roads.csv")
 st_write(sf_grid_comb, "data/spatial_data/grid/grid_relative_occurance_and_roads.csv")
