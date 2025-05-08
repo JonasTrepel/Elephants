@@ -3,6 +3,7 @@ data/spatial_data/
 data/raw_data/ceru/Full Telemetry Data.csv
 data/raw_data/hwange/3.-KAZA-Elephant-Survey-Volume-II.pdf
 data/processed_data/clean_data/all_location_data.csv
+data/processed_data/data_fragments/grid_with_all_covariates.csv
 
 # History files
 .Rhistory
