@@ -10,6 +10,8 @@ library(tidylog)
 library(mapview)
 library(amt)
 
+source("R/functions/assign_park.R")
+
 
 ######## LOAD AND CLEAN DATA ########
 
@@ -47,8 +49,7 @@ dt_ceru_raw <- fread("data/raw_data/ceru/Full Telemetry Data.csv") %>%
                   lat = "lat", 
                   species = "individual_id", 
                   tests = c("capitals", "centroids",
-                            "equal", "zeros", "outliers", 
-                            "seas"),
+                            "equal", "zeros", "outliers"),
                   outliers_td = 100, #distance to all other points of a species in km
                   capitals_rad = 10000, #radius around capitol in m
                   outliers_method = "distance")
@@ -56,8 +57,8 @@ dt_ceru_raw <- fread("data/raw_data/ceru/Full Telemetry Data.csv") %>%
 
 dt_ceru <- dt_ceru_raw %>%
   filter(.summary == TRUE) %>% #select only clean coords
-  dplyr::select(-c(".otl", ".summary", ".val", ".equ", ".zer", ".cap", ".cen", ".sea")) %>% 
-  filter(!lat < -35 & !lat > 35 & !lon < -20 & !lon > 55) #exclude points outside of africa
+  dplyr::select(-c(".otl", ".summary", ".val", ".equ", ".zer", ".cap", ".cen")) 
+
 range(dt_ceru$lon)
 range(dt_ceru$lat)
 
@@ -95,8 +96,7 @@ dt_hwange_raw <- fread("data/raw_data/hwange/cnrs_gps_elephant_hwange.csv") %>%
                     lat = "lat", 
                     species = "individual_id", 
                     tests = c("capitals", "centroids",
-                              "equal", "zeros", "outliers", 
-                              "seas"),
+                              "equal", "zeros", "outliers"),
                     outliers_td = 100, #distance to all other points of a species in km
                     capitals_rad = 10000, #radius around capital in m
                     outliers_method = "distance")
@@ -104,7 +104,7 @@ dt_hwange_raw <- fread("data/raw_data/hwange/cnrs_gps_elephant_hwange.csv") %>%
 
 dt_hwange <- dt_hwange_raw %>%
   filter(.summary == TRUE) %>% #select only clean coords
-  dplyr::select(-c(".otl", ".summary", ".val", ".equ", ".zer", ".cap", ".cen", ".sea")) %>% 
+  dplyr::select(-c(".otl", ".summary", ".val", ".equ", ".zer", ".cap", ".cen")) %>% 
   filter(!lat < -35 & !lat > 35 & !lon < -20 & !lon > 55) #exclude points outside of africa
 range(dt_hwange$lon)
 range(dt_hwange$lat)
@@ -158,7 +158,7 @@ dt_kaingo_raw <- fread("data/raw_data/kaingo/Event Export 2025-02-28.csv") %>%
 
 dt_kaingo <- dt_kaingo_raw %>%
   filter(.summary == TRUE) %>% #select only clean coords
-  dplyr::select(-c(".otl", ".summary", ".val", ".equ", ".zer", ".cap", ".cen", ".sea")) %>% 
+  dplyr::select(-c(".otl", ".summary", ".val", ".equ", ".zer", ".cap", ".cen")) %>% 
   filter(!lat < -35 & !lat > 35 & !lon < -20 & !lon > 55) #exclude points outside of africa
 range(dt_kaingo$lon)
 range(dt_kaingo$lat)
@@ -405,8 +405,8 @@ for(ind in unique(t_res$individual_id)){
   print(paste0(ind, " done. Home range diameter: km ", round(hr_diameter_km, 2)))
 }
 
-st_write(hr_mcps, "data/spatial_data/elephants/mcp_home_ranges.gpkg")
-st_write(hr_locohs, "data/spatial_data/elephants/locohs_home_ranges.gpkg")
+st_write(hr_mcps, "data/spatial_data/elephants/mcp_home_ranges.gpkg", append = FALSE)
+st_write(hr_locohs, "data/spatial_data/elephants/locohs_home_ranges.gpkg", append = FALSE)
 
 quantile(hr_meta$hr_diameter_km)
 summary(hr_meta)

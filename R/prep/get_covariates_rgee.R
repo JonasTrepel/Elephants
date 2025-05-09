@@ -9,8 +9,13 @@ library(terra)
 
 source("R/functions/monitor_gee_task.R")
 
+rgee_env_dir <- c("C:\\Users\\au713983\\.conda\\envs\\rgee_env")
+reticulate::use_python(rgee_env_dir, required=T)
 
-ee_Initialize(project = "ee-jonastrepel", drive = TRUE)
+#ee_clean_user_credentials()
+#ee$Authenticate(auth_mode='notebook')
+#ee_Authenticate(auth_mode='notebook')
+ee$Initialize(project = "ee-jonastrepel")
 drive_auth(email = "jonas.trepel@bio.au.dk")
 
 ### Get sub-saharan Africa extent
@@ -58,7 +63,7 @@ drive_files_evi <- drive_ls(path = "rgee_backup_evi", pattern = "evi") %>%
 # since it's only one tile we can save it directly 
 filename_evi <- unique(drive_files_evi$name)
 drive_download(file = filename_evi, path = "data/spatial_data/covariates/raster/mean_evi_2001_2024.tif", overwrite = TRUE)
-googledrive::drive_rm(unique(filename_evi$name))
+googledrive::drive_rm(unique(drive_files_evi$name))
 googledrive::drive_rm("rgee_backup_evi")
 
 evi_r <- rast("data/spatial_data/covariates/raster/mean_evi_2001_2024.tif")
@@ -81,24 +86,24 @@ export_evi_dry <- ee_image_to_drive(
   image = evi_dry,
   region = ssa_ext,
   folder = "rgee_backup_evi_dry",
-  description = "evi",
+  description = "evi_dry",
   scale = 500,
   timePrefix = FALSE,
   maxPixels = 1e13
 )
-export_evi$start()
+export_evi_dry$start()
 Sys.sleep(60)
 monitor_gee_task(pattern = "evi_dry", path = "rgee_backup_evi_dry")
 
-drive_files_evi_dry <- drive_ls(path = "rgee_backup_evi_dry", pattern = "evi_dry") %>%
+(drive_files_evi_dry <- drive_ls(path = "rgee_backup_evi_dry", pattern = "evi_dry") %>%
   dplyr::select(name) %>% 
-  unique()
+  unique())
 
 # since it's only one tile we can save it directly 
 filename_evi_dry <- unique(drive_files_evi_dry$name)
 drive_download(file = filename_evi_dry, path = "data/spatial_data/covariates/raster/dry_season_mean_evi_2001_2024.tif", overwrite = TRUE)
-googledrive::drive_rm(unique(filename_evi_dry$name))
-googledrive::drive_rm("rgee_backup_evi-dry")
+googledrive::drive_rm(unique(drive_files_evi_dry$name))
+googledrive::drive_rm("rgee_backup_evi_dry")
 
 evi_dry_r <- rast("data/spatial_data/covariates/raster/dry_season_mean_evi_2001_2024.tif")
 plot(evi_dry_r)
@@ -121,12 +126,12 @@ export_evi_wet <- ee_image_to_drive(
   image = evi_wet,
   region = ssa_ext,
   folder = "rgee_backup_evi_wet",
-  description = "evi",
+  description = "evi_wet",
   scale = 500,
   timePrefix = FALSE,
   maxPixels = 1e13
 )
-export_evi$start()
+export_evi_wet$start()
 Sys.sleep(60)
 monitor_gee_task(pattern = "evi_wet", path = "rgee_backup_evi_wet")
 
@@ -137,8 +142,8 @@ drive_files_evi_wet <- drive_ls(path = "rgee_backup_evi_wet", pattern = "evi_wet
 # since it's only one tile we can save it directly 
 filename_evi_wet <- unique(drive_files_evi_wet$name)
 drive_download(file = filename_evi_wet, path = "data/spatial_data/covariates/raster/wet_season_mean_evi_2001_2024.tif", overwrite = TRUE)
-googledrive::drive_rm(unique(filename_evi_wet$name))
-googledrive::drive_rm("rgee_backup_evi-wet")
+googledrive::drive_rm(unique(drive_files_evi_wet$name))
+googledrive::drive_rm("rgee_backup_evi_wet")
 
 evi_wet_r <- rast("data/spatial_data/covariates/raster/wet_season_mean_evi_2001_2024.tif")
 plot(evi_wet_r)
@@ -203,7 +208,7 @@ esa_img <- ee$ImageCollection("ESA/WorldCover/v200")$
   select("Map")$
   first()
 
-esa_water <- esa_img$eq(80)$rename("water_binary")
+esa_water <- esa_img$eq(80)$rename("water_binary") #1 oe NA
 Map$addLayer(esa_water, list(min = 0, max = 1), "ESA Water")
 
 export_esa_water <- ee_image_to_drive(
@@ -250,15 +255,6 @@ esa_water_r <- merge(sprc(esa_water_raster_list),
 plot(esa_water_r)
  
 file.remove(esa_water_files)
-
-# convert to 1 or NA (may save storage)
-esa_water_r[esa_water_r == 0] <- NA
-plot(esa_water_r)
-
-writeRaster(esa_water_r,
-            "data/spatial_data/covariates/raster/esa_wc_water_2021_10m_1_or_NA.tif",
-            overwrite = TRUE,
-            datatype = data_type_esa_water)
 
 
 ##### DEM -------------------------------------------
@@ -312,26 +308,19 @@ plot(dem_r)
 file.remove(dem_files)
 
 
-
-##### ENERSCAPE -------------------------------------------------
-# While we're at it....
-
-dem_r <- rast("data/spatial_data/covariates/raster/nasa_dem_30m.tif")
-target_crs <- "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs" #Mollweide metric whatever 
-
-dem_trans <- project(dem_r, y = target_crs, method = "bilinear", threads = 4)
-en <- enerscape(dem = dem_trans, m = 4400, unit = "kcal")
-
-##### World Settlement Footprint 2015 -----------------------------------------------
+##### World Settlement Footprint 2015  -----------------------------------------------
 # https://www.nature.com/articles/s41597-020-00580-5
 
 wsf_img <- ee$Image("DLR/WSF/WSF2015/v1")$
   select("WSF")
 
-Map$addLayer(wsf_img)
+# Reclassify: 255 becomes 1, others become NA (mask)
+wsf_binary <- ee$Image(0)$where(wsf_img$eq(255), 1)$toUint8()
+Map$addLayer(wsf_binary, list(min = 0, max = 1), "WSF 10m")
+
 
 export_wsf <- ee_image_to_drive(
-  image = wsf_img,
+  image = wsf_binary,
   region = ssa_ext,
   folder = "rgee_backup_wsf",
   description = "wsf",
@@ -340,6 +329,7 @@ export_wsf <- ee_image_to_drive(
   maxPixels = 1e13
 )
 export_wsf$start()
+
 Sys.sleep(60)
 monitor_gee_task(pattern = "wsf", path = "rgee_backup_wsf")
 
@@ -361,14 +351,23 @@ wsf_files <- list.files("data/spatial_data/raw_tiles", full.names = T, pattern =
 
 wsf_raster_list <- lapply(wsf_files, rast)
 
-data_type_wsf <-  terra::datatype(wsf_raster_list[[1]])
 
-wsf_file_name_merge <- paste0("data/spatial_data/covariates/raster/nasa_wsf_30m.tif")
+plot(wsf_raster_list[[1]])
+terra::hasValues(wsf_raster_list[[1]])
+
+
+data_type_wsf <- datatype(wsf_raster_list[[1]])
+
+wsf_file_name_merge <- paste0("data/spatial_data/covariates/raster/world_settlement_footprint_2015_10m.tif")
 
 wsf_r <- merge(sprc(wsf_raster_list), 
                filename = wsf_file_name_merge, 
-               overwrite = TRUE,
-               datatype = data_type_wsf)
+               overwrite = TRUE, 
+               datatype = data_type_wsf, #potentially change datatype?
+               tempdir = "data/spatial_data/terra_temp_dir", 
+               todisk = TRUE, 
+               memfrac = 0.4
+               )
 plot(wsf_r)
 file.remove(wsf_files)
 
@@ -376,7 +375,6 @@ file.remove(wsf_files)
 
 ##### Roads -> not available at GEE, but there's a vector layer: 
 #https://www.globio.info/download-grip-dataset
-
 
 
 

@@ -24,7 +24,7 @@ sf_loc %>%
 
 # 2. Make Grid ---------------------------------
 
-sf_grid_raw <- st_make_grid(sf_loc, cellsize = 5000, square = FALSE) %>% 
+sf_grid_raw <- st_make_grid(sf_loc, cellsize = 1000, square = TRUE) %>% #1km for now, but should be 500m for final analysis
   st_as_sf() %>% 
   filter(lengths(st_intersects(., sf_hr)) > 0) %>% 
   mutate(grid_id = paste0("grid_", 1:nrow(.)))
@@ -86,8 +86,8 @@ sf_loc_wet_female <- sf_loc %>%
 
 subset_list <- list(
   all = sf_loc,
-  dry = sf_loc_dry,
-  wet = sf_loc_wet,
+  dry_both = sf_loc_dry,
+  wet_both = sf_loc_wet,
   males = sf_loc_males,
   females = sf_loc_females,
   dry_male = sf_loc_dry_male,
@@ -137,7 +137,7 @@ for(id in unique(sf_loc$individual_id)){
 
 # 5. Sum up relative ocurrence per cell  ----------------
 
-categories <- c("rel_obs_all", "rel_obs_dry", "rel_obs_wet", 
+categories <- c("rel_obs_all", "rel_obs_dry_both", "rel_obs_wet_both", 
                 "rel_obs_males", "rel_obs_females", 
                 "rel_obs_dry_male", "rel_obs_dry_female", 
                 "rel_obs_wet_male", "rel_obs_wet_female")
@@ -261,12 +261,31 @@ dt_road_distance <- sf_grid_cent %>%
   mutate(x = NULL) %>% 
   dplyr::select(distance_to_road_km, distance_to_major_road_km, distance_to_minor_road_km, grid_id)
 
-# 8. Combine --------------------
+# 8. Get Coordinates -------------------------
+
+coords_moll <- sf_grid_raw %>% st_centroid() %>% st_coordinates()
+
+coords_lat_lon <- sf_grid_raw %>% st_transform(4326) %>% st_centroid() %>% st_coordinates()
+
+
+sf_grid_raw$x_mollweide <- coords_moll[,1]
+sf_grid_raw$y_mollweide <- coords_moll[,2]
+
+sf_grid_raw$lon <- coords_lat_lon[,1]
+sf_grid_raw$lat <- coords_lat_lon[,2]
+
+
+dt_coords <- sf_grid_raw %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL) %>% 
+  dplyr::select(grid_id, x_mollweide, y_mollweide, lon, lat)
+
+# 9. Combine --------------------
 
 dt_comb <- dt_grid_rel %>% 
-  left_join(dt_grid_rel) %>% 
   left_join(dt_road_density) %>% 
-  left_join(dt_road_distance)
+  left_join(dt_road_distance) %>% 
+  left_join(dt_coords)
   
 sf_grid_comb <- sf_grid_raw %>% 
   left_join(dt_comb)
