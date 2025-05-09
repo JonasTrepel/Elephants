@@ -224,8 +224,17 @@ mapview::mapview(vect_covs, zcol = "distance_to_water_km")
 
 if(param == "grid"){
   
+  dt_occ <- fread("data/processed_data/data_fragments/relative_occurance_and_roads.csv")
+
+  
   fwrite(dt_vect_covs %>% 
+          # left_join(dt_occ) %>% 
            mutate(unique_id = NULL), "data/processed_data/data_fragments/grid_habitat_covariates.csv")
+  
+  
+  fwrite(dt_vect_covs %>% 
+           left_join(dt_occ) %>% 
+           mutate(unique_id = NULL), "data/processed_data/data_fragments/grid_with_all_covariates.csv")
   
 } else if(param == "points"){
   
