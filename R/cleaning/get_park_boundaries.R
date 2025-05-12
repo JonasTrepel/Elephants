@@ -2,6 +2,62 @@ library(sf)
 library(data.table)
 library(tidyverse)
 
+### PARKS WITH LOCATION POINTS -------------------------------
+
+# Location points
+dt_lp <- fread("data/processed_data/clean_data/all_location_data.csv")
+
+sf_lp <- st_as_sf(dt_lp, 
+                  coords = c("lon", "lat"), 
+                  crs = 4326) %>% st_transform(crs = "ESRI:54009")
+
+# Load all PAs 
+files <- list.files("data/spatial_data/protected_areas/wdpa_raw", pattern = "polygons.shp", recursive = T, full.names = T)
+
+pas_all <- data.frame()
+for(i in 1:length(files)){
+  
+  tmp <- st_read(files[i])
+  
+  pas_all <- rbind(pas_all, tmp)
+  
+}
+
+sf_pas_moll <- pas_all %>% st_transform(crs = "ESRI:54009")
+
+sf_pas_int <- sf_pas_moll %>% 
+  filter(lengths(st_intersects(., sf_lp)) > 0) %>% 
+  dplyr::select(NAME, WDPA_PID, WDPAID, DESIG_ENG, IUCN_CAT) %>% 
+  filter(!DESIG_ENG == "Community Forest" &
+           !DESIG_ENG == "Forest Reserve" &
+           !grepl("Ramsar", DESIG_ENG)) %>% 
+  filter(!WDPA_PID %in% c("301767",
+                          "26944",
+                          "9035_B",
+                          "555705347", 
+                          "555571049", 
+                          "555563884", 
+                          "95356", 
+                          "555555542", 
+                          "555555541", 
+                          "145516", 
+                          "555624128", 
+                          "7449", 
+                          "555766093", 
+                          "20399", 
+                          "10907", 
+                          "555570576"))
+
+mapview(sf_pas_int)
+
+st_write(sf_pas_int,
+         "data/spatial_data/protected_areas/pas_intersecting_with_locations_data.gpkg", 
+         append = FALSE)
+
+
+
+### PARKS WITH POPULATION COUNTS -------------------------------
+
 # Population counts 
 
 dt_pc <- fread("data/processed_data/clean_data/all_population_counts.csv")

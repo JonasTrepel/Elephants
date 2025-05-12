@@ -30,7 +30,7 @@ sf_grid_raw <- st_make_grid(sf_loc, cellsize = 1000, square = TRUE) %>% #1km for
   mutate(grid_id = paste0("grid_", 1:nrow(.)))
 
 st_write(sf_grid_raw, "data/spatial_data/grid/empty_grid.gpkg")
-
+#sf_grid_raw <- st_read("data/spatial_data/grid/empty_grid.gpkg")
 
 #3. Split relocation points --------------------
 
@@ -280,12 +280,24 @@ dt_coords <- sf_grid_raw %>%
   mutate(x = NULL) %>% 
   dplyr::select(grid_id, x_mollweide, y_mollweide, lon, lat)
 
-# 9. Combine --------------------
+
+# 9. Get cluster id ------------
+
+sf_clust <- st_read("data/spatial_data/protected_areas/pa_clusters.gpkg") %>% 
+  st_transform(crs = "ESRI:54009")
+
+dt_cluster <- sf_grid_raw %>% 
+  st_intersection(., sf_clust) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL)
+
+# 10. Combine --------------------
 
 dt_comb <- dt_grid_rel %>% 
   left_join(dt_road_density) %>% 
   left_join(dt_road_distance) %>% 
-  left_join(dt_coords)
+  left_join(dt_coords) %>% 
+  left_join(dt_cluster)
   
 sf_grid_comb <- sf_grid_raw %>% 
   left_join(dt_comb)
