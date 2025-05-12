@@ -231,15 +231,146 @@ sf_peanuts <- st_as_sf(dt_peanuts,
 
 
 
-# Combine ---------------------------------------
+####### CLEAN DATASET ########
+
+
+# Combine for the first time ---------------------------------------
 
 
 dt_loc_raw <- rbind(
   dt_ceru, 
   dt_hwange, 
   dt_peanuts
-)
-setDT(dt_loc_raw)
+) %>% 
+  mutate(obs_id = paste0("point_", 1:nrow(.))) 
+
+# Remove points in unrealistic areas --------
+
+sf_loc_raw <- dt_loc_raw %>% 
+  st_as_sf(coords = c("lon", "lat"), 
+           crs = 4326) %>% 
+  st_transform(crs = "ESRI:54009")
+
+
+#forbidden places 
+
+#these are places in built up areas with an accumulation of location points
+#likely that this is where some of the collars were stored. 
+
+sf_fp <- data.frame(
+  lon = c(31.9098441051575, 25.8222879691359, 
+          25.2242191536082, 23.4576669792581), 
+  lat = c(-21.2720049602878,-17.9290044076166,
+          -17.7971340422376, -19.9697006721614), 
+  name = c("chipinda_pools", "victoria_falls",
+           "kazungala", "maun")) %>% 
+  st_as_sf(coords = c("lon", "lat"), 
+           crs = 4326) %>% 
+  st_transform(crs = "ESRI:54009") %>% 
+  st_buffer(2500)
+
+#remove points in suspicious areas
+discard_1 <- sf_loc_raw %>% 
+  filter(lengths(st_intersects(., sf_fp)) > 0) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+  
+sf_loc_2 <- sf_loc_raw %>% 
+  filter(!obs_id %in% discard_1)
+  
+# Remove spatial outliers ----------------------------------- 
+discard_2 <- c()
+i <- 0
+min_neighbor_dist = 50000 # 50km
+for(id in unique(sf_loc_2$individual_id)){ 
+  
+  sf_loc_sub <- sf_loc_2 %>% 
+    filter(individual_id == id)
+  
+  dist_matrix <- st_distance(sf_loc_sub)
+  diag(dist_matrix) <- NA
+  
+  min_dists <- apply(dist_matrix, MARGIN = 1, min, na.rm = TRUE) #margin = 1 --> for each row
+  
+  too_far_away <- sf_loc_sub[min_dists > min_neighbor_dist, ] %>% 
+    as.data.frame() %>% 
+    mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+    dplyr::select(obs_id) %>% 
+    pull()
+  
+  discard_2 <- c(discard_2, too_far_away)
+  
+  i = i+1
+  print(paste0(id, " done (",
+               i, " of ", n_distinct(sf_loc_2$individual_id), 
+               " (", Sys.time(),")"))
+}
+  
+
+sf_loc_3 <- sf_loc_2 %>% 
+  filter(!obs_id %in% discard_2)
+
+# Identify suspicious elephants ------------------------ 
+# e.g., elephants having the majority of their points in a small area 
+
+sus_ids <- c()
+plot_list <- list()
+i <- 0
+for(id in unique(sf_loc_3$individual_id)){
+  
+  print(paste0("starting with: ",  id))
+  
+  
+  sf_loc_sub <- sf_loc_3 %>% 
+    filter(individual_id == id)
+  
+  grid <- st_make_grid(sf_loc_sub, cellsize = 1000, square = TRUE) %>% 
+    st_as_sf() %>% 
+    mutate(n_obs = lengths(st_intersects(., sf_loc_sub)), 
+           rel_obs = n_obs/nrow(sf_loc_sub)) %>% 
+    filter(n_obs > 0)
+  
+  #print(mapview(grid, zcol = "rel_obs"))
+  
+  p <- ggplot(grid) +
+    geom_sf(aes(color = rel_obs, fill = rel_obs)) +
+    labs(title = id) +
+    scale_color_viridis_c() +
+    scale_fill_viridis_c() +
+    theme_minimal()
+  
+  print(p)
+  
+  if(nrow(grid[grid$rel_obs > 0.05, ]) > 0){
+  sus_ids <- c(sus_ids, id)
+  plot_list[[id]] <- p
+  
+  } 
+  
+  i = i+1
+  print(paste0(id, " done (",
+               i, " of ", n_distinct(sf_loc_3$individual_id), 
+               " (", Sys.time(),")"))
+  
+}
+
+pdf("builds/plots/exploratory/suspicious_individuals_plots.pdf", width = 8, height = 6)
+for (id in sus_ids) {
+  print(plot_list[[id]])
+}
+dev.off()
+
+dt_checked <- c(
+  ID = "ok", 
+  ID2 = "discard", 
+  ID3 = "suspicous"
+) %>% as.data.frame() %>% 
+  rownames_to_column(var = "individual_id") %>% 
+  rename(flag = ".")
+
+
 
 
 ################## Get Duration, Start and End of Tracking and mean relocation interval ###################
@@ -302,7 +433,7 @@ for(ind in unique(track$individual_id)){
     filter(individual_id == ind)
   
   sub_track_res <- sub_track %>% 
-    track_resample(rate = minutes(60), tolerance = minutes(15)) 
+    track_resample(rate = hours(12), tolerance = minutes(60)) 
   
   
   track_resampled <- rbind(sub_track_res, track_resampled)
