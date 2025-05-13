@@ -11,6 +11,7 @@ sf_lp <- st_as_sf(dt_lp,
                   coords = c("lon", "lat"), 
                   crs = 4326) %>% st_transform(crs = "ESRI:54009")
 
+
 # Load all PAs 
 files <- list.files("data/spatial_data/protected_areas/wdpa_raw", pattern = "polygons.shp", recursive = T, full.names = T)
 
