@@ -40,6 +40,13 @@ sf_africa <- sf_world %>% filter(region_un == "Africa") %>%
   filter(!name == "Madagascar") %>% 
   st_transform(., crs = 4326)
 
+# Grid 
+dt_grid <- fread("data/processed_data/data_fragments/relative_occurance_and_roads.csv")
+
+sf_grid <- st_read("data/spatial_data/grid/empty_grid.gpkg") %>% 
+  left_join(dt_grid) %>% 
+  st_transform(., crs = 4326)
+
 ### Plots ------------------------------------------
 p_cluster <- sf_loc %>% 
   sample_n(250000) %>% 
@@ -85,8 +92,49 @@ p_lc <- sf_loc %>%
   theme(legend.position = "none")
 p_lc
 
+p_grid_ind <- sf_grid %>% 
+  ggplot() +
+  ylim(-35, -7.5) +
+  xlim(9, 40) +
+  geom_sf(data = sf_africa, fill = "grey95") +
+  geom_sf(size = 0.1, alpha = 0.1, aes(color = n_indiv_rel_obs_all, fill = n_indiv_rel_obs_all)) + 
+  scale_color_viridis_c() +
+  scale_fill_viridis_c() + 
+  theme_minimal() +
+  theme(legend.position = "none")
+p_grid_ind
+
+p_grid_mean <- sf_grid %>% 
+  ggplot() +
+  ylim(-35, -7.5) +
+  xlim(9, 40) +
+  geom_sf(data = sf_africa, fill = "grey95") +
+  geom_sf(size = 0.1, alpha = 0.1, aes(color = mean_rel_obs_all, fill = mean_rel_obs_all)) + 
+  scale_color_viridis_c() +
+  scale_fill_viridis_c() + 
+  theme_minimal() +
+  theme(legend.position = "none")
+p_grid_mean
+
+p_grid_sum <- sf_grid %>% 
+  ggplot() +
+  ylim(-35, -7.5) +
+  xlim(9, 40) +
+  geom_sf(data = sf_africa, fill = "grey95") +
+  geom_sf(size = 0.1, alpha = 0.1, aes(color = sum_rel_obs_all, fill = sum_rel_obs_all)) + 
+  scale_color_viridis_c() +
+  scale_fill_viridis_c() + 
+  theme_minimal() +
+  theme(legend.position = "none")
+p_grid_sum
+
+summary(dt_grid)
+
 
 ggsave(plot = p_cluster, "builds/plots/exploratory/location_data_and_pas.png", dpi = 600)
 ggsave(plot = p_pas, "builds/plots/exploratory/pas_with_population_counts.png", dpi = 600)
 ggsave(plot = p_hr, "builds/plots/exploratory/mcp_homeranges.png", dpi = 600)
 ggsave(plot = p_lc, "builds/plots/exploratory/location_points.png", dpi = 600)
+ggsave(plot = p_grid_ind, "builds/plots/exploratory/grid_n_individuals.png", dpi = 600)
+ggsave(plot = p_grid_mean, "builds/plots/exploratory/grid_mean_relative_occ.png", dpi = 600)
+ggsave(plot = p_grid_sum, "builds/plots/exploratory/grid_sum_relative_occ.png", dpi = 600)

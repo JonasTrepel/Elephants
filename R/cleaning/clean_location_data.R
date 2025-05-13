@@ -242,8 +242,26 @@ dt_loc_raw <- rbind(
   dt_hwange, 
   dt_peanuts
 ) %>% 
-  mutate(obs_id = paste0("point_", 1:nrow(.))) 
-
+  mutate(obs_id = paste0("point_", 1:nrow(.))) %>% 
+  filter(!is.na(date_time)) %>% 
+  arrange(individual_id, date_time) %>%
+  group_by(individual_id) %>%
+  mutate(
+    n_obs = n(), 
+    start_date = min(date_time),
+    end_date = max(date_time),
+    start_year = year(start_date),
+    end_year = year(end_date),
+    duration_days = as.numeric(difftime(end_date, start_date, units = "days")),
+    duration_years = duration_days / 365.25,
+    mean_interval_mins = ifelse(n() > 1, mean(diff(date_time), na.rm = TRUE) / dminutes(1), NA), 
+    median_interval_mins = ifelse(n() > 1, median(diff(date_time), na.rm = TRUE) / dminutes(1), NA)) %>% 
+  ungroup() %>% 
+  as.data.table() %>% 
+  filter(n_obs > 365 & duration_years > 1 & median_interval_mins < 1440)
+  
+n_distinct(dt_loc_raw$individual_id)
+summary(dt_loc_raw)
 # Remove points in unrealistic areas --------
 
 sf_loc_raw <- dt_loc_raw %>% 
@@ -270,6 +288,17 @@ sf_fp <- data.frame(
   st_buffer(2500)
 
 #remove points in suspicious areas
+africa_moll <- st_transform(africa, crs = "ESRI:54009")
+
+discard_0 <- sf_loc_raw %>% 
+  filter(!lengths(st_intersects(., africa_moll)) > 0) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+
+
 discard_1 <- sf_loc_raw %>% 
   filter(lengths(st_intersects(., sf_fp)) > 0) %>% 
   as.data.frame() %>% 
@@ -278,6 +307,7 @@ discard_1 <- sf_loc_raw %>%
   pull()
   
 sf_loc_2 <- sf_loc_raw %>% 
+  filter(!obs_id %in% discard_0) %>% 
   filter(!obs_id %in% discard_1)
   
 # Remove spatial outliers ----------------------------------- 
@@ -318,6 +348,7 @@ sf_loc_3 <- sf_loc_2 %>%
 sus_ids <- c()
 plot_list <- list()
 i <- 0
+
 for(id in unique(sf_loc_3$individual_id)){
   
   print(paste0("starting with: ",  id))
@@ -326,7 +357,7 @@ for(id in unique(sf_loc_3$individual_id)){
   sf_loc_sub <- sf_loc_3 %>% 
     filter(individual_id == id)
   
-  grid <- st_make_grid(sf_loc_sub, cellsize = 1000, square = TRUE) %>% 
+  grid <- st_make_grid(sf_loc_sub, cellsize = 5000, square = TRUE) %>% 
     st_as_sf() %>% 
     mutate(n_obs = lengths(st_intersects(., sf_loc_sub)), 
            rel_obs = n_obs/nrow(sf_loc_sub)) %>% 
@@ -341,13 +372,18 @@ for(id in unique(sf_loc_3$individual_id)){
     scale_fill_viridis_c() +
     theme_minimal()
   
+
+  if(nrow(grid[grid$rel_obs > 0.25, ]) > 0){
+  sus_ids <- c(sus_ids, id)
+  
+  p <- p + labs(title = id, subtitle = "Strange")
+
+  } 
+  
   print(p)
   
-  if(nrow(grid[grid$rel_obs > 0.05, ]) > 0){
-  sus_ids <- c(sus_ids, id)
   plot_list[[id]] <- p
   
-  } 
   
   i = i+1
   print(paste0(id, " done (",
@@ -357,9 +393,11 @@ for(id in unique(sf_loc_3$individual_id)){
 }
 
 pdf("builds/plots/exploratory/suspicious_individuals_plots.pdf", width = 8, height = 6)
-for (id in sus_ids) {
+for (id in unique(sf_loc_3$individual_id)) {
   print(plot_list[[id]])
 }
+
+
 dev.off()
 
 dt_checked <- c(
