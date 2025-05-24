@@ -5,6 +5,11 @@ data/raw_data/hwange/3.-KAZA-Elephant-Survey-Volume-II.pdf
 data/processed_data/clean_data/all_location_data.csv
 data/clean_data/all_location_data.csv
 data/processed_data/data_fragments/grid_with_all_covariates.csv
+data/processed_data/data_fragments/steps_12hrs_habitat_covariates.csv
+data/processed_data/data_fragments/steps_1hr_habitat_covariates.csv
+data/processed_data/data_fragments/steps_12hrs_incl_random.csv
+data/processed_data/data_fragments/steps_1hr_incl_random.csv
+
 
 # History files
 .Rhistory
