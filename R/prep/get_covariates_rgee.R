@@ -202,6 +202,17 @@ plot(esa_wc_r)
 
 file.remove(esa_wc_files)
 
+esa_wc_r <- rast("data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif")
+
+esa_wc_100m_r <- terra::aggregate(esa_wc_r, 
+                                 fact = 10, 
+                                 fun = "mode", 
+                                 na.rm = TRUE,
+                                 filename = "data/spatial_data/covariates/raster/esa_world_cover_2021_100m.tif", 
+                                 overwrite = TRUE, 
+                                 tempdir = "data/spatial_data/terra_temp_dir", 
+                                 todisk = TRUE, 
+                                 memfrac = 0.4)
 ##### Water ESA worldcover -----------------------------
 
 esa_img <- ee$ImageCollection("ESA/WorldCover/v200")$

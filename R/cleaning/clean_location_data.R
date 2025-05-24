@@ -17,7 +17,7 @@ source("R/functions/assign_park.R")
 
 # Park Boundaries 
 
-pas <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg")
+pas <- st_read("data/spatial_data/protected_areas/pas_intersecting_with_locations_data.gpkg")
 
 # Africa 
 
@@ -267,7 +267,8 @@ summary(dt_loc_raw)
 sf_loc_raw <- dt_loc_raw %>% 
   st_as_sf(coords = c("lon", "lat"), 
            crs = 4326) %>% 
-  st_transform(crs = "ESRI:54009")
+  st_transform(crs = "ESRI:54009") %>% 
+  left_join(dt_loc_raw[, c("obs_id", "lon", "lat")])
 
 
 #forbidden places 
@@ -296,7 +297,6 @@ discard_0 <- sf_loc_raw %>%
   mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
   dplyr::select(obs_id) %>% 
   pull()
-
 
 
 discard_1 <- sf_loc_raw %>% 
@@ -397,28 +397,166 @@ for (id in unique(sf_loc_3$individual_id)) {
   print(plot_list[[id]])
 }
 
-
 dev.off()
 
-dt_checked <- c(
-  ID = "ok", 
-  ID2 = "discard", 
-  ID3 = "suspicous"
-) %>% as.data.frame() %>% 
-  rownames_to_column(var = "individual_id") %>% 
-  rename(flag = ".")
+
+ids_to_discard <- c("1434252", #> 60% of all obs in one cell 
+                    "3438", #very unrealistic and high concentration in one cell (> 80 %)
+                    "3439", #very unrealistic and high concentration in one cell (> 80 %)
+                    "3440", #very unrealistic and high concentration in one cell (> 50 %)
+                    "5433", #60% in one cell, only 4 cells otherwise 
+                    "5434" #all in one
+)
+
+discard_3 <- sf_loc_3 %>% 
+  filter((individual_id == "1434261" & lon > 25)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_4 <- sf_loc_3 %>% 
+  filter((individual_id == "1442046" & lat < - 18.5)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_5 <- sf_loc_3 %>% 
+  filter((individual_id == "1442047" & lat < - 19.5)) %>% as.data.frame() %>%  mutate(x = NULL, geom = NULL, geometry = NULL) %>% dplyr::select(obs_id) %>% pull()
+
+discard_6 <- sf_loc_3 %>% 
+  filter((individual_id == "1442053" & lat < - 19.5)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_7 <- sf_loc_3 %>% 
+  filter((individual_id == "1442057" & lon < 23.75)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_8 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("3959", "3961", 
+                               "3962", "3964", 
+                               "3965", "3966", 
+                               "3967", "3968", 
+                               "3969", "3970", 
+                               "3971", "3972", 
+                               "3973", "3991",
+                               "EM0209", "EM0212"
+                               ) & lat < -22)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_9 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("3971", "3972") & lat > -19.1)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_10 <- sf_loc_3 %>% 
+  filter((individual_id == "3991" & lon > 25)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_11 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("EF0013", "EF0012", "EF0017", "EF0018", "EM0014") & lat < -27)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_12 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("EF0017", "EF0018") & lat > -26.8)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_13 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("EF0208", "EF0244", "EF0251") & lat < -24.8)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_14 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("EM0035") & lon > 23.2)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_15 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("EM0188") & lon < 26)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_16 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("EM0208") & lon < 32)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
 
 
+discard_17 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("EM0212") & lat < -21.75 )) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
 
+
+discard_18 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("EM0212") & lat > -21 )) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+
+sf_loc_4 <- sf_loc_3 %>% 
+  filter(!individual_id %in% ids_to_discard) %>% 
+  filter(!obs_id %in% c(
+    discard_3, 
+    discard_4, 
+    discard_5, 
+    discard_6, 
+    discard_7, 
+    discard_8, 
+    discard_9, 
+    discard_10, 
+    discard_11, 
+    discard_12, 
+    discard_13, 
+    discard_14, 
+    discard_15, 
+    discard_16, 
+    discard_17, 
+    discard_18))
 
 ################## Get Duration, Start and End of Tracking and mean relocation interval ###################
 
 dt_loc <- dt_loc_raw %>%
+  filter(obs_id %in% unique(sf_loc_4$obs_id)) %>%
   #mutate(date_time = ymd_hms(date_time)) %>%  #
   filter(!is.na(date_time)) %>% 
   arrange(individual_id, date_time) %>%
   group_by(individual_id) %>%
   mutate(
+    n = n(), 
     start_date = min(date_time),
     end_date = max(date_time),
     start_year = year(start_date),
@@ -431,22 +569,125 @@ dt_loc <- dt_loc_raw %>%
   as.data.table()
 
 summary(dt_loc)
-unique(dt_loc[start_year < 1990]$individual_id) # 1 - that's pretty unlikely to be true. 
 unique(dt_loc[mean_interval_mins > 1440]$individual_id) # 
-unique(dt_loc[median_interval_mins > 1440]$individual_id) # 
+unique(dt_loc[median_interval_mins > 720]$median_interval_mins) # 
+
 
 
 ############################## Subset to > year & > 1 Observation per day ##########################
 
 
 dt_loc_sub <- dt_loc %>% 
-  filter(duration_days > 365 & median_interval_mins < 1440) %>% 
-  filter(!start_year == 1909) %>% 
+  filter(duration_days > 365 & median_interval_mins < 780) %>% #720 min = 12 +/- 1 std 
   filter(!(individual_id == "EF0215" & is.na(sex))) %>% 
   unique()
 
 summary(dt_loc_sub)
 n_distinct(dt_loc_sub$individual_id)
+
+######################### Home Ranges  ########################## 
+
+track <- make_track(dt_loc_sub %>% 
+                      arrange(date_time),
+                    .x = "lon", 
+                    .y = "lat",
+                    .t = "date_time",
+                    individual_id = individual_id, 
+                    crs = 4326)
+
+hr_mcps <- data.frame()
+hr_meta <- data.frame()
+hr_locohs <- data.frame()
+for(ind in unique(track$individual_id)){
+  
+  sub_track <- track %>% 
+    filter(individual_id == ind) %>% 
+    distinct(x_, y_)
+  
+  # Mininum convex polygon
+  mcp <- hr_mcp(sub_track, levels = .95)
+  mapview(mcp$mcp)
+  
+  mcp_trans <- st_transform(mcp$mcp, crs = "ESRI:54009") 
+  
+  # Local convex hull 
+  sf_use_s2(FALSE)
+  locoh <- hr_locoh(sub_track, levels = .95)
+  sf_use_s2(TRUE)
+  locoh_trans <- st_transform(locoh$locoh, crs = "ESRI:54009")
+  
+  # get homerange areas
+  hr_mcp_area_km2 <- as.numeric(st_area(st_make_valid(mcp_trans))/1000000)
+  hr_locoh_area_km2 <- as.numeric(st_area(locoh_trans)/1000000)
+  
+  # get homerange diameter 
+  mbc <- sf::st_minimum_bounding_circle(mcp_trans)
+  circle_area_km2 <- as.numeric(st_area(mbc)/1000000)
+  # Area = pi + r^2 ; r = sqrt(area/pi) --> diameter = r*2
+  hr_diameter_km <- sqrt(circle_area_km2 / pi) * 2
+  
+  tmp_hr_meta <- data.frame(
+    hr_mcp_area_km2 = hr_mcp_area_km2, 
+    hr_locoh_area_km2 = hr_locoh_area_km2, 
+    hr_diameter_km = hr_diameter_km, 
+    individual_id = ind)
+  
+  hr_meta <- rbind(hr_meta, tmp_hr_meta)
+  
+  tmp_mcps <- mcp$mcp %>% 
+    mutate(individual_id = ind)
+  
+  hr_mcps <- rbind(hr_mcps, tmp_mcps)
+  
+  tmp_locohs <- locoh$locoh %>% 
+    mutate(individual_id = ind)
+  
+  hr_locohs <- rbind(hr_locohs, tmp_locohs)
+  
+  
+  print(paste0(ind, " done. Home range diameter: km ", round(hr_diameter_km, 2)))
+}
+
+st_write(hr_mcps, "data/spatial_data/elephants/mcp_home_ranges.gpkg", append = FALSE)
+st_write(hr_locohs, "data/spatial_data/elephants/locohs_home_ranges.gpkg", append = FALSE)
+
+quantile(hr_meta$hr_diameter_km)
+summary(hr_meta)
+mean(hr_meta$hr_diameter_km)
+
+######################### Park Association ########################## 
+
+
+park_for_id <- data.frame()
+i = 0
+for(ind in unique(hr_locohs$individual_id)){
+  
+  pol <- hr_locohs %>% filter(individual_id == ind) %>% 
+    st_transform(crs = "ESRI:54009") %>% 
+    st_make_valid()
+  tmp <- assign_park(polygon = pol, pas = pas , ind = ind)  
+  
+  park_for_id <- rbind(tmp, park_for_id)
+ i = i+1
+ print(paste0(ind, " done. Associated park is: ", unique(tmp$park_id), 
+              " (", i, " of ", n_distinct(hr_locohs$individual_id), ")"))
+  
+}
+
+summary(park_for_id)
+sum(!is.na(park_for_id$park_id))
+
+######################### Combine ########################## 
+
+dt_final <- dt_loc_sub %>% 
+  dplyr::select(-park_id) %>% 
+  left_join(park_for_id[, -c("is_area_km2", "hr_area_km2")]) %>% 
+  left_join(hr_meta)
+
+
+fwrite(dt_final, "data/processed_data/clean_data/all_location_data.csv")
+
+
 
 ######################### Resample ########################## 
 
@@ -482,7 +723,7 @@ for(ind in unique(track$individual_id)){
   print(paste0(ind, " done. Removed ", rem, " row (", per, "%)"))
 }
 
-dt_res <- track_resampled %>% 
+dtrack <- track_resampled %>% 
   as.data.frame() %>% 
   dplyr::select(
     lon = x_, 
@@ -501,109 +742,11 @@ dt_res <- track_resampled %>%
     duration_years = duration_days / 365.25,
     mean_interval_mins = ifelse(n() > 1, mean(diff(date_time), na.rm = TRUE) / dminutes(1), NA), 
     median_interval_mins = ifelse(n() > 1, median(diff(date_time), na.rm = TRUE) / dminutes(1), NA), 
-    lag_time_diff_hours = as.numeric(difftime(date_time, lag(date_time), units = "hours")),
-    lead_time_diff_hours = as.numeric(difftime(date_time, lead(date_time), units = "hours")),
-    index = 1:n(),
     n = n()) %>% 
   ungroup() %>% 
-  as.data.table() %>% 
-  filter(abs(lead_time_diff_hours) < 12.5, abs(lag_time_diff_hours) < 12.5) %>% 
-  filter(n > 730)
+  filter(n > 730) %>% 
+  as.data.table()
 
-n_distinct(dt_res$individual_id)
-
-######################### Home Ranges  ########################## 
-t_res <- make_track(dt_res %>% 
-                      arrange(date_time),
-                    .x = "lon", 
-                    .y = "lat",
-                    .t = "date_time",
-                    individual_id = individual_id, 
-                    crs = 4326)
-
-hr_mcps <- data.frame()
-hr_meta <- data.frame()
-hr_locohs <- data.frame()
-for(ind in unique(t_res$individual_id)){
-  
-  sub_track <- t_res %>% 
-    filter(individual_id == ind) %>% 
-    distinct(x_, y_)
-  
-  # Mininum convex polygon
-  mcp <- hr_mcp(sub_track, levels = .95)
-  mapview(mcp$mcp)
-  
-  mcp_trans <- st_transform(mcp$mcp, crs = "ESRI:54034") #https://epsg.io/54034
-  
-  # Local convex hull 
-  sf_use_s2(FALSE)
-  locoh <- hr_locoh(sub_track, levels = .95)
-  sf_use_s2(TRUE)
-  locoh_trans <- st_transform(locoh$locoh, crs = "ESRI:54034") #https://epsg.io/54034
-  
-  # get homerange areas
-  hr_mcp_area_km2 <- as.numeric(st_area(st_make_valid(mcp_trans))/1000000)
-  hr_locoh_area_km2 <- as.numeric(st_area(locoh_trans)/1000000)
-  
-  # get homerange diameter 
-  mbc <- sf::st_minimum_bounding_circle(mcp_trans)
-  circle_area_km2 <- as.numeric(st_area(mbc)/1000000)
-  # Area = pi + r^2 ; r = sqrt(area/pi) --> diameter = r*2
-  hr_diameter_km <- sqrt(circle_area_km2 / pi) * 2
-  
-  tmp_hr_meta <- data.frame(
-    hr_mcp_area_km2 = hr_mcp_area_km2, 
-    hr_locoh_area_km2 = hr_locoh_area_km2, 
-    hr_diameter_km = hr_diameter_km, 
-    individual_id = ind)
-  
-  hr_meta <- rbind(hr_meta, tmp_hr_meta)
-    
-  tmp_mcps <- mcp$mcp %>% 
-    mutate(individual_id = ind)
-  
-  hr_mcps <- rbind(hr_mcps, tmp_mcps)
-  
-  tmp_locohs <- locoh$locoh %>% 
-    mutate(individual_id = ind)
-  
-  hr_locohs <- rbind(hr_locohs, tmp_locohs)
-  
-  
-  print(paste0(ind, " done. Home range diameter: km ", round(hr_diameter_km, 2)))
-}
-
-st_write(hr_mcps, "data/spatial_data/elephants/mcp_home_ranges.gpkg", append = FALSE)
-st_write(hr_locohs, "data/spatial_data/elephants/locohs_home_ranges.gpkg", append = FALSE)
-
-quantile(hr_meta$hr_diameter_km)
-summary(hr_meta)
-mean(hr_meta$hr_diameter_km)
-
-######################### Park Association ########################## 
-
-
-park_for_id <- data.frame()
-for(ind in unique(hr_locohs$individual_id)){
-
-  pol <- hr_locohs %>% filter(individual_id == ind)
-  tmp <- assign_park(polygon = pol, pas = pas, ind = ind)  
-  
-  park_for_id <- rbind(tmp, park_for_id)
-  print(ind)
-}
-
-summary(park_for_id)
-sum(!is.na(park_for_id$park_id))
-
-######################### Combine ########################## 
-
-dt_final <- dt_res %>% 
-  dplyr::select(-park_id) %>% 
-  left_join(park_for_id[, -c("is_area_km2", "hr_area_km2")]) %>% 
-  left_join(hr_meta)
-
-
-fwrite(dt_final, "data/processed_data/clean_data/all_location_data.csv")
+n_distinct(dtrack$individual_id)
+summary(dtrack)
 

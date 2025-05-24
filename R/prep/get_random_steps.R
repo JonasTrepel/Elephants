@@ -21,11 +21,11 @@ sf_loc$y_moll <- coords[,2]
 track <- make_track(.x = x_moll, .y = y_moll, .t = date_time, tbl = sf_loc, 
                     all_cols = T, crs = "ESRI:54009")
 
+
+# 2. Resample and create random steps -------------------------------
 track_12_random <- data.frame()
 track_1_random <- data.frame()
 i <- 0
-
-# 2. Resample and create random steps -------------------------------
 for(id in unique(track$individual_id)){
   
   
@@ -33,7 +33,8 @@ for(id in unique(track$individual_id)){
   
   #12 hour intervals 
   if(unique(track_sub$median_interval_mins < 780)){
-
+    set.seed(161)
+    
     tryCatch({
   track_sub_12 <- track_sub  %>% 
     track_resample(rate = hours(12), tolerance = minutes(60)) %>% 
@@ -54,6 +55,7 @@ for(id in unique(track$individual_id)){
   #1 hour intervals 
   
   if(unique(track_sub$mean_interval_mins < 90)){
+    set.seed(1910)
     
     tryCatch({
   track_sub_1 <- track_sub  %>% 
@@ -78,10 +80,79 @@ for(id in unique(track$individual_id)){
   
 }
 
+
+
 n_distinct(track_1_random$individual_id)
+
 n_distinct(track_12_random$individual_id)
 
+### Save 
+
+names(track_1_random)
+steps_1hr <- track_1_random %>% 
+  as.data.table() %>% 
+  dplyr::select(individual_id, 
+                x1_, x2_, y1_, y2_, t1_, t2_,
+                case_, sl_, ta_, dt_, step_id_, burst_,
+                source, sex, park_id, wdpa_pid, overlap_percent, obs_id,
+                hr_mcp_area_km2, hr_locoh_area_km2, hr_diameter_km) %>% 
+  group_by(individual_id) %>%
+  mutate(
+    start_date = min(t2_),
+    end_date = max(t2_),
+    month = month(t2_),
+    start_year = year(start_date),
+    end_year = year(end_date),
+    duration_days = as.numeric(difftime(end_date, start_date, units = "days")),
+    duration_years = duration_days / 365.25,
+    mean_interval_mins = mean(t2_ - t1_, na.rm = TRUE) / dminutes(1),
+    median_interval_mins = median(t2_ - t1_, na.rm = TRUE) / dminutes(1),
+    n_true = n()/11, 
+    n_total = n()) %>% 
+  ungroup() %>% 
+  mutate(dt_hour = as.numeric(dt_)/60, 
+         sl_km = sl_/1000, 
+         min_kmh = sl_km/dt_hour, 
+         season = ifelse(month %in% c(5,6,7,8,9), "dry_season", "wet_season"), 
+         unique_id = paste0("step_", 1:nrow(.))) %>% 
+  filter(duration_years >= 1 & min_kmh < 40) %>% 
+  as.data.table()
+  
+summary(steps_1hr)
+n_distinct(steps_1hr$individual_id)
+
+fwrite(steps_1hr, "data/processed_data/data_fragments/steps_1hr_incl_random.csv")
 
 
+steps_12hrs <- track_12_random %>% 
+  as.data.table() %>% 
+  dplyr::select(individual_id, 
+                x1_, x2_, y1_, y2_, t1_, t2_,
+                case_, sl_, ta_, dt_, step_id_, burst_,
+                source, sex, park_id, wdpa_pid, overlap_percent, obs_id,
+                hr_mcp_area_km2, hr_locoh_area_km2, hr_diameter_km) %>% 
+  group_by(individual_id) %>%
+  mutate(
+    start_date = min(t2_),
+    end_date = max(t2_),
+    month = month(t2_),
+    start_year = year(start_date),
+    end_year = year(end_date),
+    duration_days = as.numeric(difftime(end_date, start_date, units = "days")),
+    duration_years = duration_days / 365.25,
+    mean_interval_mins = mean(t2_ - t1_, na.rm = TRUE) / dminutes(1),
+    median_interval_mins = median(t2_ - t1_, na.rm = TRUE) / dminutes(1),
+    n_true = n()/11, 
+    n_total = n()) %>% 
+  ungroup() %>% 
+  mutate(dt_hour = as.numeric(dt_)/60, 
+         sl_km = sl_/1000, 
+         min_kmh = sl_km/dt_hour, 
+         season = ifelse(month %in% c(5,6,7,8,9), "dry_season", "wet_season"), 
+         unique_id = paste0("step_", 1:nrow(.))) %>% 
+  filter(duration_years >= 1 & min_kmh < 40) %>% 
+  as.data.table()
 
-quantile(track$median_interval_mins)
+summary(steps_12hrs)
+n_distinct(steps_12hrs$individual_id)
+fwrite(steps_12hrs, "data/processed_data/data_fragments/steps_12hrs_incl_random.csv")
