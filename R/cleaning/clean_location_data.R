@@ -688,65 +688,65 @@ dt_final <- dt_loc_sub %>%
 fwrite(dt_final, "data/processed_data/clean_data/all_location_data.csv")
 
 
-
-######################### Resample ########################## 
-
-id_meta <- dt_loc_sub %>% 
-  dplyr::select(individual_id, sex, population_id, park_id, source, start_date, 
-                end_date, start_year, end_year, duration_days, duration_years, mean_interval_mins, 
-                median_interval_mins) %>% 
-  unique()
-
-track <- make_track(dt_loc_sub %>% 
-                      arrange(date_time),
-                    .x = "lon", 
-                    .y = "lat",
-                    .t = "date_time",
-                    individual_id = individual_id, 
-                    crs = 4326)
-
-track_resampled <- data.frame()
-for(ind in unique(track$individual_id)){
-  
-  sub_track <- track %>% 
-    filter(individual_id == ind)
-  
-  sub_track_res <- sub_track %>% 
-    track_resample(rate = hours(12), tolerance = minutes(60)) 
-  
-  
-  track_resampled <- rbind(sub_track_res, track_resampled)
-  
-  rem <- nrow(sub_track) - nrow(sub_track_res)
-  per <- round(rem/nrow(sub_track)*100, 1)
-  
-  print(paste0(ind, " done. Removed ", rem, " row (", per, "%)"))
-}
-
-dtrack <- track_resampled %>% 
-  as.data.frame() %>% 
-  dplyr::select(
-    lon = x_, 
-    lat = y_, 
-    date_time = t_,
-    individual_id
-  ) %>% left_join(id_meta) %>% 
-  arrange(individual_id, date_time) %>%
-  group_by(individual_id) %>%
-  mutate(
-    start_date = min(date_time),
-    end_date = max(date_time),
-    start_year = year(start_date),
-    end_year = year(end_date),
-    duration_days = as.numeric(difftime(end_date, start_date, units = "days")),
-    duration_years = duration_days / 365.25,
-    mean_interval_mins = ifelse(n() > 1, mean(diff(date_time), na.rm = TRUE) / dminutes(1), NA), 
-    median_interval_mins = ifelse(n() > 1, median(diff(date_time), na.rm = TRUE) / dminutes(1), NA), 
-    n = n()) %>% 
-  ungroup() %>% 
-  filter(n > 730) %>% 
-  as.data.table()
-
-n_distinct(dtrack$individual_id)
-summary(dtrack)
+# 
+# ######################### Resample ########################## 
+# 
+# id_meta <- dt_loc_sub %>% 
+#   dplyr::select(individual_id, sex, population_id, park_id, source, start_date, 
+#                 end_date, start_year, end_year, duration_days, duration_years, mean_interval_mins, 
+#                 median_interval_mins) %>% 
+#   unique()
+# 
+# track <- make_track(dt_loc_sub %>% 
+#                       arrange(date_time),
+#                     .x = "lon", 
+#                     .y = "lat",
+#                     .t = "date_time",
+#                     individual_id = individual_id, 
+#                     crs = 4326)
+# 
+# track_resampled <- data.frame()
+# for(ind in unique(track$individual_id)){
+#   
+#   sub_track <- track %>% 
+#     filter(individual_id == ind)
+#   
+#   sub_track_res <- sub_track %>% 
+#     track_resample(rate = hours(12), tolerance = minutes(60)) 
+#   
+#   
+#   track_resampled <- rbind(sub_track_res, track_resampled)
+#   
+#   rem <- nrow(sub_track) - nrow(sub_track_res)
+#   per <- round(rem/nrow(sub_track)*100, 1)
+#   
+#   print(paste0(ind, " done. Removed ", rem, " row (", per, "%)"))
+# }
+# 
+# dtrack <- track_resampled %>% 
+#   as.data.frame() %>% 
+#   dplyr::select(
+#     lon = x_, 
+#     lat = y_, 
+#     date_time = t_,
+#     individual_id
+#   ) %>% left_join(id_meta) %>% 
+#   arrange(individual_id, date_time) %>%
+#   group_by(individual_id) %>%
+#   mutate(
+#     start_date = min(date_time),
+#     end_date = max(date_time),
+#     start_year = year(start_date),
+#     end_year = year(end_date),
+#     duration_days = as.numeric(difftime(end_date, start_date, units = "days")),
+#     duration_years = duration_days / 365.25,
+#     mean_interval_mins = ifelse(n() > 1, mean(diff(date_time), na.rm = TRUE) / dminutes(1), NA), 
+#     median_interval_mins = ifelse(n() > 1, median(diff(date_time), na.rm = TRUE) / dminutes(1), NA), 
+#     n = n()) %>% 
+#   ungroup() %>% 
+#   filter(n > 730) %>% 
+#   as.data.table()
+# 
+# n_distinct(dtrack$individual_id)
+# summary(dtrack)
 
