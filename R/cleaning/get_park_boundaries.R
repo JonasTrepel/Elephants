@@ -140,51 +140,27 @@ st_write(pas_sub, "data/spatial_data/protected_areas/park_boundaries.gpkg", appe
 mapview(pas_sub)
 mapview(pas_sub[grepl("ZAF", pas_sub$ISO3), ])
 
-
-
-## create buffer of median elephant homerange diameter 
-
-dt_loc <- fread("data/processed_data/clean_data/all_location_data.csv") 
-
-dt_loc_nsa <- dt_loc %>% filter(!wdpa_pid %in% pas_all[pas_all$ISO3 == "ZAF", ]$WDPA_PID)
-dt_loc_sa <- dt_loc %>% filter(wdpa_pid %in% pas_all[pas_all$ISO3 == "ZAF", ]$WDPA_PID)
-
-unique(dt_loc_nsa$park_id)
+# Rasterize PAs-----------
+library(sf)
+library(data.table)
+library(tidyverse)
+library(terra)
+library(exactextractr)
 
 
 
-dt_hr <- dt_loc_nsa %>% 
-  dplyr::select(individual_id, hr_diameter_km, hr_mcp_area_km2) %>% 
-  unique() 
-
-dt_hr_sa <- dt_loc_sa %>% 
-  dplyr::select(individual_id, hr_diameter_km, hr_mcp_area_km2) %>% 
-  unique() 
+### get raster of pa maps 
+pas_trans <- st_transform(pas_sub, crs = "ESRI:54009")
+temp_r_id <- rast(extent = ext(pas_trans), resolution = 250, crs = "ESRI:54009")
+n_distinct(cells(temp_r_id))
 
 
-hist(dt_hr$hr_diameter_km)
+pa_ids_r <- rasterize_polygons(pas_trans,
+                               temp_r_id)
 
-mean(dt_hr$hr_diameter_km, na.rm = T) # 87.35162
-median(dt_hr$hr_diameter_km, na.rm = T) # 72.53294
+pa_ids_r[] <- pas_trans$WDPA_PID[pa_ids_r[]]
 
-mean(dt_hr_sa$hr_diameter_km, na.rm = T) # 50.76994
-median(dt_hr_sa$hr_diameter_km, na.rm = T) # 47.48037
+plot(pa_ids_r)
 
-mean(dt_hr$hr_mcp_area_km2, na.rm = T) # 3931.655
-quantile(dt_hr$hr_mcp_area_km2, na.rm = T) # 2168.6491
+writeRaster(pa_ids_r, "data/spatial_data/protected_areas/pa_id_raster.tif", overwrite = TRUE)
 
-mean(dt_hr_sa$hr_mcp_area_km2, na.rm = T) # 1152.775
-quantile(dt_hr_sa$hr_mcp_area_km2, na.rm = T) # 1169.70026
-
-pas_buff_nsa <- pas_sub %>% 
-  filter(!ISO3 == "ZAF") %>% 
-  st_transform(crs = "ESRI:54009") %>% 
-  st_buffer(dist = mean(dt_loc$hr_diameter_km, na.rm = T)) #65
-
-pas_sa <- pas_sub %>% 
-  filter(ISO3 == "ZAF") %>% 
-  st_transform(crs = "ESRI:54009")
-
-pas_buff <- rbind(pas_buff_nsa,pas_sa)
-
-st_write(pas_buff, "data/spatial_data/protected_areas/park_boundaries_buffer_for_nsa.gpkg")
