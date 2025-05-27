@@ -5,8 +5,8 @@ library(MuMIn)
 library(broom)
 library(MetBrewer)
 
-#param = "1hr"
-param = "12hrs"
+param = "1hr"
+#param = "12hrs"
 
 if(param == "1hr"){
   

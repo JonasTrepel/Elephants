@@ -150,7 +150,8 @@ library(exactextractr)
 
 
 ### get raster of pa maps 
-pas_trans <- st_transform(pas_sub, crs = "ESRI:54009")
+pas_trans <- st_transform(pas_sub, crs = "ESRI:54009") %>% 
+  mutate(WDPA_PID = as.numeric(WDPA_PID))
 temp_r_id <- rast(extent = ext(pas_trans), resolution = 250, crs = "ESRI:54009")
 n_distinct(cells(temp_r_id))
 

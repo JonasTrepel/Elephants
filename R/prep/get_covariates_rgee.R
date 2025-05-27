@@ -202,17 +202,55 @@ plot(esa_wc_r)
 
 file.remove(esa_wc_files)
 
-esa_wc_r <- rast("data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif")
+# esa_wc_r <- rast("data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif")
+# 
+# esa_wc_100m_r <- terra::aggregate(esa_wc_r, 
+#                                  fact = 10, 
+#                                  fun = "mode", 
+#                                  na.rm = TRUE,
+#                                  filename = "data/spatial_data/covariates/raster/esa_world_cover_2021_100m.tif", 
+#                                  overwrite = TRUE, 
+#                                  tempdir = "data/spatial_data/terra_temp_dir", 
+#                                  todisk = TRUE, 
+#                                  memfrac = 0.2)
 
-esa_wc_100m_r <- terra::aggregate(esa_wc_r, 
-                                 fact = 10, 
-                                 fun = "mode", 
-                                 na.rm = TRUE,
-                                 filename = "data/spatial_data/covariates/raster/esa_world_cover_2021_100m.tif", 
-                                 overwrite = TRUE, 
-                                 tempdir = "data/spatial_data/terra_temp_dir", 
-                                 todisk = TRUE, 
-                                 memfrac = 0.4)
+
+##### ESA Worldcover 100m
+
+
+# Load and select the ESA WorldCover image
+esa_wc_img <- ee$ImageCollection("ESA/WorldCover/v200")$
+  select("Map")$
+  first()
+
+# Define the target projection: 100m resolution, using the native EPSG
+esa_proj <- esa_wc_img$projection()$atScale(100)
+
+# Reduce resolution using mode (most common class) and reproject to 100m
+esa_wc_img_100m <- esa_wc_img$
+  reduceResolution(
+    reducer = ee$Reducer$mode(),
+    maxPixels = 1024
+  )$
+  reproject(crs = esa_proj, scale = 100)
+
+# Optional: visualize the layer (Map viewer is limited to 5000x5000px)
+Map$centerObject(esa_wc_img)
+Map$addLayer(esa_wc_img_100m, list(min = 10, max = 100), "ESA WC 100m (mode)")
+
+# Export to Google Drive
+export_esa_wc <- ee_image_to_drive(
+  image = esa_wc_img_100m,
+  region = ssa_ext,  # Make sure ssa_ext is defined (an ee$Geometry)
+  folder = "rgee_backup_esa_wc",
+  description = "esa_world_cover_100m_mode",
+  scale = 100,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_esa_wc$start()
+
+
 ##### Water ESA worldcover -----------------------------
 
 esa_img <- ee$ImageCollection("ESA/WorldCover/v200")$

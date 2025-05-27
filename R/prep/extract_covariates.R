@@ -10,8 +10,8 @@ library(terra)
 library(exactextractr)
 ### define if we want to run it for control or PA 
 
-# param <- "grid"
-param <- "steps_1hr"
+ param <- "grid"
+#param <- "steps_1hr"
 #param <- "steps_12hrs"
 
 if(param == "grid"){
@@ -255,7 +255,7 @@ vect_covs <- dt_vect_covs %>% left_join(vect) %>% st_as_sf
 
 if(param == "grid"){
   
-  dt_occ <- fread("data/processed_data/data_fragments/relative_occurance_and_roads.csv")
+  #dt_occ <- fread("data/processed_data/data_fragments/relative_occurance_and_roads.csv")
 
   
   fwrite(dt_vect_covs %>% 
@@ -263,9 +263,9 @@ if(param == "grid"){
            mutate(unique_id = NULL), "data/processed_data/data_fragments/grid_habitat_covariates.csv")
   
   
-  fwrite(dt_vect_covs %>% 
-           left_join(dt_occ) %>% 
-           mutate(unique_id = NULL), "data/processed_data/data_fragments/grid_with_all_covariates.csv")
+ # fwrite(dt_vect_covs %>% 
+ #          left_join(dt_occ) %>% 
+ #          mutate(unique_id = NULL), "data/processed_data/data_fragments/grid_with_all_covariates.csv")
   
 } else if(param == "steps_1hr"){
   
