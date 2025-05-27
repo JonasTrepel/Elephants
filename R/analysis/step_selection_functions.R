@@ -12,10 +12,14 @@ if(param == "1hr"){
   
 dt <- fread("data/processed_data/data_fragments/steps_1hr_habitat_covariates.csv")
 
+
 } else if(param == "12hrs"){
   
-  dt <- fread("data/processed_data/data_fragments/steps_12hrs_habitat_covariates.csv")
-  
+dt <- fread("data/processed_data/data_fragments/steps_12hrs_habitat_covariates.csv")
+mean(dt$sl_) #2718.854
+quantile(dt$sl_)
+# 0%      25%      50%      75%     100% 
+#0.000 1254.603 2334.965 3865.864 8661.769
 }
 
 # Create correlation matrix
