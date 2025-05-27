@@ -5,8 +5,8 @@ library(MuMIn)
 library(broom)
 library(MetBrewer)
 
-param = "1hr"
-#param = "12hrs"
+#param = "1hr"
+param = "12hrs"
 
 if(param == "1hr"){
   
@@ -41,11 +41,29 @@ ggcorrplot::ggcorrplot(corr_matrix,
                        colors = c("blue", "white", "red"))
 
 
-i = 0
+
+dt_seas <- data.frame(season = c("wet_season", "dry_season", "whole_year"))
+
 dt_est <- data.frame()
+
+for(season in unique(dt_seas$season)){
+  
+if(season == "whole_year"){
+  dt_se <- dt
+}else if(season == "dry_season"){
+  dt_se <- dt %>% filter(season == "dry_season")
+}else if(season == "wet_season"){
+  dt_se <- dt %>% filter(season == "wet_season")
+}else
+
+  
+print(paste0("Now running models for: ", season))
+  
+i = 0
+dt_est_se <- data.frame()
 for(id in unique(dt$individual_id)){
   
-  dt_sub <- dt %>% filter(individual_id == id) 
+  dt_sub <- dt_se %>% filter(individual_id == id) 
   
   # Means
   evi_mean_mean <- mean(dt_sub$evi_mean, na.rm = TRUE)
@@ -110,18 +128,23 @@ for(id in unique(dt$individual_id)){
            distance_to_settlement_km_range = distance_to_settlement_km_range,
            human_modification_range = human_modification_range,
            enerscape_range = enerscape_range,
-           slope_range = slope_range
+           slope_range = slope_range, 
+           season = season
            )
 
-  dt_est <- rbind(m_tidy, dt_est)
+  dt_est_se <- rbind(m_tidy, dt_est_se)
   i = i+1
   print(paste0(id, " done (", i, "/", n_distinct(dt$individual_id), ")"))
   
 }
 
+dt_est <- rbind(dt_est, dt_est_se)
+
+}
+
 
 dt_me <- dt_est %>% 
-  group_by(term) %>% 
+  group_by(term, season) %>% 
   summarise(mean_estimate = mean(estimate, na.rm = T), 
             std_error = sd(estimate)/sqrt(n()), 
             ci_lb = mean_estimate - 1.96*std_error,
@@ -141,7 +164,7 @@ dt_me <- dt_est %>%
 
 
 p_est <- dt_est %>% 
-  left_join(dt_me[, c("term", "sig")]) %>% 
+  left_join(dt_me[, c("term", "sig", "season")]) %>% 
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
@@ -153,20 +176,24 @@ p_est <- dt_est %>%
   )) %>% 
   ggplot() +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_boxplot(aes(x = clean_term, y = estimate, fill = "all", alpha = sig), color = "grey") +
+  geom_boxplot(aes(x = clean_term, y = estimate, fill = season, alpha = sig), color = "grey") +
   geom_pointrange(data = dt_me,
                   aes(x = clean_term, y = mean_estimate, ymin = ci_lb, ymax = ci_ub,
-                      shape = sig_me, color = "all", fill = "all"), 
+                      shape = sig_me, color = season, fill = season), 
                   position = position_dodge(width = 0.75),
                   size = 0.4, linewidth = 1.1
   ) + 
   scale_alpha_manual(values = c("significant" = 0.5, "non-significant" = 0.1), guide = "none") +
   scale_shape_manual(values = c("significant" = 23, "non-significant" = 21), guide = "none") +
   theme_classic() +
-  scale_color_manual(values = c("all" = "#fab255")) +
-  scale_fill_manual(values = c("all" = "#fab255")) +
-  labs(x = "Covariate", y = "Estimate", color = "Sex", fill = "Sex", 
+  scale_color_met_d(name = "Egypt", direction = 1) +
+  scale_fill_met_d(name = "Egypt", direction = 1) +
+  labs(x = "Covariate", y = "Estimate", color = "Season", fill = "Season", 
        subtitle = paste0("n = ", n_distinct(dt_est$individual_id))) +
+  guides(
+    fill = guide_legend(nrow = 2),
+    color = guide_legend(nrow = 2)
+  ) +
   theme(
     legend.position = "bottom",
     # axis.text.x = element_text(angle = 45, hjust = 1)
@@ -179,7 +206,8 @@ c(met.brewer(name = "Egypt"))
 
 #Group by sex -----------
 dt_me_sex <- dt_est %>% 
-  group_by(term, sex) %>% 
+  mutate(sex_season = paste0(sex, " in ", season)) %>%
+  group_by(term, sex_season, sex, season) %>% 
   summarise(mean_estimate = mean(estimate, na.rm = T), 
          std_error = sd(estimate)/sqrt(n()), 
          ci_lb = mean_estimate - 1.96*std_error,
@@ -200,7 +228,8 @@ dt_me_sex <- dt_est %>%
 
 
 p_est_sex <- dt_est %>% 
-  left_join(dt_me_sex[, c("term", "sex", "sig")]) %>% 
+  left_join(dt_me_sex[, c("term", "sex", "sig", "season", "sex_season")]) %>% 
+  filter(!sex == "U") %>% 
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
@@ -212,19 +241,19 @@ p_est_sex <- dt_est %>%
   )) %>% 
   ggplot() +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_boxplot(aes(x = clean_term, y = estimate, fill = sex, alpha = sig), color = "grey") +
-  geom_pointrange(data = dt_me_sex,
+  geom_boxplot(aes(x = clean_term, y = estimate, fill = sex_season, alpha = sig), color = "grey") +
+  geom_pointrange(data = dt_me_sex %>% filter(!sex == "U") ,
                   aes(x = clean_term, y = mean_estimate, ymin = ci_lb, ymax = ci_ub,
-                      color = sex, fill = sex, shape = sig_me), 
+                      color = sex_season, fill = sex_season, shape = sig_me), 
                   position = position_dodge(width = 0.75),
                   size = 0.4, linewidth = 1.1
   ) + 
   theme_classic() +
-  scale_color_met_d(name = "Egypt") +
-  scale_fill_met_d(name = "Egypt") +
+  scale_color_met_d(name = "Cassatt2", direction = -1) +
+  scale_fill_met_d(name = "Cassatt2", direction = -1) +
   scale_alpha_manual(values = c("significant" = 0.5, "non-significant" = 0.1), guide = "none") +
   scale_shape_manual(values = c("significant" = 23, "non-significant" = 21), guide = "none") +
-  labs(x = "Covariate", y = "Estimate", color = "Sex", fill = "Sex", 
+  labs(x = "Covariate", y = "Estimate", color = "Sex / Season", fill = "Sex / Season", 
        subtitle = paste0("n (M) = ", n_distinct(dt_est[dt_est$sex == "M", ]$individual_id),
        "; n (F) = ",  n_distinct(dt_est[dt_est$sex == "F", ]$individual_id),
        "; n (U) = ",  n_distinct(dt_est[dt_est$sex == "U", ]$individual_id))) +
@@ -237,7 +266,7 @@ p_est_sex <- dt_est %>%
   coord_flip()
 p_est_sex
 
-p_comb <- gridExtra::grid.arrange(p_est, p_est_sex, ncol = 2, widths = c(1.5, 1))
+p_comb <- gridExtra::grid.arrange(p_est, p_est_sex, ncol = 2, widths = c(1.4, 1))
 
 
 # Look at p value vs range and estimate vs term mean 
@@ -296,7 +325,7 @@ if(param == "1hr"){
   
   fwrite(dt_est, "builds/model_outputs/issf_estimates_1hr_steps.csv")
   ggsave(plot = p_comb, "builds/plots/elephants_issf_estimates_1hr_steps.png",
-         dpi = 600, height = 4.5, width = 9)
+         dpi = 600, height = 6, width = 12)
   
   ggsave(plot = p_meta, "builds/plots/exploratory/elephants_issf_stats_1hr_steps.png",
          dpi = 600, height = 10, width = 9)
@@ -305,7 +334,7 @@ if(param == "1hr"){
   
   fwrite(dt_est, "builds/model_outputs/issf_estimates_12hrs_steps.csv")
   ggsave(plot = p_comb, "builds/plots/elephants_issf_estimates_12hrs_steps.png",
-         dpi = 600, height = 4.5, width = 9)
+         dpi = 600, height = 6, width = 12)
   
   ggsave(plot = p_meta, "builds/plots/exploratory/elephants_issf_stats_12hrs_steps.png",
          dpi = 600, height = 10, width = 9)
