@@ -12,7 +12,7 @@ data/processed_data/data_fragments/steps_1hr_incl_random.csv
 data/processed_data/data_fragments/grid_habitat_covariates.csv
 data/raw_data/hwange/Dunham & al  (2007) Aerial survey of elephants and other large herbivores in north-west Matabeleland, Zimbabwe, 2007. Harare, Zimbabwe. WWF-SARPO..pdf'
 builds/plots/exploratory/habitat_quality_vs_selection.pdf
-
+data/processed_data/data_fragments/grid_habitat_covariates.csv
 
 # History files
 .Rhistory
