@@ -187,7 +187,7 @@ dt_cv %>%
   ggplot() +
   geom_boxplot(aes(x = hq_mean_name, y = hq_mean_value)) + 
   geom_jitter(aes(x = hq_mean_name, y = hq_mean_value))
-
+gi
 
 print(plot_list[["5779"]])
 

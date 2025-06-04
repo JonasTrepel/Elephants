@@ -30,7 +30,7 @@ for(id in unique(sf_loc$individual_id)){
 
 # 2. Make Grid ---------------------------------
 
-sf_grid_raw <- st_make_grid(sf_loc_sub, cellsize = 5000, square = TRUE) %>% #1km for now, but should be 500m for final analysis
+sf_grid_raw <- st_make_grid(sf_loc_sub, cellsize = 500, square = TRUE) %>% #1km for now, but should be 500m for final analysis
   st_as_sf() %>% 
   filter(lengths(st_intersects(., sf_hr_sub)) > 0) %>% 
   mutate(grid_id = paste0("grid_",id, "_", 1:nrow(.)))
