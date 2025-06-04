@@ -20,9 +20,6 @@ sf_loc <- fread("data/processed_data/clean_data/all_location_data.csv") %>%
            crs = 4326) %>% 
   st_transform(., crs = 4326)
 
-# Clusters 
-sf_clust <- st_read("data/spatial_data/protected_areas/pa_clusters.gpkg") %>% 
-  st_transform(crs = 4326)
 
 # PAs with location points 
 sf_pas_ld <- st_read("data/spatial_data/protected_areas/pas_intersecting_with_locations_data.gpkg") %>% 

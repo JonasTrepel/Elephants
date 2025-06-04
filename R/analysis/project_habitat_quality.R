@@ -87,7 +87,23 @@ for(id in unique(dt_est_raw$individual_id)){
                 dt_est_sub[dt_est_sub$term == "human_modification", ]$mean_estimate*human_mod_scaled +
                 dt_est_sub[dt_est_sub$term == "slope", ]$mean_estimate*slope_scaled),
            habitat_quality_norm = (habitat_quality - min(habitat_quality, na.rm = TRUE)) / 
-             (max(habitat_quality, na.rm = TRUE) - min(habitat_quality, na.rm = TRUE))) #%>% filter(rel_obs_total > 0)
+             (max(habitat_quality, na.rm = TRUE) - min(habitat_quality, na.rm = TRUE))) #%>%
+   # filter(rel_obs_total > 0)
+  
+  sf_hq_used <- sf_hq %>% filter(rel_obs_total > 0)
+  med <- median(sf_hq_used$rel_obs_total, na.rm = T)
+  quantile(sf_hq_used$rel_obs_total, na.rm = T)
+  mean_hq_highly_used <- mean(sf_hq_used[sf_hq_used$rel_obs_total > med, ]$habitat_quality_norm, 
+                    na.rm = T)
+  
+  mean_hq_little_used <- mean(sf_hq_used[sf_hq_used$rel_obs_total <= med, ]$habitat_quality_norm, 
+                    na.rm = T)
+  
+  mean_hq_used <- mean(sf_hq_used[]$habitat_quality_norm, 
+                    na.rm = T)
+  
+  mean_hq_not_used <- mean(sf_hq[sf_hq$rel_obs_total == 0, ]$habitat_quality_norm, 
+                    na.rm = T)
   
   p_hq <- sf_hq %>% 
     ggplot() +
@@ -132,7 +148,6 @@ for(id in unique(dt_est_raw$individual_id)){
     filter(term != "(Intercept)")
   
   tmp_cor <- data.frame(
-    r_sq_adj = m_sum$adj.r.squared, 
     r_sq = m_sum$r.squared,
     r_sq_adj = m_sum$adj.r.squared, 
     lm_estimate = tidy_m$estimate,
@@ -143,7 +158,11 @@ for(id in unique(dt_est_raw$individual_id)){
     response = "rel_obs_all", 
     cor = as.numeric(ct$estimate),
     individual_id = id, 
-    sex = unique(loc_sub$sex)
+    sex = unique(loc_sub$sex), 
+    hq_mean_not_used = mean_hq_not_used,
+    hq_mean_used = mean_hq_used,
+    hq_mean_highly_used = mean_hq_highly_used,
+    hq_mean_little_used = mean_hq_little_used
   )
   
   dt_cv = rbind(tmp_cor, dt_cv)
@@ -161,6 +180,13 @@ dev.off()
 
 fwrite(dt_cv, "builds/model_outputs/habitat_selection_cross_validation.csv")
 
+dt_cv %>% 
+  pivot_longer(cols = c("hq_mean_not_used", "hq_mean_used", 
+                        "hq_mean_little_used", "hq_mean_highly_used"), 
+               names_to = "hq_mean_name", values_to = "hq_mean_value") %>% 
+  ggplot() +
+  geom_boxplot(aes(x = hq_mean_name, y = hq_mean_value)) + 
+  geom_jitter(aes(x = hq_mean_name, y = hq_mean_value))
 
 
 print(plot_list[["5779"]])
