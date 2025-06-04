@@ -125,3 +125,4 @@ print(paste0(id, " done"))
 }
 
 st_write(sf_grid_all, "data/spatial_data/grid/individual_grids_relative_occurance.gpkg")
+
