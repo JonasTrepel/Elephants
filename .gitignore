@@ -14,6 +14,7 @@ data/raw_data/hwange/Dunham & al  (2007) Aerial survey of elephants and other la
 data/processed_data/data_fragments/grid_habitat_covariates.csv
 builds/plots/exploratory/habitat_quality_vs_selection.pdf
 data/processed_data/data_fragments/individual_grids_with_covariates.csv
+data/processed_data/data_fragments/steps_3hrs_incl_random.csv
 
 # History files
 .Rhistory
