@@ -6,13 +6,21 @@ library(broom)
 library(MetBrewer)
 
 #param = "1hr"
+#param = "3hrs"
 param = "12hrs"
 
 if(param == "1hr"){
   
 dt <- fread("data/processed_data/data_fragments/steps_1hr_habitat_covariates.csv")
+mean(dt$sl_) 
+quantile(dt$sl_)
 
-
+} else if(param == "3hrs"){
+  
+  dt <- fread("data/processed_data/data_fragments/steps_3hrs_habitat_covariates.csv")
+  mean(dt$sl_) 
+  quantile(dt$sl_)
+  
 } else if(param == "12hrs"){
   
 dt <- fread("data/processed_data/data_fragments/steps_12hrs_habitat_covariates.csv")
@@ -21,6 +29,10 @@ quantile(dt$sl_)
 # 0%      25%      50%      75%     100% 
 #0.000 1254.603 2334.965 3865.864 8661.769
 }
+
+n_distinct(dt$individual_id)
+dt = dt %>% group_by(individual_id) %>% filter(sum(case_) > 365) %>% ungroup()
+n_distinct(dt$individual_id)
 
 # Create correlation matrix
 corr_vars <- dt %>%
@@ -68,13 +80,13 @@ dt_est_se <- data.frame()
 for(id in unique(dt$individual_id)){
   
   dt_sub <- dt_se %>% filter(individual_id == id) 
-  
+
   # Means
   evi_mean_mean <- mean(dt_sub$evi_mean, na.rm = TRUE)
   distance_to_water_km_mean <- mean(dt_sub$distance_to_water_km, na.rm = TRUE)
   distance_to_settlement_km_mean <- mean(dt_sub$distance_to_settlement_km, na.rm = TRUE)
   human_modification_mean <- mean(dt_sub$human_modification, na.rm = TRUE)
-  enerscape_mean <- mean(dt_sub$enerscape, na.rm = TRUE)
+ # enerscape_mean <- mean(dt_sub$enerscape, na.rm = TRUE)
   slope_mean <- mean(dt_sub$slope, na.rm = TRUE)
   
   # Ranges
@@ -82,7 +94,7 @@ for(id in unique(dt$individual_id)){
   distance_to_water_km_range <- max(dt_sub$distance_to_water_km, na.rm = TRUE) - min(dt_sub$distance_to_water_km, na.rm = TRUE)
   distance_to_settlement_km_range <- max(dt_sub$distance_to_settlement_km, na.rm = TRUE) - min(dt_sub$distance_to_settlement_km, na.rm = TRUE)
   human_modification_range <- max(dt_sub$human_modification, na.rm = TRUE) - min(dt_sub$human_modification, na.rm = TRUE)
-  enerscape_range <- max(dt_sub$enerscape, na.rm = TRUE) - min(dt_sub$enerscape, na.rm = TRUE)
+ # enerscape_range <- max(dt_sub$enerscape, na.rm = TRUE) - min(dt_sub$enerscape, na.rm = TRUE)
   slope_range <- max(dt_sub$slope, na.rm = TRUE) - min(dt_sub$slope, na.rm = TRUE)
 
   dt_sub <- dt_sub %>%
@@ -94,20 +106,29 @@ for(id in unique(dt$individual_id)){
       distance_to_settlement_km = as.numeric(scale(distance_to_settlement_km)),
       human_modification = as.numeric(scale(human_modification)),
       slope = as.numeric(scale(slope)),
-      elevation = as.numeric(scale(elevation)),
-      enerscape = as.numeric(scale(log(enerscape)))
+      elevation = as.numeric(scale(elevation))#,  enerscape = as.numeric(scale(log(enerscape)))
     )
   
-  issf <- amt::fit_issf(case_ ~ 
-                          evi_mean +
-                          distance_to_water_km +
-                          distance_to_settlement_km +
-                          human_modification +
-                          enerscape +
-                          slope +
-                          #elevation:season + 
-                          strata(step_id_),
-                          data = dt_sub)
+  issf <- tryCatch(
+    {
+      amt::fit_issf(case_ ~
+                      evi_mean +
+                      distance_to_water_km +
+                      distance_to_settlement_km +
+                      human_modification +
+                      # enerscape +
+                      slope +
+                      strata(step_id_),
+                    data = dt_sub)
+    },
+    error = function(e) {
+      message("An error occurred while fitting the ISSF model: ", e$message)
+      return(NULL)
+    }
+  )
+  
+  if (is.null(issf)){next}
+  
   summary(issf)
 
   m_tidy <- tidy(issf$model) %>% 
@@ -115,7 +136,7 @@ for(id in unique(dt$individual_id)){
            p_value = p.value) %>% 
     mutate(individual_id = id, 
            sex = unique(dt_sub$sex),
-           n_true = nrow(dt_sub[case_ == TRUE, ]), 
+           n_true = nrow(dt_sub[dt_sub$case_ == TRUE, ]), 
            n_total = nrow(dt_sub), 
            ci_lb = estimate - 1.96*std_error, 
            ci_ub = estimate + 1.96*std_error,
@@ -124,14 +145,14 @@ for(id in unique(dt$individual_id)){
            distance_to_water_km_mean = distance_to_water_km_mean,
            distance_to_settlement_km_mean = distance_to_settlement_km_mean,
            human_modification_mean = human_modification_mean,
-           enerscape_mean = enerscape_mean,
+          # enerscape_mean = enerscape_mean,
            slope_mean = slope_mean,
            # ranges
            evi_mean_range = evi_mean_range,
            distance_to_water_km_range = distance_to_water_km_range,
            distance_to_settlement_km_range = distance_to_settlement_km_range,
            human_modification_range = human_modification_range,
-           enerscape_range = enerscape_range,
+        #   enerscape_range = enerscape_range,
            slope_range = slope_range, 
            season = season
            )
@@ -289,7 +310,7 @@ p_p <- dt_est %>%
     term == "distance_to_water_km" ~ distance_to_water_km_range,
     term == "distance_to_settlement_km" ~ distance_to_settlement_km_range,
     term == "human_modification" ~ human_modification_range,
-    term == "enerscape" ~ enerscape_range,
+ #   term == "enerscape" ~ enerscape_range,
     term == "slope" ~ slope_range
   )) %>% 
   ggplot() + 
@@ -313,7 +334,7 @@ p_est_tm <- dt_est %>%
     term == "distance_to_water_km" ~ distance_to_water_km_mean,
     term == "distance_to_settlement_km" ~ distance_to_settlement_km_mean,
     term == "human_modification" ~ human_modification_mean,
-    term == "enerscape" ~ enerscape_mean,
+ #   term == "enerscape" ~ enerscape_mean,
     term == "slope" ~ slope_mean
   )) %>% 
   ggplot() + 
@@ -325,10 +346,20 @@ p_est_tm
 
 p_meta <- gridExtra::grid.arrange(p_p, p_est_tm)
 
+
 if(param == "1hr"){
   
   fwrite(dt_est, "builds/model_outputs/issf_estimates_1hr_steps.csv")
   ggsave(plot = p_comb, "builds/plots/elephants_issf_estimates_1hr_steps.png",
+         dpi = 600, height = 6, width = 12)
+  
+  ggsave(plot = p_meta, "builds/plots/exploratory/elephants_issf_stats_1hr_steps.png",
+         dpi = 600, height = 10, width = 9)
+  
+} else if(param == "3hrs"){
+  
+  fwrite(dt_est, "builds/model_outputs/issf_estimates_3hrs_steps.csv")
+  ggsave(plot = p_comb, "builds/plots/elephants_issf_estimates_3hrs_steps.png",
          dpi = 600, height = 6, width = 12)
   
   ggsave(plot = p_meta, "builds/plots/exploratory/elephants_issf_stats_1hr_steps.png",

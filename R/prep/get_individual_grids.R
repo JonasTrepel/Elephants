@@ -6,9 +6,10 @@ library(exactextractr)
 library(terra)
 
 # 1. Load Data ---------------------------------
-sf_hr <- st_read("data/spatial_data/elephants/mcp_home_ranges.gpkg") %>% 
-  st_transform(., crs = "ESRI:54009")
-
+sf_hr <- st_read("data/spatial_data/elephants/locohs_home_ranges.gpkg") %>% 
+  st_transform(., crs = "ESRI:54009") %>% 
+  st_buffer(dist = 500)
+mapview(sf_hr, zcol = "individual_id")
 
 sf_loc <- fread("data/processed_data/clean_data/all_location_data.csv") %>% 
   mutate(month = month(date_time)) %>% 
@@ -69,8 +70,7 @@ sf_grid_rel <- sf_grid_raw %>%
     n_points_dry = lengths(st_intersects(., sf_loc_dry)),
     rel_occ_dry = (n_points_dry / nrow(sf_loc_dry)) * 100,
     n_points_wet = lengths(st_intersects(., sf_loc_wet)),
-    rel_occ_wet = (n_points_wet / nrow(sf_loc_wet)) * 100) %>% 
-  dplyr::select(-n_points, -n_points_dry, -n_points_wet)
+    rel_occ_wet = (n_points_wet / nrow(sf_loc_wet)) * 100) 
 
 plot(sf_grid_rel$rel_occ_dry, sf_grid_rel$rel_occ_wet)
 mapview(sf_grid_rel, zcol = "rel_occ_dry")
@@ -124,5 +124,7 @@ sf_grid_all <- rbind(sf_grid_w_coords, sf_grid_all)
 print(paste0(id, " done"))
 }
 
-st_write(sf_grid_all, "data/spatial_data/grid/individual_grids_relative_occurance.gpkg")
+st_write(sf_grid_all, "data/spatial_data/grid/individual_grids_relative_occurance.gpkg", append = FALSE)
 
+cor.test(sf_grid_all$rel_occ_dry, sf_grid_all$rel_occ_wet)
+summary(sf_grid_all)

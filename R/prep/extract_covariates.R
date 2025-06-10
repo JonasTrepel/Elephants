@@ -10,15 +10,34 @@ library(terra)
 library(exactextractr)
 ### define if we want to run it for control or PA 
 
- param <- "grid"
-#param <- "steps_1hr"
-#param <- "steps_12hrs"
+# param <- "grid"
+ param = "pa_grid"
+# param <- "indiv_grid"
+# param <- "steps_1hr"
+# param <- "steps_3hrs"
+# param <- "steps_12hrs"
 
 if(param == "grid"){
   vect <- read_sf("data/spatial_data/grid/empty_grid.gpkg") %>% 
     mutate(unique_id = grid_id)
+} else if(param == "pa_grid"){
+    vect <- read_sf("data/spatial_data/grid/empty_grid_pas.gpkg") %>% 
+      mutate(
+        grid_id = paste0("grid_", 1:nrow(.)),
+        unique_id = grid_id)
+  } else if(param == "indiv_grid"){
+  vect <- read_sf("data/spatial_data/grid/individual_grids_relative_occurance.gpkg") %>% 
+    mutate(unique_id = grid_id)
 } else if(param == "steps_1hr"){
   vect <- fread("data/processed_data/data_fragments/steps_1hr_incl_random.csv") %>% 
+    mutate(x = x2_, 
+           y = y2_) %>% 
+    filter(!is.na(x)) %>% 
+    st_as_sf(coords = c("x", "y"), 
+             crs = "ESRI:54009") %>% 
+    st_buffer(dist = 10)
+} else if(param == "steps_3hrs"){
+  vect <- fread("data/processed_data/data_fragments/steps_3hrs_incl_random.csv") %>% 
     mutate(x = x2_, 
            y = y2_) %>% 
     filter(!is.na(x)) %>% 
@@ -267,9 +286,23 @@ if(param == "grid"){
  #          left_join(dt_occ) %>% 
  #          mutate(unique_id = NULL), "data/processed_data/data_fragments/grid_with_all_covariates.csv")
   
+} else if(param == "pa_grid"){
+  
+  fwrite(dt_vect_covs %>% 
+           mutate(unique_id = NULL), "data/processed_data/data_fragments/pa_grids_with_covariates.csv")
+  
+} else if(param == "indiv_grid"){
+  
+  fwrite(dt_vect_covs %>% 
+           mutate(unique_id = NULL), "data/processed_data/data_fragments/individual_grids_with_covariates.csv")
+  
 } else if(param == "steps_1hr"){
   
   fwrite(dt_vect_covs, "data/processed_data/data_fragments/steps_1hr_habitat_covariates.csv")
+  
+} else if(param == "steps_3hrs"){
+  
+  fwrite(dt_vect_covs, "data/processed_data/data_fragments/steps_3hrs_habitat_covariates.csv")
   
 } else if(param == "steps_12hrs"){
   
