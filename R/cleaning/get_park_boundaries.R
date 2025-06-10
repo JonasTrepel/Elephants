@@ -76,7 +76,7 @@ for(i in 1:length(files)){
   
 }
 
-mapview(pas_all[grepl("Pongola Nature Reserve", pas_all$NAME), ])
+mapview(pas_all[grepl("Mana Pools National Park", pas_all$NAME), ])
 
 names_v_count <- c("North Luangwa",
                    "South Luangwa",
@@ -114,7 +114,7 @@ names_v_count <- c("North Luangwa",
                    "Itala Nature Reserve",
                    "Bwabwata", 
                    "Mapungupwe National Park",
-                   "Mana Pools",
+                   "Mana Pools National Park",
                    "iSimangaliso Wetland Park",
                    "Balule Nature Reserve",
                    "Limpopo",
@@ -135,7 +135,10 @@ pas_all[grepl("Mavinga", pas_all$NAME), ]
 
 
 pas_sub <- pas_all[pas_all$NAME %in% c(names_v_count), ] %>% 
-  filter(WDPA_PID != 555705347)
+  filter(WDPA_PID != 555705347) %>% 
+  filter(DESIG_ENG != "Forest Reserve")
+table(pas_sub$NAME)
+
 st_write(pas_sub, "data/spatial_data/protected_areas/park_boundaries.gpkg", append = FALSE)
 mapview(pas_sub)
 mapview(pas_sub[grepl("ZAF", pas_sub$ISO3), ])
