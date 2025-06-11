@@ -53,6 +53,10 @@ print(paste0(pa, " done"))
 
 }
 
+
+sf_grid_raw <- sf_grid_raw %>% 
+  mutate(grid_id = paste0("grid_", 1:nrow(.)))
+
 st_write(sf_grid_raw, "data/spatial_data/grid/empty_grid_pas.gpkg")
 sf_grid_raw <- st_read("data/spatial_data/grid/empty_grid_pas.gpkg")
 
