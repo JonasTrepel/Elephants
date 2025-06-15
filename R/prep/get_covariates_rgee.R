@@ -4,6 +4,7 @@ library(tidyverse)
 library(googledrive)
 library("enerscape")
 library(terra)
+library(exactextractr)
 
 ############################# HOUSEKEEPING #############################
 
@@ -153,7 +154,8 @@ plot(evi_wet_r)
 ##### ESA World Cover -------------------------------------------------
 esa_wc_img <- ee$ImageCollection("ESA/WorldCover/v200")$
   select("Map")$
-  first()
+  first()$
+  toInt16()
 
 Map$addLayer(esa_wc_img)
 
@@ -172,7 +174,7 @@ export_esa_wc$start()
 Sys.sleep(60)
 monitor_gee_task(pattern = "esa_world_cover", path = "rgee_backup_esa_wc")
 
-Sys.sleep(600)
+Sys.sleep(1200)
 (esa_wc_drive_files <- drive_ls(path = "rgee_backup_esa_wc", pattern = "esa_world_cover") %>%
   dplyr::select(name) %>% 
   unique())
@@ -202,18 +204,15 @@ plot(esa_wc_r)
 
 file.remove(esa_wc_files)
 
-# esa_wc_r <- rast("data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif")
-# 
-# esa_wc_100m_r <- terra::aggregate(esa_wc_r, 
-#                                  fact = 10, 
-#                                  fun = "mode", 
-#                                  na.rm = TRUE,
-#                                  filename = "data/spatial_data/covariates/raster/esa_world_cover_2021_100m.tif", 
-#                                  overwrite = TRUE, 
-#                                  tempdir = "data/spatial_data/terra_temp_dir", 
-#                                  todisk = TRUE, 
-#                                  memfrac = 0.2)
+esa_wc_r <- rast("data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif")
 
+wc_50m_r <- terra::aggregate(esa_wc_r, 
+                              fact = 5, 
+                              fun = "mode", 
+                              filename = "data/spatial_data/covariates/raster/esa_world_cover_2021_50m.tif", 
+                              overwrite = TRUE, 
+                              cores = 20)
+plot(wc_50m_r)
 
 ##### ESA Worldcover 100m
 

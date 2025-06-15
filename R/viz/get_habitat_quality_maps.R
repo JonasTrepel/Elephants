@@ -6,6 +6,7 @@ library(exactextractr)
 library(sf)
 library(tidylog)
 library(patchwork)
+library(ggcorrplot)
 
 
 dt_est_12 <- fread("builds/model_outputs/issf_estimates_12hrs_steps.csv") %>% 
@@ -41,6 +42,15 @@ dt_est_ig <- fread("builds/model_outputs/elephants_individual_grid_estimates_glm
             p_value = median(p_value)) %>% 
   ungroup()
 
+dt_est_12_sex <- fread("builds/model_outputs/issf_estimates_12hrs_steps.csv") %>% 
+  group_by(sex, season, term) %>% 
+  summarise(mean_estimate = mean(estimate, na.rm = T), 
+            std_error = sd(estimate)/sqrt(n()), 
+            ci_lb = mean_estimate - 1.96*std_error,
+            ci_ub = mean_estimate + 1.96*std_error, 
+            p_value = median(p_value)) %>% 
+  ungroup()
+
 
 #load grid vars
 dt_grid_vars <- fread("data/processed_data/data_fragments/pa_grids_with_covariates.csv") %>% 
@@ -55,7 +65,7 @@ sf_grid <- st_read("data/spatial_data/grid/empty_grid_pas.gpkg") %>%
   
 
   
-  sf_grid_hq <- sf_grid %>% 
+sf_grid_hq <- sf_grid %>% 
     group_by(park_id) %>% 
     mutate(dist_settlement_scaled = as.numeric(scale(distance_to_settlement_km)), 
            dist_water_scaled = as.numeric(scale(distance_to_water_km)),
@@ -101,10 +111,115 @@ sf_grid <- st_read("data/spatial_data/grid/empty_grid_pas.gpkg") %>%
           dt_est_ig[dt_est_ig$term == "slope" & dt_est_ig$season == "whole_year", ]$mean_estimate * slope_scaled
       ),
       habitat_quality_ig_norm = (habitat_quality_ig - min(habitat_quality_ig, na.rm = TRUE)) / 
-        (max(habitat_quality_ig, na.rm = TRUE) - min(habitat_quality_ig, na.rm = TRUE))
+        (max(habitat_quality_ig, na.rm = TRUE) - min(habitat_quality_ig, na.rm = TRUE)),
+      
+      ### Season 
+      
+      habitat_quality_12hr_dry = (
+        dt_est_12[dt_est_12$term == "distance_to_settlement_km" & dt_est_12$season == "dry_season", ]$mean_estimate * dist_settlement_scaled +
+          dt_est_12[dt_est_12$term == "distance_to_water_km" & dt_est_12$season == "dry_season", ]$mean_estimate * dist_water_scaled +
+          dt_est_12[dt_est_12$term == "evi_mean" & dt_est_12$season == "dry_season", ]$mean_estimate * evi_scaled +
+          dt_est_12[dt_est_12$term == "human_modification" & dt_est_12$season == "dry_season", ]$mean_estimate * human_mod_scaled +
+          dt_est_12[dt_est_12$term == "slope" & dt_est_12$season == "dry_season", ]$mean_estimate * slope_scaled
+      ),
+      habitat_quality_12hr_dry_norm = (habitat_quality_12hr_dry - min(habitat_quality_12hr_dry, na.rm = TRUE)) / 
+        (max(habitat_quality_12hr_dry, na.rm = TRUE) - min(habitat_quality_12hr_dry, na.rm = TRUE)),
+      
+      habitat_quality_12hr_wet = (
+        dt_est_12[dt_est_12$term == "distance_to_settlement_km" & dt_est_12$season == "wet_season", ]$mean_estimate * dist_settlement_scaled +
+          dt_est_12[dt_est_12$term == "distance_to_water_km" & dt_est_12$season == "wet_season", ]$mean_estimate * dist_water_scaled +
+          dt_est_12[dt_est_12$term == "evi_mean" & dt_est_12$season == "wet_season", ]$mean_estimate * evi_scaled +
+          dt_est_12[dt_est_12$term == "human_modification" & dt_est_12$season == "wet_season", ]$mean_estimate * human_mod_scaled +
+          dt_est_12[dt_est_12$term == "slope" & dt_est_12$season == "wet_season", ]$mean_estimate * slope_scaled
+      ),
+      habitat_quality_12hr_wet_norm = (habitat_quality_12hr_wet - min(habitat_quality_12hr_wet, na.rm = TRUE)) / 
+        (max(habitat_quality_12hr_wet, na.rm = TRUE) - min(habitat_quality_12hr_wet, na.rm = TRUE)),
+      
+    ### Sex 
+    habitat_quality_12hr_male = (
+      dt_est_12_sex[dt_est_12_sex$term == "distance_to_settlement_km" & dt_est_12_sex$season == "whole_year" & dt_est_12_sex$sex == "M", ]$mean_estimate * dist_settlement_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "distance_to_water_km" & dt_est_12_sex$season == "whole_year" & dt_est_12_sex$sex == "M", ]$mean_estimate * dist_water_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "evi_mean" & dt_est_12_sex$season == "whole_year" & dt_est_12_sex$sex == "M", ]$mean_estimate * evi_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "human_modification" & dt_est_12_sex$season == "whole_year" & dt_est_12_sex$sex == "M", ]$mean_estimate * human_mod_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "slope" & dt_est_12_sex$season == "whole_year" & dt_est_12_sex$sex == "M", ]$mean_estimate * slope_scaled
+    ),
+    habitat_quality_12hr_male_norm = (habitat_quality_12hr_male - min(habitat_quality_12hr_male, na.rm = TRUE)) / 
+      (max(habitat_quality_12hr_male, na.rm = TRUE) - min(habitat_quality_12hr_male, na.rm = TRUE)),
+    
+    habitat_quality_12hr_female = (
+      dt_est_12_sex[dt_est_12_sex$term == "distance_to_settlement_km" & dt_est_12_sex$season == "whole_year" & dt_est_12_sex$sex == "F", ]$mean_estimate * dist_settlement_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "distance_to_water_km" & dt_est_12_sex$season == "whole_year" & dt_est_12_sex$sex == "F", ]$mean_estimate * dist_water_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "evi_mean" & dt_est_12_sex$season == "whole_year" & dt_est_12_sex$sex == "F", ]$mean_estimate * evi_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "human_modification" & dt_est_12_sex$season == "whole_year" & dt_est_12_sex$sex == "F", ]$mean_estimate * human_mod_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "slope" & dt_est_12_sex$season == "whole_year" & dt_est_12_sex$sex == "F", ]$mean_estimate * slope_scaled
+    ),
+    habitat_quality_12hr_female_norm = (habitat_quality_12hr_female - min(habitat_quality_12hr_female, na.rm = TRUE)) / 
+      (max(habitat_quality_12hr_female, na.rm = TRUE) - min(habitat_quality_12hr_female, na.rm = TRUE)),
+    
+    ### Sex x Season
+    habitat_quality_12hr_male_dry = (
+      dt_est_12_sex[dt_est_12_sex$term == "distance_to_settlement_km" & dt_est_12_sex$season == "dry_season" & dt_est_12_sex$sex == "M", ]$mean_estimate * dist_settlement_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "distance_to_water_km" & dt_est_12_sex$season == "dry_season" & dt_est_12_sex$sex == "M", ]$mean_estimate * dist_water_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "evi_mean" & dt_est_12_sex$season == "dry_season" & dt_est_12_sex$sex == "M", ]$mean_estimate * evi_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "human_modification" & dt_est_12_sex$season == "dry_season" & dt_est_12_sex$sex == "M", ]$mean_estimate * human_mod_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "slope" & dt_est_12_sex$season == "dry_season" & dt_est_12_sex$sex == "M", ]$mean_estimate * slope_scaled
+    ),
+    habitat_quality_12hr_male_dry_norm = (habitat_quality_12hr_male_dry - min(habitat_quality_12hr_male_dry, na.rm = TRUE)) / 
+      (max(habitat_quality_12hr_male_dry, na.rm = TRUE) - min(habitat_quality_12hr_male_dry, na.rm = TRUE)),
+    
+    habitat_quality_12hr_female_dry = (
+      dt_est_12_sex[dt_est_12_sex$term == "distance_to_settlement_km" & dt_est_12_sex$season == "dry_season" & dt_est_12_sex$sex == "F", ]$mean_estimate * dist_settlement_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "distance_to_water_km" & dt_est_12_sex$season == "dry_season" & dt_est_12_sex$sex == "F", ]$mean_estimate * dist_water_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "evi_mean" & dt_est_12_sex$season == "dry_season" & dt_est_12_sex$sex == "F", ]$mean_estimate * evi_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "human_modification" & dt_est_12_sex$season == "dry_season" & dt_est_12_sex$sex == "F", ]$mean_estimate * human_mod_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "slope" & dt_est_12_sex$season == "dry_season" & dt_est_12_sex$sex == "F", ]$mean_estimate * slope_scaled
+    ),
+    habitat_quality_12hr_female_dry_norm = (habitat_quality_12hr_female_dry - min(habitat_quality_12hr_female_dry, na.rm = TRUE)) / 
+      (max(habitat_quality_12hr_female_dry, na.rm = TRUE) - min(habitat_quality_12hr_female_dry, na.rm = TRUE)),
+    
+    habitat_quality_12hr_male_wet = (
+      dt_est_12_sex[dt_est_12_sex$term == "distance_to_settlement_km" & dt_est_12_sex$season == "wet_season" & dt_est_12_sex$sex == "M", ]$mean_estimate * dist_settlement_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "distance_to_water_km" & dt_est_12_sex$season == "wet_season" & dt_est_12_sex$sex == "M", ]$mean_estimate * dist_water_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "evi_mean" & dt_est_12_sex$season == "wet_season" & dt_est_12_sex$sex == "M", ]$mean_estimate * evi_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "human_modification" & dt_est_12_sex$season == "wet_season" & dt_est_12_sex$sex == "M", ]$mean_estimate * human_mod_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "slope" & dt_est_12_sex$season == "wet_season" & dt_est_12_sex$sex == "M", ]$mean_estimate * slope_scaled
+    ),
+    habitat_quality_12hr_male_wet_norm = (habitat_quality_12hr_male_wet - min(habitat_quality_12hr_male_wet, na.rm = TRUE)) / 
+      (max(habitat_quality_12hr_male_wet, na.rm = TRUE) - min(habitat_quality_12hr_male_wet, na.rm = TRUE)),
+    
+    habitat_quality_12hr_female_wet = (
+      dt_est_12_sex[dt_est_12_sex$term == "distance_to_settlement_km" & dt_est_12_sex$season == "wet_season" & dt_est_12_sex$sex == "F", ]$mean_estimate * dist_settlement_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "distance_to_water_km" & dt_est_12_sex$season == "wet_season" & dt_est_12_sex$sex == "F", ]$mean_estimate * dist_water_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "evi_mean" & dt_est_12_sex$season == "wet_season" & dt_est_12_sex$sex == "F", ]$mean_estimate * evi_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "human_modification" & dt_est_12_sex$season == "wet_season" & dt_est_12_sex$sex == "F", ]$mean_estimate * human_mod_scaled +
+        dt_est_12_sex[dt_est_12_sex$term == "slope" & dt_est_12_sex$season == "wet_season" & dt_est_12_sex$sex == "F", ]$mean_estimate * slope_scaled
+    ),
+    habitat_quality_12hr_female_wet_norm = (habitat_quality_12hr_female_wet - min(habitat_quality_12hr_female_wet, na.rm = TRUE)) / 
+      (max(habitat_quality_12hr_female_wet, na.rm = TRUE) - min(habitat_quality_12hr_female_wet, na.rm = TRUE))
+      
     ) %>% 
     ungroup()
   
+  
+dt_grid_hq <- sf_grid_hq %>% 
+  as.data.table() %>% 
+  mutate(geom = NULL, x = NULL, geometry = NULL) 
+
+fwrite(dt_grid_hq, "data/processed_data/data_fragments/pa_grid_with_habitat_quality.csv")
+
+dt_corr <- dt_grid_hq %>% 
+  dplyr::select(habitat_quality_12hr_norm, habitat_quality_1hr_norm, habitat_quality_3hr_norm, habitat_quality_ig_norm, 
+                habitat_quality_12hr_dry_norm, habitat_quality_12hr_wet_norm, 
+                habitat_quality_12hr_male_norm, habitat_quality_12hr_female_norm, 
+                habitat_quality_12hr_male_dry_norm, habitat_quality_12hr_female_dry_norm,
+                habitat_quality_12hr_male_wet_norm, habitat_quality_12hr_female_wet_norm) %>% 
+  filter(complete.cases(.))
+
+corr <- round(cor(dt_corr), 2)
+head(corr[, 1:6])
+(p_corr <- ggcorrplot(corr, hc.order = F, type = "lower",
+           lab = TRUE))
+ggsave(plot = p_corr, "builds/plots/supplement/habitat_quality_correlations.png", dpi = 600, height = 10, width = 10)
   
 for(park in unique(sf_grid_hq$park_id)){ 
   

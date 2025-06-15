@@ -136,8 +136,11 @@ pas_all[grepl("Mavinga", pas_all$NAME), ]
 
 pas_sub <- pas_all[pas_all$NAME %in% c(names_v_count), ] %>% 
   filter(WDPA_PID != 555705347) %>% 
-  filter(DESIG_ENG != "Forest Reserve")
+  filter(DESIG_ENG != "Forest Reserve") %>%
+  st_transform(crs = "ESRI:54009") %>% 
+  mutate(area_km2 = as.numeric(st_area(.)/1000000))
 table(pas_sub$NAME)
+unique(pas_sub[pas_sub$NAME == "Kruger National Park" , c("NAME", "area_km2")])
 
 st_write(pas_sub, "data/spatial_data/protected_areas/park_boundaries.gpkg", append = FALSE)
 mapview(pas_sub)

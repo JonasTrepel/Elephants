@@ -21,8 +21,13 @@ rgee::ee_install_set_pyenv(
 Sys.setenv(RETICULATE_PYTHON = rgee_env_dir)
 Sys.setenv(EARTHENGINE_PYTHON = rgee_env_dir)
 
+
+#Now terminate R and continue here: 
+
 #### AUTHENTICATE AGAIN#####
 library(rgee)
+
+reticulate::use_python(rgee_env_dir, required=T)
 ee_clean_user_credentials()
 ee$Authenticate(auth_mode='notebook')
 
