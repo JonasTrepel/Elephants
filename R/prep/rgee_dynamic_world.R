@@ -134,7 +134,150 @@ dynamic_world_r <- merge(sprc(dynamic_world_raster_list),
                          datatype = data_type_dynamic_world)
 plot(dynamic_world_r)
 
+writeRaster(dynamic_world_r, 
+            filename = dynamic_world_file_name_merge,
+            overwrite = TRUE,
+            datatype = data_type_dynamic_world)
+# loop through the raster list 
+
+for(i in lengths(dynamic_world_raster_list)){
+  
+  tile_r <- dynamic_world_raster_list[[i]]
+  plot(tile_r)
+  
+  grass_r <- (tile_r == 2 | tile_r == 4) * 1
+  plot(grass_r, col = c("white", "#88B053"), main = "Grass")
+  
+  shrub_r <- (tile_r == 5) * 1
+  plot(shrub_r, col = c("white", "#DFC35A"), main = "Shrub")
+  
+  tree_r <- (tile_r == 1) * 1
+  plot(tree_r, col = c("white", "#397D49"), main = "Trees")
+  
+  # Create heterogeneity classification image
+  vt_r <- classify(tile_r,
+                      rcl = matrix(c(
+                        1, 1,   # class 1 → 1
+                        2, 2,   # class 2 → 2
+                        4, 2,   # class 4 → 2
+                        3, 3,   # class 3 → 3
+                        5, 5,   # class 5 → 5
+                        7, 7    # class 7 → 7
+                      ), ncol = 2, byrow = TRUE))
+  
+  # Mask out classes not mapped (i.e., all others become NA)
+  mask_classes <- tile_r %in% c(1, 2, 3, 4, 5, 7)
+  vt_r <- mask(vt_r, mask_classes, maskvalues = FALSE)
+  
+  # Visualize with approximate DW class colors
+  colors <- c("#397D49", "#88B053", "#7A87C6", "#DFC35A", "#DFC35A", "#A59B8F")
+  plot(vt_r, col = colors, main = "Heterogeneity Map")
+  
+  writeRaster(
+    grass_r, 
+    filename =paste0("data/spatial_data/raw_tiles/grass_", year,"_10m_tile_", i, ".tif"),
+    overwrite = TRUE,
+    datatype = data_type_dynamic_world
+  )
+  
+  writeRaster(
+    shrub_r, 
+    filename =paste0("data/spatial_data/raw_tiles/shrub_", year,"_10m_tile_", i, ".tif"),
+    overwrite = TRUE,
+    datatype = data_type_dynamic_world
+  )
+  
+  writeRaster(
+    tree_r, 
+    filename =paste0("data/spatial_data/raw_tiles/tree_", year,"_10m_tile_", i, ".tif"),
+    overwrite = TRUE,
+    datatype = data_type_dynamic_world
+  )
+  
+  writeRaster(
+    vt_r, 
+    filename =paste0("data/spatial_data/raw_tiles/vegetation_types_", year,"_10m_tile_", i, ".tif"),
+    overwrite = TRUE,
+    datatype = data_type_dynamic_world
+  )
+  
+  print(paste0(i, " of ", lengths(dynamic_world_raster_list), " done. Time: ", Sys.time()))
+}
+
+# Merge all subsets too 
+
+#Grass
+grass_files <- list.files("data/spatial_data/raw_tiles",
+                                  full.names = T, pattern = "grass")
+
+grass_raster_list <- lapply(grass_files, rast)
+
+grass_file_name_merge <- paste0("data/spatial_data/time_series/grass_", year,"_10m.tif")
+
+data_type_grass <- terra::datatype(grass_raster_list[[1]])
+
+grass_r <- merge(sprc(grass_raster_list),
+                         filename = grass_file_name_merge,
+                         overwrite = TRUE,
+                         datatype = data_type_grass)
+plot(grass_r)
+
+#Shrubs
+
+shrub_files <- list.files("data/spatial_data/raw_tiles",
+                          full.names = T, pattern = "shrub")
+
+shrub_raster_list <- lapply(shrub_files, rast)
+
+shrub_file_name_merge <- paste0("data/spatial_data/time_series/shrub_", year,"_10m.tif")
+
+data_type_shrub <- terra::datatype(shrub_raster_list[[1]])
+
+shrub_r <- merge(sprc(shrub_raster_list),
+                 filename = shrub_file_name_merge,
+                 overwrite = TRUE,
+                 datatype = data_type_shrub)
+plot(shrub_r)
+
+# Trees 
+tree_files <- list.files("data/spatial_data/raw_tiles",
+                          full.names = T, pattern = "tree")
+
+tree_raster_list <- lapply(tree_files, rast)
+
+tree_file_name_merge <- paste0("data/spatial_data/time_series/tree_", year,"_10m.tif")
+
+data_type_tree <- terra::datatype(tree_raster_list[[1]])
+
+tree_r <- merge(sprc(tree_raster_list),
+                 filename = tree_file_name_merge,
+                 overwrite = TRUE,
+                 datatype = data_type_tree)
+plot(tree_r)
+
+#Vegetation types
+
+veg_types_files <- list.files("data/spatial_data/raw_tiles",
+                          full.names = T, pattern = "vegetation_types")
+
+veg_types_raster_list <- lapply(veg_types_files, rast)
+
+veg_types_file_name_merge <- paste0("data/spatial_data/time_series/veg_types_", year,"_10m.tif")
+
+data_type_veg_types <- terra::datatype(veg_types_raster_list[[1]])
+
+veg_types_r <- merge(sprc(veg_types_raster_list),
+                 filename = veg_types_file_name_merge,
+                 overwrite = TRUE,
+                 datatype = data_type_veg_types)
+plot(veg_types_r)
+
 file.remove(dynamic_world_files)
+file.remove(grass_files)
+file.remove(shrub_files)
+file.remove(tree_files)
+file.remove(veg_types_files)
+
 googledrive::drive_rm(unique(dynamic_world_drive_files$name))
 googledrive::drive_rm("rgee_backup_dynamic_world")
 
@@ -143,6 +286,17 @@ print(paste0(year, " done"))
 }
 
 ###### Reclassify ------------------------
+
+dynamic_world_files <- list.files("data/spatial_data/time_series",
+                                  full.names = T, pattern = "dynamic_world")
+
+for(file in dynamic_world_files){
+  
+  dw_r <- rast(file)
+  
+  
+  
+}
 
 grass_img <- annual_img$
   eq(2)$Or(annual_img$eq(4))$
