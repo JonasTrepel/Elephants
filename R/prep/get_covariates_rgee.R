@@ -18,6 +18,7 @@ reticulate::use_python(rgee_env_dir, required=T)
 #ee_Authenticate(auth_mode='notebook')
 ee$Initialize(project = "ee-jonastrepel")
 drive_auth(email = "jonas.trepel@bio.au.dk")
+ee$String('Hello from the Earth Engine servers!')$getInfo()
 
 ### Get sub-saharan Africa extent
 ssa_ext <- ee$Geometry$Rectangle(
@@ -172,9 +173,10 @@ export_esa_wc$start()
 
 
 Sys.sleep(60)
-monitor_gee_task(pattern = "esa_world_cover", path = "rgee_backup_esa_wc")
+monitor_gee_task(pattern = "esa_world_cover", path = "rgee_backup_esa_wc", 
+                 last_sleep_time = 3600)
 
-Sys.sleep(1200)
+Sys.sleep(600)
 (esa_wc_drive_files <- drive_ls(path = "rgee_backup_esa_wc", pattern = "esa_world_cover") %>%
   dplyr::select(name) %>% 
   unique())
@@ -185,8 +187,6 @@ for(filename in unique(esa_wc_drive_files$name)){
   drive_download(file = filename, path = path_name, overwrite = TRUE)
 }
 
-googledrive::drive_rm(unique(esa_wc_drive_files$name))
-googledrive::drive_rm("rgee_backup_esa_wc")
 
 esa_wc_files <- list.files("data/spatial_data/raw_tiles", full.names = T, pattern = "esa_world_cover")
 
@@ -202,13 +202,15 @@ esa_wc_r <- merge(sprc(esa_wc_raster_list),
                   datatype = data_type_esa_wc)
 plot(esa_wc_r)
 
+googledrive::drive_rm(unique(esa_wc_drive_files$name))
+googledrive::drive_rm("rgee_backup_esa_wc")
 file.remove(esa_wc_files)
 
 esa_wc_r <- rast("data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif")
 
 wc_50m_r <- terra::aggregate(esa_wc_r, 
                               fact = 5, 
-                              fun = "mode", 
+                              fun = "modal", 
                               filename = "data/spatial_data/covariates/raster/esa_world_cover_2021_50m.tif", 
                               overwrite = TRUE, 
                               cores = 20)

@@ -3,7 +3,7 @@
 monitor_gee_task <- function(pattern = NA, path = "rgee_backup", last_sleep_time = 600) {
   drive_auth(email = "jonas.trepel@bio.au.dk")
   
-  for (i in 1:1000) {
+  for (i in 1:10000) {
     drive_files <- drive_ls(path = path, pattern = pattern) %>%
       dplyr::select(name)
     
