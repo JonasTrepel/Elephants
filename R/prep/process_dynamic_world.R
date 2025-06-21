@@ -157,49 +157,42 @@ for(file in unique(dynamic_world_files)){
   
   print(paste0("Bare ground finished for ", years, ". Time: ", Sys.time()))
   
-  # Vegetation types 
+  # 7 Vegetation types 
   vt_r <- classify(dw_r, rcl = matrix(c(
     1, 1,
     2, 2,
     3, 3,
     5, 5,
     7, 7
-  ), ncol = 2, byrow = TRUE))
+  ), ncol = 2, byrow = TRUE),
+  others = NA,
+  filename = paste0("data/spatial_data/time_series/vegetation_types_", years, "_10m.tif"),
+  overwrite = TRUE,
+  datatype = data_type_dw)
   
-  writeRaster(
-    vt_r,
-    filename = paste0("data/spatial_data/time_series/vegetation_types_", years, "_10m.tif"),
-    overwrite = TRUE,
-    datatype = data_type_dw
-  )
   print(paste0("Vegetation types finished for ", years, ". Time: ", Sys.time()))
-  
   
   # 8. Vegetation Types with Grass + Crops grouped
 
-    vt_r_inc_cr <- classify(tile_r, rcl = matrix(c(
+    vt_r_inc_cr <- classify(dw_r, rcl = matrix(c(
       1, 1,
       2, 2,
       4, 2,
       3, 3,
       5, 5,
       7, 7
-    ), ncol = 2, byrow = TRUE))
+    ), ncol = 2, byrow = TRUE),
+    others = NA,
+    filename = paste0("data/spatial_data/time_series/veg_types_grass_and_crops_joined_", years, "_10m.tif"),
+    overwrite = TRUE,
+    datatype = data_type_dw)
    
-     writeRaster(
-      vt_r_inc_cr,
-      filename = paste0("data/spatial_data/time_series/veg_types_grass_and_crops_joined_", years, "_10m.tif"),
-      overwrite = TRUE,
-      datatype = data_type_dw
-    )
   
-     print(paste0("Vegetation types grass and crops grouped finished for ", years, ". Time: ", Sys.time()))
+   print(paste0("Vegetation types grass and crops grouped finished for ", years, ". Time: ", Sys.time()))
   
 
 print(paste0(years, " done. Time: ", Sys.time()))
 
-gc()
+rm(dw_r, grass_r, gr_n_cr_r, shrub_r, tree_r, crop_r, bare_r, vt_r, vt_inc_cr_r); gc()
 
 }
-
-## aggregate here 

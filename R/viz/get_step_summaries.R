@@ -16,121 +16,265 @@ dt_loc <- fread("data/processed_data/clean_data/all_location_data.csv") %>%
   select(-c(lon, lat, date_time, month, obs_id)) %>% 
   unique()
 
-# Step length 
-dt_1 %>% 
-  summarize(median_sl = median(sl_km), 
-            mean_sl = mean(sl_km), 
-            q25_sl = quantile(sl_km, .25), 
-            q75_sl = quantile(sl_km, .75), 
-            n = n_distinct(individual_id))
+# Summarize median step length of each individual 
 
-hist(dt_1$sl_km)
+# 1 hr 
+dt_1_all <- dt_1 %>% 
+  group_by(individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = "whole_year", 
+         n_ids = n_distinct(individual_id), 
+         sex = NA, 
+         season = NA)
 
-dt_1 %>% group_by(sex) %>% 
-  summarize(median_sl = median(sl_km), 
-            mean_sl = mean(sl_km), 
-            q25_sl = quantile(sl_km, .25), 
-            q75_sl = quantile(sl_km, .75), 
-            n = n_distinct(individual_id))
+dt_1_season <- dt_1 %>% 
+  group_by(season, individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = season, 
+         n_ids = n_distinct(individual_id), 
+         sex = NA)
 
+dt_1_sex <- dt_1 %>% 
+  filter(sex %in% c("M", "F")) %>% 
+  group_by(sex, individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = sex, 
+         n_ids = n_distinct(individual_id), 
+         season = NA)
 
-dt_3 %>% 
-  summarize(median_sl = median(sl_km), 
-            mean_sl = mean(sl_km), 
-            q25_sl = quantile(sl_km, .25), 
-            q75_sl = quantile(sl_km, .75), 
-            n = n_distinct(individual_id))
-
-hist(dt_3$sl_km)
-
-dt_3 %>% group_by(sex) %>% 
-  summarize(median_sl = median(sl_km), 
-            mean_sl = mean(sl_km), 
-            q25_sl = quantile(sl_km, .25), 
-            q75_sl = quantile(sl_km, .75), 
-            n = n_distinct(individual_id))
-
-
-dt_12 %>% 
-  summarize(median_sl = median(sl_km), 
-            mean_sl = mean(sl_km), 
-            q25_sl = quantile(sl_km, .25), 
-            q75_sl = quantile(sl_km, .75), 
-            n = n_distinct(individual_id))
-
-hist(dt_12$sl_km)
-
-dt_12 %>% group_by(sex) %>% 
-  summarize(median_sl = median(sl_km), 
-            mean_sl = mean(sl_km), 
-            q25_sl = quantile(sl_km, .25), 
-            q75_sl = quantile(sl_km, .75), 
-            n = n_distinct(individual_id))
-
-# Function to create summary tables
-make_summary <- function(dt, group_vars = NULL) {
-  if (!is.null(group_vars)) {
-    dt_grouped <- dt %>%
-      group_by(across(all_of(group_vars)))
-  } else {
-    dt_grouped <- dt
-  }
+dt_1_sese <- dt_1 %>% 
+  filter(sex %in% c("M", "F")) %>% 
+  group_by(sex, season, individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = paste0(season, "_", sex), 
+         n_ids = n_distinct(individual_id))
   
-  summary <- dt_grouped %>%
-    summarize(
-      N = n_distinct(individual_id),
-      step_length = sprintf("%.2f (%.2f-%.2f)", 
-                            median(sl_km, na.rm=TRUE), 
-                            quantile(sl_km, .25, na.rm=TRUE), 
-                            quantile(sl_km, .75, na.rm=TRUE)),
-      turning_angle = if("ta_" %in% names(dt)) sprintf("%.2f (%.2f-%.2f)", 
-                                                       median(ta_, na.rm=TRUE), 
-                                                       quantile(ta_, .25, na.rm=TRUE), 
-                                                       quantile(ta_, .75, na.rm=TRUE)) else NA,
-      hr_locoh = if("hr_locoh_area_km2" %in% names(dt)) sprintf("%.2f (%.2f-%.2f)", 
-                                                                median(hr_locoh_area_km2, na.rm=TRUE), 
-                                                                quantile(hr_locoh_area_km2, .25, na.rm=TRUE), 
-                                                                quantile(hr_locoh_area_km2, .75, na.rm=TRUE)) else NA,
-      hr_mcp = if("hr_mcp_area_km2" %in% names(dt)) sprintf("%.2f (%.2f-%.2f)", 
-                                                            median(hr_mcp_area_km2, na.rm=TRUE), 
-                                                            quantile(hr_mcp_area_km2, .25, na.rm=TRUE), 
-                                                            quantile(hr_mcp_area_km2, .75, na.rm=TRUE)) else NA,
-      .groups = "drop"
-    )
-  return(summary)
-}
+dt_1_sum <- rbind(dt_1_all, dt_1_season, dt_1_sex, dt_1_sese) %>% 
+  mutate(clean_tier = case_when(
+    .default = tier,
+    tier == "whole_year"     ~ "Whole Year\nAll Individuals", 
+    tier == "dry_season"     ~ "Dry Season\nAll Individuals",
+    tier == "wet_season"     ~ "Wet Season\nAll Individuals",
+    tier == "F"              ~ "Whole Year\nFemales",
+    tier == "M"              ~ "Whole Year\nMales",
+    tier == "dry_season_F"   ~ "Dry Season\nFemales",
+    tier == "wet_season_F"   ~ "Wet Season\nFemales",
+    tier == "dry_season_M"   ~ "Dry Season\nMales",
+    tier == "wet_season_M"   ~ "Wet Season\nMales"), 
+    step_time = "1hr")
 
-# Overall summaries
-overall_summary <- bind_rows(
-  cbind(Time = "1hr", make_summary(dt_1)),
-  cbind(Time = "3hrs", make_summary(dt_3)),
-  cbind(Time = "12hrs", make_summary(dt_12))
-)
 
-# Summaries by sex
-by_sex_summary <- bind_rows(
-  cbind(Time = "1hr", make_summary(dt_1, group_vars = "sex") %>% rename(Sex = sex)),
-  cbind(Time = "3hrs", make_summary(dt_3, group_vars = "sex") %>% rename(Sex = sex)),
-  cbind(Time = "12hrs", make_summary(dt_12, group_vars = "sex") %>% rename(Sex = sex))
-)
+# 3 hrs 
 
-# Summaries by season
-by_season_summary <- bind_rows(
-  cbind(Time = "1hr", make_summary(dt_1, group_vars = "season")),
-  cbind(Time = "3hrs", make_summary(dt_3, group_vars = "season")),
-  cbind(Time = "12hrs", make_summary(dt_12, group_vars = "season"))
-)
+dt_3_all <- dt_3 %>% 
+  group_by(individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = "whole_year", 
+         n_ids = n_distinct(individual_id), 
+         sex = NA, 
+         season = NA)
 
-# Summaries by season and sex
-by_season_sex_summary <- bind_rows(
-  cbind(Time = "1hr", make_summary(dt_1, group_vars = c("season", "sex")) %>% rename(Sex = sex)),
-  cbind(Time = "3hrs", make_summary(dt_3, group_vars = c("season", "sex")) %>% rename(Sex = sex)),
-  cbind(Time = "12hrs", make_summary(dt_12, group_vars = c("season", "sex")) %>% rename(Sex = sex))
-)
+dt_3_season <- dt_3 %>% 
+  group_by(season, individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = season, 
+         n_ids = n_distinct(individual_id), 
+         sex = NA)
 
-# Save as CSV
-dir.create("output", showWarnings = FALSE)
-write.csv(overall_summary, "builds/model_outputs/steps_overall_summary.csv", row.names = FALSE)
-write.csv(by_sex_summary, "builds/model_outputs/steps_sex_based_summary.csv", row.names = FALSE)
-write.csv(by_season_summary, "builds/model_outputs/steps_seasonal_summary.csv", row.names = FALSE)
-write.csv(by_season_sex_summary, "builds/model_outputs/steps_season_sex_summary.csv", row.names = FALSE)
+dt_3_sex <- dt_3 %>% 
+  filter(sex %in% c("M", "F")) %>% 
+  group_by(sex, individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = sex, 
+         n_ids = n_distinct(individual_id), 
+         season = NA)
+
+dt_3_sese <- dt_3 %>% 
+  filter(sex %in% c("M", "F")) %>% 
+  group_by(sex, season, individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = paste0(season, "_", sex), 
+         n_ids = n_distinct(individual_id))
+
+dt_3_sum <- rbind(dt_3_all, dt_3_season, dt_3_sex, dt_3_sese) %>% 
+  mutate(clean_tier = case_when(
+    .default = tier,
+    tier == "whole_year"     ~ "Whole Year\nAll Individuals", 
+    tier == "dry_season"     ~ "Dry Season\nAll Individuals",
+    tier == "wet_season"     ~ "Wet Season\nAll Individuals",
+    tier == "F"              ~ "Whole Year\nFemales",
+    tier == "M"              ~ "Whole Year\nMales",
+    tier == "dry_season_F"   ~ "Dry Season\nFemales",
+    tier == "wet_season_F"   ~ "Wet Season\nFemales",
+    tier == "dry_season_M"   ~ "Dry Season\nMales",
+    tier == "wet_season_M"   ~ "Wet Season\nMales"), 
+    step_time = "3hrs")
+
+
+# 12 hrs 
+
+dt_12_all <- dt_12 %>% 
+  group_by(individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = "whole_year", 
+         n_ids = n_distinct(individual_id), 
+         sex = NA, 
+         season = NA)
+
+dt_12_season <- dt_12 %>% 
+  group_by(season, individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = season, 
+         n_ids = n_distinct(individual_id), 
+         sex = NA)
+
+dt_12_sex <- dt_12 %>% 
+  filter(sex %in% c("M", "F")) %>% 
+  group_by(sex, individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = sex, 
+         n_ids = n_distinct(individual_id), 
+         season = NA)
+
+dt_12_sese <- dt_12 %>% 
+  filter(sex %in% c("M", "F")) %>% 
+  group_by(sex, season, individual_id) %>% 
+  summarize(median_sl = median(sl_km, na.rm = T), 
+            median_ta = median(ta_, na.rm = T), 
+            mean_sl = mean(sl_km, na.rm = T), 
+            mean_ta = mean(ta_, na.rm = T), 
+            q25_sl = quantile(sl_km, .25, na.rm = T), 
+            q25_ta = quantile(ta_, .25, na.rm = T), 
+            q75_sl = quantile(sl_km, .75, na.rm = T), 
+            q75_ta = quantile(ta_, .75, na.rm = T), 
+            n_steps = n()) %>% 
+  ungroup() %>% 
+  mutate(tier = paste0(season, "_", sex), 
+         n_ids = n_distinct(individual_id))
+
+dt_12_sum <- rbind(dt_12_all, dt_12_season, dt_12_sex, dt_12_sese) %>% 
+  mutate(clean_tier = case_when(
+    .default = tier,
+    tier == "whole_year"     ~ "Whole Year\nAll Individuals", 
+    tier == "dry_season"     ~ "Dry Season\nAll Individuals",
+    tier == "wet_season"     ~ "Wet Season\nAll Individuals",
+    tier == "F"              ~ "Whole Year\nFemales",
+    tier == "M"              ~ "Whole Year\nMales",
+    tier == "dry_season_F"   ~ "Dry Season\nFemales",
+    tier == "wet_season_F"   ~ "Wet Season\nFemales",
+    tier == "dry_season_M"   ~ "Dry Season\nMales",
+    tier == "wet_season_M"   ~ "Wet Season\nMales"), 
+    step_time = "12hrs")
+
+
+# summarize 
+dt_sum <- rbind(dt_1_sum, dt_3_sum, dt_12_sum)
+
+p_sum <- dt_sum %>% 
+  ggplot() +
+  geom_boxplot(aes(y = median_sl, x = clean_tier)) +
+  labs(y = "Median Step Length (km)", x = "") +
+  facet_wrap(~step_time, scales = "free_y", ncol = 1) +
+  theme_bw()
+p_sum
+
+ggsave(plot = p_sum, "builds/plots/supplement/step_length_distribution.png", dpi = 600, height = 9, width = 9)

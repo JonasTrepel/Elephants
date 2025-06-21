@@ -122,8 +122,4 @@ print(paste0(year, " done. Time: ", Sys.time()))
 
 }
 
-###### Aggregate/get fractional cover  ------------------------
-
-#Here we would get fractional cover and some sort of heterogeneity metric I guess
-
 
