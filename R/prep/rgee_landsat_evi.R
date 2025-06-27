@@ -15,37 +15,43 @@ library(tidyverse)
 library(googledrive)
 library(terra)
 
-monitor_gee_task <- function(pattern = NA, path = "rgee_backup", last_sleep_time = 10) {
-  drive_auth(email = "jonas.trepel@gmail.com")
-  
-  for (i in 1:1000) {
-    drive_files <- drive_ls(path = path, pattern = pattern) %>%
-      dplyr::select(name)
-    
-    # Check if the folder is empty
-    if (n_distinct(drive_files) == 0) {
-      Sys.sleep(30)
-      print(paste0("Attempt ", i, ": Drive still empty"))
-    } else {
-      print("Files found:")
-      print(drive_files)
-      
-      if (n_distinct(drive_files) < 8) {
-        Sys.sleep(150) # to make sure all tiles are there
-        drive_files <- drive_ls(path = path, pattern = pattern) %>%
-          dplyr::select(name)
-      }
-      # check again
-      if (n_distinct(drive_files) < 8) {
-        Sys.sleep(last_sleep_time) # to make sure all tiles are there
-      }
-      drive_files <- drive_ls(path = path, pattern = pattern) %>% dplyr::select(name)
-      print(drive_files)
-      
-      break #
-    }
-  }
-}
+
+# TO DO: 
+
+# KICK OUT LANDSAT 7 ENTIRELY AND LIVE WITH THE GAP....
+
+
+# monitor_gee_task <- function(pattern = NA, path = "rgee_backup", last_sleep_time = 10) {
+#   drive_auth(email = "jonas.trepel@gmail.com")
+#   
+#   for (i in 1:1000) {
+#     drive_files <- drive_ls(path = path, pattern = pattern) %>%
+#       dplyr::select(name)
+#     
+#     # Check if the folder is empty
+#     if (n_distinct(drive_files) == 0) {
+#       Sys.sleep(30)
+#       print(paste0("Attempt ", i, ": Drive still empty"))
+#     } else {
+#       print("Files found:")
+#       print(drive_files)
+#       
+#       if (n_distinct(drive_files) < 8) {
+#         Sys.sleep(150) # to make sure all tiles are there
+#         drive_files <- drive_ls(path = path, pattern = pattern) %>%
+#           dplyr::select(name)
+#       }
+#       # check again
+#       if (n_distinct(drive_files) < 8) {
+#         Sys.sleep(last_sleep_time) # to make sure all tiles are there
+#       }
+#       drive_files <- drive_ls(path = path, pattern = pattern) %>% dplyr::select(name)
+#       print(drive_files)
+#       
+#       break #
+#     }
+#   }
+# }
 # 
 # rgee_env_dir <- c("C:\\Users\\au713983\\.conda\\envs\\rgee_env")
 # reticulate::use_python(rgee_env_dir, required=T)
@@ -62,21 +68,12 @@ years <- c(2001:2024)
 #define area of interest
 aoi <- ee$Geometry$Rectangle(
   #coords = c(7.5, -35.0, 45.0, 5.0), # xmin, ymin, xmax, ymax
-  coords = c(30.9, -25.6, 32.0, -22.3), #Kaingo
+  coords = c(30.9, -25.6, 32.0, -22.3), #Kruger NP
   proj = "EPSG:4326",
   geodesic = FALSE
 )
 
 Map$addLayer(aoi)
-# Define years and dates for Landsat image collection
-start_year <- 2015
-end_year <- 2015
-start_day <- "01-01"  # start of date filter (month-day)
-end_day <- "12-31"    # end of date filter (month-day)
-
-# Choose mosaicking method: "median" or "medoid"
-mosaic_method <- "median"
-year = 2012
 
 ########################################################################################################
 ##### PROCESSING FUNCTIONS ##### 
@@ -256,8 +253,8 @@ get_annual_mean_evi <- function(year, start_day, end_day, aoi) {
   mean_evi
 }
 
-
-years <- c(2010, 2014:2024)
+mosaic_method = "median"
+years <- c(2001:2024)
 for(year in years){
 
 #Mosaic
@@ -265,70 +262,70 @@ for(year in years){
 mosaic_evi <- get_annual_mosaic_evi(year, "01-01", "12-31", aoi, "medoid")
 Map$centerObject(aoi)
 Map$addLayer(mosaic_evi, list(min=0, max=1, palette=c("white", "green")), paste("Mosaic EVI", year))
-
-export_mosaic_evi <- ee_image_to_drive(
-  image = mosaic_evi,
-  region = aoi,
-  folder = "rgee_backup_mosaic_evi",
-  description = "mosaic_evi",
-  scale = 30,
-  timePrefix = FALSE,
-  maxPixels = 1e13
-)
-export_mosaic_evi$start()
-Sys.sleep(60)
-monitor_gee_task(pattern = "mosaic_evi", path = "rgee_backup_mosaic_evi")
-
-(drive_files_mosaic_evi <- drive_ls(path = "rgee_backup_mosaic_evi", pattern = "mosaic_evi") %>%
-    dplyr::select(name) %>% 
-    unique())
-
-filename_mosaic_evi <- unique(drive_files_mosaic_evi$name)
-filepath_mosaic_evi <- paste0("data/spatial_data/raw_time_series/landsat/mosaic_evi_30m_", year, ".tif")
-
-drive_download(file = filename_mosaic_evi, path = filepath_mosaic_evi, overwrite = TRUE)
-
-googledrive::drive_rm(unique(drive_files_mosaic_evi$name))
-googledrive::drive_rm("rgee_backup_mosaic_evi")
-
-mosaic_evi_r <- rast(filepath_mosaic_evi)
-
-plot(mosaic_evi_r, main = paste0("Mosaic EVI ", year))
-
-print(paste0(year, " EVI mosaic done"))
+# 
+# export_mosaic_evi <- ee_image_to_drive(
+#   image = mosaic_evi,
+#   region = aoi,
+#   folder = "rgee_backup_mosaic_evi",
+#   description = "mosaic_evi",
+#   scale = 30,
+#   timePrefix = FALSE,
+#   maxPixels = 1e13
+# )
+# export_mosaic_evi$start()
+# Sys.sleep(60)
+# monitor_gee_task(pattern = "mosaic_evi", path = "rgee_backup_mosaic_evi")
+# 
+# (drive_files_mosaic_evi <- drive_ls(path = "rgee_backup_mosaic_evi", pattern = "mosaic_evi") %>%
+#     dplyr::select(name) %>% 
+#     unique())
+# 
+# filename_mosaic_evi <- unique(drive_files_mosaic_evi$name)
+# filepath_mosaic_evi <- paste0("data/spatial_data/raw_time_series/landsat/mosaic_evi_30m_", year, ".tif")
+# 
+# drive_download(file = filename_mosaic_evi, path = filepath_mosaic_evi, overwrite = TRUE)
+# 
+# googledrive::drive_rm(unique(drive_files_mosaic_evi$name))
+# googledrive::drive_rm("rgee_backup_mosaic_evi")
+# 
+# mosaic_evi_r <- rast(filepath_mosaic_evi)
+# 
+# plot(mosaic_evi_r, main = paste0("Mosaic EVI ", year))
+# 
+# print(paste0(year, " EVI mosaic done"))
 
 #Mean EVI
 mean_evi <- get_annual_mean_evi(year, "01-01", "12-31", aoi)
 Map$centerObject(aoi)
 Map$addLayer(mean_evi, list(min=0, max=1, palette=c("white", "green")), paste("Mean EVI", year))
 
-export_mean_evi <- ee_image_to_drive(
-  image = mean_evi,
-  region = aoi,
-  folder = "rgee_backup_mean_evi",
-  description = "mean_evi",
-  scale = 30,
-  timePrefix = FALSE,
-  maxPixels = 1e13
-)
-export_mean_evi$start()
-Sys.sleep(60)
-monitor_gee_task(pattern = "mean_evi", path = "rgee_backup_mean_evi")
-
-(drive_files_mean_evi <- drive_ls(path = "rgee_backup_mean_evi", pattern = "mean_evi") %>%
-    dplyr::select(name) %>% 
-    unique())
-
-filename_mean_evi <- unique(drive_files_mean_evi$name)
-filepath_mean_evi <- paste0("data/spatial_data/raw_time_series/landsat/mean_evi_30m_", year, ".tif")
-
-drive_download(file = filename_mean_evi, path = filepath_mean_evi, overwrite = TRUE)
-
-googledrive::drive_rm(unique(drive_files_mean_evi$name))
-googledrive::drive_rm("rgee_backup_mean_evi")
-
-mean_evi_r <- rast(filepath_mean_evi)
-
-plot(mean_evi_r, main = paste0("Mean EVI ", year))
+# export_mean_evi <- ee_image_to_drive(
+#   image = mean_evi,
+#   region = aoi,
+#   folder = "rgee_backup_mean_evi",
+#   description = "mean_evi",
+#   scale = 30,
+#   timePrefix = FALSE,
+#   maxPixels = 1e13
+# )
+# export_mean_evi$start()
+# Sys.sleep(60)
+# monitor_gee_task(pattern = "mean_evi", path = "rgee_backup_mean_evi")
+# 
+# (drive_files_mean_evi <- drive_ls(path = "rgee_backup_mean_evi", pattern = "mean_evi") %>%
+#     dplyr::select(name) %>% 
+#     unique())
+# 
+# filename_mean_evi <- unique(drive_files_mean_evi$name)
+# filepath_mean_evi <- paste0("data/spatial_data/raw_time_series/landsat/mean_evi_30m_", year, ".tif")
+# 
+# drive_download(file = filename_mean_evi, path = filepath_mean_evi, overwrite = TRUE)
+# 
+# googledrive::drive_rm(unique(drive_files_mean_evi$name))
+# googledrive::drive_rm("rgee_backup_mean_evi")
+# 
+# mean_evi_r <- rast(filepath_mean_evi)
+# 
+# plot(mean_evi_r, main = paste0("Mean EVI ", year))
 
 }

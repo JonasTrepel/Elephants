@@ -76,7 +76,7 @@ for(i in 1:length(files)){
   
 }
 
-mapview(pas_all[grepl("Mana Pools National Park", pas_all$NAME), ])
+mapview(pas_all[grepl("Zambezi", pas_all$NAME), ])
 
 names_v_count <- c("North Luangwa",
                    "South Luangwa",
@@ -108,7 +108,7 @@ names_v_count <- c("North Luangwa",
                    "Madikwe Nature Reserve", 
                    "Makgadikgadi Pans", 
                    "Nxai Pan",
-                   "Victoria Falls", 
+                   "Zambezi", 
                    "Luambe", 
                    "Moremi",
                    "Itala Nature Reserve",
@@ -136,7 +136,7 @@ pas_all[grepl("Mavinga", pas_all$NAME), ]
 
 pas_sub <- pas_all[pas_all$NAME %in% c(names_v_count), ] %>% 
   filter(WDPA_PID != 555705347) %>% 
-  filter(DESIG_ENG != "Forest Reserve") %>%
+  filter(!DESIG_ENG %in% c("Forest Reserve", "State Forest")) %>%
   st_transform(crs = "ESRI:54009") %>% 
   mutate(area_km2 = as.numeric(st_area(.)/1000000))
 table(pas_sub$NAME)

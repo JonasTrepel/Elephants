@@ -77,7 +77,7 @@ dt_fin <- dt_comb %>%
     orig_name == "Chobe" ~ "Chobe",
     orig_name == "Nxai Pan" ~ "Nxai Pan",
     orig_name == "Makgakgadi" ~ "Makgadikgadi Pans",
-    orig_name == "Vicoria Falls /Zambezi NP" ~ "Victoria Falls",
+    orig_name == "Vicoria Falls /Zambezi NP" ~ "Zambezi",
     orig_name == "Hwange" ~ "Hwange",
     orig_name == "Chizarira" ~ "Chizarira",
     orig_name == "Matusadonha" ~ "Matusadona",
@@ -119,3 +119,31 @@ dt_fin <- dt_comb %>%
 
 fwrite(dt_fin, "data/processed_data/clean_data/all_population_counts.csv")
 # on average 139706 Elephants 
+
+# Plot population counts 
+
+dt_pc <- fread("data/processed_data/clean_data/all_population_counts.csv") %>% 
+  mutate(mean_density_km2 = mean_population_count/area_km2) %>% 
+  group_by(park_id) %>% 
+  mutate(n = n()) %>% 
+  ungroup() %>% 
+  filter(n >= 3)
+
+dt_pc %>% 
+  dplyr::select(mean_density_km2, park_id) %>% 
+  unique() %>% 
+  select(mean_density_km2) %>% 
+  pull() %>% 
+  quantile(na.rm = T)
+
+
+p_trends <- dt_pc %>% 
+  ggplot() +
+  geom_point(aes(x = year, y = population_count)) + 
+  facet_wrap(~orig_name, scales = "free_y") +
+  geom_smooth(aes(x = year, y = population_count), 
+              method = "lm") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_trends
+ggsave(plot = p_trends, "builds/plots/supplement/linear_population_trends.png", dpi = 600, height = 8, width = 12 )
