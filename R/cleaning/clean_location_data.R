@@ -182,7 +182,7 @@ sf_kaingo %>%
 mapview(sf_kaingo)
 
 # Kaingo Peanuts -------------------------------------
-unzip("data/raw_data/kaingo/Peanuts (2025-04-30 090720 AfricaJohannesburg).kmz", exdir = "data/raw_data/kaingo")
+unzip("data/raw_data/kaingo/Peanuts (2022-05-13 to 2025-05-27).kmz", exdir = "data/raw_data/kaingo")
 
 
 dt_peanuts_raw <- st_read("data/raw_data/kaingo/doc.kml") 
