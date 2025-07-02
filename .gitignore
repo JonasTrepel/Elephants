@@ -19,7 +19,7 @@ data/processed_data/data_fragments/steps_3hrs_habitat_covariates.csv
 data/processed_data/data_fragments/pa_grids_with_covariates.csv
 data/processed_data/data_fragments/pa_grid_rel_occ.csv
 data/processed_data/data_fragments/pa_grid_with_habitat_quality.csv
-
+data/processed_data/data_fragments/
 
 # History files
 .Rhistory
