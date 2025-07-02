@@ -217,18 +217,134 @@ sf_peanuts <- st_as_sf(dt_peanuts,
 
 # SANParks ---------------------------------------
 
-
+#.....
 
 # Lapalala ---------------------------------------
 
+lapalala_files <- list.files(path = "data/raw_data/lapalala/AWT Elephant collar data", 
+                             pattern = ".csv", 
+                             full.names = T)
+
+dt_lapalala_raw <- data.frame()
+for(i in 1:length(lapalala_files)){
+  
+  l_tmp <- fread(lapalala_files[i])
+  dt_lapalala_raw <- rbind(dt_lapalala_raw, l_tmp)
+}
+
+
+glimpse(dt_lapalala_raw)
+
+sf_lapalala_bound <- st_read("data/raw_data/lapalala/lapalala_boundary.gpkg") %>% 
+  st_zm(., drop = TRUE, what = "ZM") %>% 
+  st_make_valid()
+st_bbox(sf_lapalala_bound)
+
+dt_lapalala <- dt_lapalala_raw %>% 
+  dplyr::select(
+    individual_id = Tag, 
+    lon = Longitude, 
+    lat = Latitude, 
+    date_time = `Time Stamp`, 
+  ) %>% 
+  mutate(population_id = NA,
+         lon = gsub("°", "", lon), 
+         lon = as.numeric(lon),
+         lat = gsub("°", "", lat),
+         lat = as.numeric(lat),
+         date_time = as_datetime(date_time),
+         park_id = "Lapalala", 
+         source = "Lapalala", 
+         sex = "U", 
+         individual_id = gsub("African Elephant: ", "", individual_id), 
+         individual_id = gsub("African Elephant ", "", individual_id), 
+         individual_id = gsub("EF1: ", "", individual_id) 
+  ) %>% 
+  filter(lon > 28.16774 & lon < 28.43139 &
+           lat > -23.94056 & lat < 23.73957)
+unique(dt_lapalala$individual_id)
+summary(dt_lapalala)
+
+sf_lapalala <- st_as_sf(dt_lapalala, 
+                       coords = c("lon", "lat"), 
+                       crs = 4326)
+
+mapview(sf_lapalala, zcol = "individual_id")
 
 
 # HiP ----------------------------------------
 
+dt_hip_raw <- fread("data/raw_data/hip/cnrs_gps_elephant_hip.csv") %>% 
+  dplyr::select(
+    individual_id = `Collar ID`, 
+    lat = `Latitude [deg]`, 
+    lon = `Longitude [deg]`, 
+    date_time = `Acq. Time [UTC]`, 
+  ) %>% 
+  mutate(population_id = NA, 
+         park_id = "HiP", 
+         source = "SCJ_EKZNW", 
+         sex = "F") %>% #All females, in distinct herds. 
+  filter(!abs(lat) > 90 & !abs(lon) > 180) %>% 
+  mutate(point_id = 1:nrow(.))
+
+sf_hip <- st_as_sf(dt_hip_raw, 
+                        coords = c("lon", "lat"), 
+                        crs = 4326)
+
+sf_hip_bound <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") %>% 
+  filter(grepl("Hluhluwe", NAME)) %>% 
+  st_transform(crs = 4326)
+
+sf_hip_int <- sf_hip %>% 
+  filter(lengths(st_intersects(., sf_hip_bound)) > 0)
+
+mapview(sf_hip_bound)
+mapview(sf_hip_int, zcol = "individual_id")
+
+dt_hip <- dt_hip_raw %>% 
+  filter(point_id %in% unique(sf_hip_int$point_id)) %>% 
+  dplyr::select(-point_id)
 
 
 # Ithala --------------------------------------------
 
+dt_ithala_raw <- fread("data/raw_data/ithala/ithala_elephant_gps_2014_2023.csv") %>% 
+  dplyr::select(
+    individual_id = Tag, 
+    lat = Latitude, 
+    lon = Longitude, 
+    date_time = Time, 
+    sex = Sex
+  ) %>% 
+  mutate(population_id = NA, 
+         park_id = "ithala", 
+         source = "EKZNW", 
+         sex = case_when(
+           .default = "U",
+           sex == "Cow" ~ "F", 
+           sex == "Bull" ~ "M")) %>% #All females, in distinct herds. 
+  filter(!abs(lat) > 90 & !abs(lon) > 180) %>% 
+  mutate(point_id = 1:nrow(.))
+
+sf_ithala <- st_as_sf(dt_ithala_raw, 
+                   coords = c("lon", "lat"), 
+                   crs = 4326)
+#mapview(sf_ithala)
+
+sf_ithala_bound <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") %>% 
+  filter(grepl("Itala", NAME)) %>% 
+  st_transform(crs = 4326)
+
+sf_ithala_int <- sf_ithala %>% 
+  filter(lengths(st_intersects(., sf_ithala_bound)) > 0)
+
+mapview(sf_ithala_bound)
+#mapview(sf_ithala_int, zcol = "individual_id")
+
+dt_ithala <- dt_ithala_raw %>% 
+  filter(point_id %in% unique(sf_ithala_int$point_id)) %>% 
+  dplyr::select(-point_id)
 
 
 ####### CLEAN DATASET ########
@@ -240,13 +356,17 @@ sf_peanuts <- st_as_sf(dt_peanuts,
 dt_loc_raw <- rbind(
   dt_ceru, 
   dt_hwange, 
-  dt_peanuts
+  dt_peanuts, 
+  dt_lapalala, 
+  dt_hip, 
+  dt_ithala
 ) %>% 
   mutate(obs_id = paste0("point_", 1:nrow(.))) %>% 
   filter(!is.na(date_time)) %>% 
   arrange(individual_id, date_time) %>%
   group_by(individual_id) %>%
   mutate(
+    individual_id = paste0(source, "_", individual_id), 
     n_obs = n(), 
     start_date = min(date_time),
     end_date = max(date_time),

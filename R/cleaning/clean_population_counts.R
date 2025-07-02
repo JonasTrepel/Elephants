@@ -1,14 +1,16 @@
 # clean population count data 
 library(data.table)
 library(tidyverse)
-
+library(sf)
 
 # CERU ------------------------------
 
 dt_ceru <- fread("data/raw_data/ceru/elephant_counts.csv") %>% 
   pivot_longer(cols = -Year, names_to = "park_id", values_to = "population_count") %>% 
   rename(year = Year) %>% 
-  filter(!is.na(population_count))
+  filter(!is.na(population_count)) %>% 
+  filter(!park_id %in% c("Ithala", "Addo")) %>% 
+  filter(!(park_id == "HIP" & year > 2013))#we have a longer ithala time-series later on, "Addo" has different sections and a different vegetation type
 
 dt_ceru %>% filter(park_id == "Hwange")
 # Kaingo ------------------------------
@@ -17,24 +19,28 @@ dt_kaingo <- fread("data/raw_data/kaingo/kaingo_elephant_counts.csv")
 
 # Hwange --------------------------------------
 
-#nothing new... 
-
+#included in CERU dataset 
 
 # SANParks ---------------------------------------
 
-
+#
 
 # Lapalala ---------------------------------------
 
+dt_lapalala <- fread("data/raw_data/lapalala/lapalala_population_counts.csv") 
 
 
 # HiP ----------------------------------------
+dt_ceru %>% filter(park_id == "HIP")
 
+dt_hip <- fread("data/raw_data/hip/hip_elephant_counts.csv") %>% 
+  mutate(park_id = "HIP")
 
+# until 2016 part of CERU 
 
 # Ithala --------------------------------------------
 
-
+dt_ithala <- fread("data/raw_data/ithala/ithala_elephant_counts.csv") 
 
 
 
@@ -42,7 +48,12 @@ dt_kaingo <- fread("data/raw_data/kaingo/kaingo_elephant_counts.csv")
 
 
 dt_comb <- dt_ceru %>% 
-  left_join(dt_kaingo) %>%
+  rbind(dt_kaingo) %>%
+  rbind(dt_lapalala) %>%
+  rbind(dt_ithala) %>% 
+  rbind(dt_hip) %>% 
+# left_join(dt_sanparks) %>% 
+# left_join(dt_hip) %>% 
   filter(year > 2000) %>% 
   group_by(park_id) %>% 
   mutate(mean_population_count = mean(population_count, na.rm = TRUE)) %>% 

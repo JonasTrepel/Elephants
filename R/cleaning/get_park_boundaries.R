@@ -17,6 +17,7 @@ sf_lp <- st_as_sf(dt_lp,
 files <- list.files("data/spatial_data/protected_areas/wdpa_raw", pattern = "polygons.shp", recursive = T, full.names = T)
 
 pas_all <- data.frame()
+
 for(i in 1:length(files)){
   
   tmp <- st_read(files[i])
@@ -24,6 +25,14 @@ for(i in 1:length(files)){
   pas_all <- rbind(pas_all, tmp)
   
 }
+
+#lapalala
+sf_lapalala <- st_read("data/raw_data/lapalala/lapalala_boundary.gpkg") %>% 
+  st_zm(., drop = TRUE, what = "ZM") %>% 
+  st_make_valid()
+mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
+
+pas_all[grepl("Lapalala", pas_all$NAME), ]$geometry <- sf_lapalala$geom
 
 sf_pas_moll <- pas_all %>% st_transform(crs = "ESRI:54009")
 
@@ -90,7 +99,7 @@ names_v_count <- c("North Luangwa",
                    "Timbavati Private Nature Reserve", 
                    "Tembe Elephant Park",
                    "Hluhluwe – iMfolozi Park", 
-                   "Addo Elephant National Park", 
+                  # "Addo Elephant National Park", 
                    "Gonarezhou",
                    "Maputo", #exclude WDPA_PID: 555705347
                    "Khaudum", 
@@ -120,7 +129,8 @@ names_v_count <- c("North Luangwa",
                    "Limpopo",
                    "Luengue-Luiana National Park",
                    "Mavinga National Park", #CERU END
-                   "Kaingo Private Game Reserve"
+                   "Kaingo Private Game Reserve", 
+                   "Lapalala Nature Reserve"
                    
                    )
 
@@ -132,6 +142,15 @@ pas_all[grepl("Mavinga", pas_all$NAME), ]
   #uMkhuze - could be part of iSimangaliso
   #Venetia Limpopo
   #Phongolo Game Reserve --> not formerly protected
+
+sf_lapalala <- st_read("data/raw_data/lapalala/lapalala_boundary.gpkg") %>% 
+  st_zm(., drop = TRUE, what = "ZM") %>% 
+  st_make_valid()
+mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
+
+pas_all[grepl("Lapalala", pas_all$NAME), ]$geometry <- sf_lapalala$geom
+mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
+
 
 
 pas_sub <- pas_all[pas_all$NAME %in% c(names_v_count), ] %>% 
