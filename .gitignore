@@ -20,6 +20,7 @@ data/processed_data/data_fragments/pa_grids_with_covariates.csv
 data/processed_data/data_fragments/pa_grid_rel_occ.csv
 data/processed_data/data_fragments/pa_grid_with_habitat_quality.csv
 data/processed_data/data_fragments/
+data/processed_data/clean_data/final_point_data.csv
 
 # History files
 .Rhistory
