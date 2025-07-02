@@ -3,6 +3,7 @@ library(terra)
 library(tidyverse)
 library(mapview)
 library("furrr")
+library(vegan)
 
 
 dynamic_world_files <- list.files("data/spatial_data/time_series",
@@ -10,10 +11,17 @@ dynamic_world_files <- list.files("data/spatial_data/time_series",
 
 terraOptions(memfrac = 0.5)
 
-#dynamic_world_files <- dynamic_world_files[2:3]
+#dynamic_world_files <- dynamic_world_files[7:10]
 
-for(file in unique(dynamic_world_files)){
+plan(multisession, workers = 5)
+
+future_walk(1:length(dynamic_world_files),
+            .progress = TRUE,
+            function(i){
+            
+#for(file in unique(dynamic_world_files)){
   
+file <- dynamic_world_files[i]
   dw_r <- rast(file)
   plot(dw_r)
   
@@ -195,4 +203,84 @@ print(paste0(years, " done. Time: ", Sys.time()))
 
 rm(dw_r, grass_r, gr_n_cr_r, shrub_r, tree_r, crop_r, bare_r, vt_r, vt_inc_cr_r); gc()
 
-}
+})
+print(paste0("All done. Time: ", Sys.time()))
+
+plan(sequential)
+
+#### Habitat diversity -------------------------
+
+vegetation_type_files <- list.files("data/spatial_data/time_series",
+                                  full.names = T, pattern = "vegetation_type")
+
+terraOptions(memfrac = 0.5)
+
+# vegetation_type_files <- vegetation_type_files[
+#   grepl("2018_2019", vegetation_type_files) |
+#     grepl("2019_2020", vegetation_type_files)  | 
+#     grepl("2024_2025", vegetation_type_files)]
+
+plan(multisession, workers = 3)
+
+future_walk(1:length(vegetation_type_files),
+            .progress = TRUE,
+            function(i){
+              
+              #for(file in unique(dynamic_world_files)){
+              
+              file <- vegetation_type_files[i]
+              dw_r <- rast(file)
+              plot(dw_r)
+              
+              data_type_dw <- terra::datatype(dw_r)
+              
+              years <- gsub("data/spatial_data/time_series/vegetation_types_", "", file)
+              years <- gsub("_10m.tif", "", years)
+    
+    #aggregate at 100m 
+    div_100m_r <- aggregate(dw_r, 
+                       fact = 10, 
+                       fun = function(x){ 
+                         #remove NAs
+                         x <- x[!is.na(x)]
+                         if(length(x) == 0){return(NA)}
+                         
+                         # calculate shannon diversity 
+                         abundances <- table(x)
+                         
+                         community_matrix <- matrix(abundances, nrow = 1)
+                         colnames(community_matrix) <- names(abundances) #probably unnecceary, but just for the record
+                         
+                         sh_div <- vegan::diversity(community_matrix, index = "shannon")
+                         return(sh_div)}, 
+                       filename = paste0(
+                         "data/spatial_data/time_series/shannon_diversity_habitat_vegetation_types_",
+                         years, "_100m.tif"), 
+                       cores = 1)
+    
+    #aggregate at the 1 km scale 
+    div_1000m_r <- aggregate(dw_r, 
+                            fact = 100, 
+                            fun = function(x){ 
+                              #remove NAs
+                              x <- x[!is.na(x)]
+                              if(length(x) == 0){return(NA)}
+                              
+                              # calculate shannon diversity 
+                              abundances <- table(x)
+                              
+                              community_matrix <- matrix(abundances, nrow = 1)
+                              colnames(community_matrix) <- names(abundances) #probably unnecessary, but just for the record
+                              
+                              sh_div <- vegan::diversity(community_matrix, index = "shannon")
+                              return(sh_div)}, 
+                            filename = paste0(
+                              "data/spatial_data/time_series/shannon_diversity_habitat_vegetation_types_",
+                              years, "_1000m.tif"), 
+                            cores = 1)
+     
+    
+})
+print(paste0("All done. Time: ", Sys.time()))
+
+plan(sequential) 

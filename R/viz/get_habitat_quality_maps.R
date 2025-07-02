@@ -53,11 +53,8 @@ dt_grid_vars <- fread("data/processed_data/data_fragments/pa_grids_with_covariat
 
 #load grid
 sf_grid <- st_read("data/spatial_data/grid/empty_grid_pas.gpkg") %>% 
-  mutate( 
-    grid_id = paste0("grid_", 1:nrow(.))) %>% 
-  left_join(dt_grid_vars)
-
-  
+  left_join(dt_grid_vars[, -c("park_id", "country_code_iso3", "designation", "wdpa_pid", "iucn_cat",
+                               "x_mollweide", "y_mollweide", "lon", "lat")])
 
   
 sf_grid_hq <- sf_grid %>% 

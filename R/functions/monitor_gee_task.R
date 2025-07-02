@@ -1,7 +1,9 @@
 #function to monitor GEE task 
 
-monitor_gee_task <- function(pattern = NA, path = "rgee_backup", last_sleep_time = 600) {
-  drive_auth(email = "jonas.trepel@bio.au.dk")
+monitor_gee_task <- function(pattern = NA, path = "rgee_backup", last_sleep_time = 600, 
+                             mail = "jonas.trepel@bio.au.dk") {
+  
+  drive_auth(email = mail)
   
   for (i in 1:10000) {
     drive_files <- drive_ls(path = path, pattern = pattern) %>%

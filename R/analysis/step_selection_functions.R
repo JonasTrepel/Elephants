@@ -4,10 +4,10 @@ library(tidyverse)
 library(MuMIn)
 library(broom)
 library(MetBrewer)
-
-#param = "1hr"
+library(survival)
+param = "1hr"
 #param = "3hrs"
-param = "12hrs"
+#param = "12hrs"
 
 if(param == "1hr"){
   
@@ -67,12 +67,12 @@ for(season in unique(dt_seas$season)){
 if(season == "whole_year"){
   dt_se <- dt
 }else if(season == "dry_season"){
-  dt_se <- dt %>% filter(season == "dry_season")
+  dt_se <- dt %>% filter(season == "dry_season") #%>% filter(month %in% c(8, 9))
 }else if(season == "wet_season"){
   dt_se <- dt %>% filter(season == "wet_season")
 }else
 
-  
+
 print(paste0("Now running models for: ", season))
   
 i = 0
@@ -80,7 +80,9 @@ dt_est_se <- data.frame()
 for(id in unique(dt$individual_id)){
   
   dt_sub <- dt_se %>% filter(individual_id == id) 
-
+  
+  if(nrow(dt_sub[dt_sub$case_ == TRUE, ]) < 200){next}
+  
   # Means
   evi_mean_mean <- mean(dt_sub$evi_mean, na.rm = TRUE)
   distance_to_water_km_mean <- mean(dt_sub$distance_to_water_km, na.rm = TRUE)
@@ -170,10 +172,12 @@ dt_est <- rbind(dt_est, dt_est_se)
 
 dt_me <- dt_est %>% 
   group_by(term, season) %>% 
-  summarise(mean_estimate = mean(estimate, na.rm = T), 
+  summarise(median_estimate = median(estimate, na.rm = T), 
             std_error = sd(estimate)/sqrt(n()), 
-            ci_lb = mean_estimate - 1.96*std_error,
-            ci_ub = mean_estimate + 1.96*std_error, 
+          #  ci_lb = median_estimate - 1.96*std_error,
+          #  ci_ub = median_estimate + 1.96*std_error, 
+            ci_lb = median(ci_lb, na.rm = T),
+            ci_ub = median(ci_ub, na.rm = T), 
             p_value = median(p_value))  %>% 
   mutate(clean_term = case_when(
     .default = term,
@@ -185,10 +189,20 @@ dt_me <- dt_est %>%
     term == "slope" ~ "Slope",
   ), 
   sig = ifelse(p_value < 0.05, "significant", "non-significant"), 
-  sig_me = ifelse(ci_lb > 0 | ci_ub < 0, "significant", "non-significant"))
+  sig_me = ifelse(ci_lb > 0 | ci_ub < 0, "significant", "non-significant")) %>% 
+  mutate(season = case_when(
+    season == "whole_year" ~ "Both", 
+    season == "dry_season" ~ "Dry", 
+    season == "wet_season" ~ "Wet"
+  ))
 
 
-p_est <- dt_est %>% 
+p_est_spread <- dt_est %>% 
+  mutate(season = case_when(
+    season == "whole_year" ~ "Both", 
+    season == "dry_season" ~ "Dry", 
+    season == "wet_season" ~ "Wet"
+  )) %>% 
   left_join(dt_me[, c("term", "sig", "season")]) %>% 
   mutate(clean_term = case_when(
     .default = term,
@@ -201,12 +215,56 @@ p_est <- dt_est %>%
   )) %>% 
   ggplot() +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_boxplot(aes(x = clean_term, y = estimate, fill = season, alpha = sig), color = "grey") +
+  geom_jitter(aes(x = clean_term, y = estimate, color = season, alpha = sig), 
+              alpha = 0.1, position = position_dodge(width = 0.75)) +
   geom_pointrange(data = dt_me,
-                  aes(x = clean_term, y = mean_estimate, ymin = ci_lb, ymax = ci_ub,
+                  aes(x = clean_term, y = median_estimate, ymin = ci_lb, ymax = ci_ub,
+                      shape = sig_me, fill = season), 
+                  position = position_dodge(width = 0.75),
+                  size = 0.8, linewidth = 1.3, stroke = 1.3 
+  ) + 
+  scale_alpha_manual(values = c("significant" = 0.5, "non-significant" = 0.1), guide = "none") +
+  scale_shape_manual(values = c("significant" = 23, "non-significant" = 21), guide = "none") +
+  theme_classic() +
+  scale_color_met_d(name = "Egypt", direction = 1) +
+  scale_fill_met_d(name = "Egypt", direction = 1) +
+  labs(x = "Covariate", y = "Estimate", color = "Season", fill = "Season", 
+       subtitle = paste0("n = ", n_distinct(dt_est$individual_id))) +
+  guides(
+    fill = guide_legend(override.aes = list(shape = 21), nrow = 2),
+    color = guide_legend(nrow = 2)
+  ) +
+  theme(
+    legend.position = "bottom",
+    # axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  coord_flip()
+p_est_spread
+
+
+p_est <- dt_est %>% 
+  mutate(season = case_when(
+    season == "whole_year" ~ "Both", 
+    season == "dry_season" ~ "Dry", 
+    season == "wet_season" ~ "Wet"
+  )) %>% 
+  left_join(dt_me[, c("term", "sig", "season")]) %>% 
+  mutate(clean_term = case_when(
+    .default = term,
+    term == "evi_mean" ~ "EVI",
+    term == "distance_to_water_km" ~ "Distance to Water",
+    term == "distance_to_settlement_km" ~ "Distance to Settlement",
+    term == "human_modification" ~ "Human Modification Index",
+    term == "enerscape" ~ "Energy Landscape",
+    term == "slope" ~ "Slope",
+  )) %>% 
+  ggplot() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_pointrange(data = dt_me,
+                  aes(x = clean_term, y = median_estimate, ymin = ci_lb, ymax = ci_ub,
                       shape = sig_me, color = season, fill = season), 
                   position = position_dodge(width = 0.75),
-                  size = 0.4, linewidth = 1.1
+                  size = 0.8, linewidth = 1.3
   ) + 
   scale_alpha_manual(values = c("significant" = 0.5, "non-significant" = 0.1), guide = "none") +
   scale_shape_manual(values = c("significant" = 23, "non-significant" = 21), guide = "none") +
@@ -228,15 +286,127 @@ p_est
 
 c(met.brewer(name = "Egypt"))
 
-
-#Group by sex -----------
+# Group by sex ---------
 dt_me_sex <- dt_est %>% 
+  filter(season == "whole_year") %>% 
+  group_by(term, sex) %>% 
+  summarise(median_estimate = median(estimate, na.rm = T), 
+            std_error = sd(estimate)/sqrt(n()), 
+            ci_lb = median(ci_lb, na.rm = T),
+            ci_ub = median(ci_ub, na.rm = T), 
+            p_value = median(p_value))  %>% 
+  mutate(clean_term = case_when(
+    .default = term,
+    term == "evi_mean" ~ "EVI",
+    term == "distance_to_water_km" ~ "Distance to Water",
+    term == "distance_to_settlement_km" ~ "Distance to Settlement",
+    term == "human_modification" ~ "Human Modification Index",
+    term == "enerscape" ~ "Energy Landscape",
+    term == "slope" ~ "Slope",
+  ), 
+  sig = ifelse(p_value < 0.05, "significant", "non-significant"), 
+  sig_me = ifelse(ci_lb > 0 | ci_ub < 0, "significant", "non-significant"))
+
+
+
+p_est_sex_spread <- dt_est %>% 
+  left_join(dt_me_sex[, c("term", "sex", "sig")]) %>% 
+  filter(!sex == "U" & season == "whole_year") %>% 
+  mutate(clean_term = case_when(
+    .default = term,
+    term == "evi_mean" ~ "EVI",
+    term == "distance_to_water_km" ~ "Distance to Water",
+    term == "distance_to_settlement_km" ~ "Distance to Settlement",
+    term == "human_modification" ~ "Human Modification Index",
+    term == "enerscape" ~ "Energy Landscape",
+    term == "slope" ~ "Slope",
+  )) %>% 
+  ggplot() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_jitter(aes(x = clean_term, y = estimate, color = sex, alpha = sig),
+              alpha = 0.1, position = position_dodge(width = 0.75)) +
+  geom_pointrange(data = dt_me_sex %>% filter(!sex == "U") ,
+                  aes(x = clean_term, y = median_estimate,
+                      ymin = ci_lb, ymax = ci_ub, fill = sex, shape = sig_me), 
+                  position = position_dodge(width = 0.75),
+                  size = 0.7, linewidth = 1.1, stroke = 1.2 
+  ) + 
+  theme_classic() +
+  scale_color_met_d(name = "Isfahan1", direction = -1) +
+  scale_fill_met_d(name = "Isfahan1", direction = -1) +
+  scale_alpha_manual(values = c("significant" = 0.5, "non-significant" = 0.1), guide = "none") +
+  scale_shape_manual(values = c("significant" = 23, "non-significant" = 21), guide = "none") +
+  labs(x = "Covariate", y = "Estimate", color = "Sex", fill = "Sex", 
+       subtitle = paste0("Male n = ", n_distinct(dt_est[dt_est$sex == "M", ]$individual_id),
+                         "; Female n = ",  n_distinct(dt_est[dt_est$sex == "F", ]$individual_id))) +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_blank(),
+    axis.title.y = element_blank()
+    # axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  guides(
+    fill = guide_legend(override.aes = list(shape = 21), nrow = 2), 
+    color = guide_legend(nrow = 2)
+  ) +
+  coord_flip()
+p_est_sex_spread
+
+
+p_est_sex <- dt_est %>% 
+  left_join(dt_me_sex[, c("term", "sex", "sig")]) %>% 
+  filter(!sex == "U") %>% 
+  mutate(clean_term = case_when(
+    .default = term,
+    term == "evi_mean" ~ "EVI",
+    term == "distance_to_water_km" ~ "Distance to Water",
+    term == "distance_to_settlement_km" ~ "Distance to Settlement",
+    term == "human_modification" ~ "Human Modification Index",
+    term == "enerscape" ~ "Energy Landscape",
+    term == "slope" ~ "Slope",
+  )) %>% 
+  ggplot() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_pointrange(data = dt_me_sex %>% filter(!sex == "U") ,
+                  aes(x = clean_term, y = median_estimate,
+                      ymin = ci_lb, ymax = ci_ub,
+                      fill = sex, color = sex, shape = sig_me), 
+                  position = position_dodge(width = 0.75),
+                  size = 0.7, linewidth = 1.1
+  ) + 
+  theme_classic() +
+  scale_color_met_d(name = "Isfahan1", direction = -1) +
+  scale_fill_met_d(name = "Isfahan1", direction = -1) +
+  scale_alpha_manual(values = c("significant" = 0.5, "non-significant" = 0.1), guide = "none") +
+  scale_shape_manual(values = c("significant" = 23, "non-significant" = 21), guide = "none") +
+  labs(x = "Covariate", y = "Estimate", color = "Sex", fill = "Sex", 
+       subtitle = paste0("Male n = ", n_distinct(dt_est[dt_est$sex == "M", ]$individual_id),
+                         "; Female n = ",  n_distinct(dt_est[dt_est$sex == "F", ]$individual_id))) +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_blank(),
+    axis.title.y = element_blank()
+    # axis.text.x = element_text(angle = 45, hjust = 1) 
+  ) +
+  guides(
+    color = guide_legend(nrow = 2)
+  ) +
+  coord_flip()
+p_est_sex
+
+#Group by sex & season -----------
+dt_me_sex_season <- dt_est %>% 
+  mutate(season = case_when(
+    season == "whole_year" ~ "Both", 
+    season == "dry_season" ~ "Dry", 
+    season == "wet_season" ~ "Wet"
+  )) %>% 
   mutate(sex_season = paste0(sex, " in ", season)) %>%
   group_by(term, sex_season, sex, season) %>% 
-  summarise(mean_estimate = mean(estimate, na.rm = T), 
+  summarise(median_estimate = median(estimate, na.rm = T), 
          std_error = sd(estimate)/sqrt(n()), 
-         ci_lb = mean_estimate - 1.96*std_error,
-         ci_ub = mean_estimate + 1.96*std_error,
+         ci_lb = median(ci_lb, na.rm = T),
+         ci_ub = median(ci_ub, na.rm = T), 
          p_value = median(p_value))  %>% 
   mutate(clean_term = case_when(
     .default = term,
@@ -252,8 +422,13 @@ dt_me_sex <- dt_est %>%
 
 
 
-p_est_sex <- dt_est %>% 
-  left_join(dt_me_sex[, c("term", "sex", "sig", "season", "sex_season")]) %>% 
+p_est_sex_season_spread <- dt_est %>% 
+  mutate(season = case_when(
+    season == "whole_year" ~ "Both", 
+    season == "dry_season" ~ "Dry", 
+    season == "wet_season" ~ "Wet"
+  )) %>% 
+  left_join(dt_me_sex_season[, c("term", "sex", "sig", "season", "sex_season")]) %>% 
   filter(!sex == "U") %>% 
   mutate(clean_term = case_when(
     .default = term,
@@ -266,12 +441,12 @@ p_est_sex <- dt_est %>%
   )) %>% 
   ggplot() +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_boxplot(aes(x = clean_term, y = estimate, fill = sex_season, alpha = sig), color = "grey") +
-  geom_pointrange(data = dt_me_sex %>% filter(!sex == "U") ,
-                  aes(x = clean_term, y = mean_estimate, ymin = ci_lb, ymax = ci_ub,
-                      color = sex_season, fill = sex_season, shape = sig_me), 
+  geom_jitter(aes(x = clean_term, y = estimate, color = sex_season, alpha = sig),
+              alpha = 0.1, position = position_dodge(width = 0.75)) +
+  geom_pointrange(data = dt_me_sex_season %>% filter(!sex == "U") ,
+                  aes(x = clean_term, y = median_estimate, ymin = ci_lb, ymax = ci_ub, fill = sex_season, shape = sig_me), 
                   position = position_dodge(width = 0.75),
-                  size = 0.4, linewidth = 1.1
+                  size = 0.7, linewidth = 1.1, stroke = 1.2 
   ) + 
   theme_classic() +
   scale_color_met_d(name = "Cassatt2", direction = -1) +
@@ -279,19 +454,76 @@ p_est_sex <- dt_est %>%
   scale_alpha_manual(values = c("significant" = 0.5, "non-significant" = 0.1), guide = "none") +
   scale_shape_manual(values = c("significant" = 23, "non-significant" = 21), guide = "none") +
   labs(x = "Covariate", y = "Estimate", color = "Sex / Season", fill = "Sex / Season", 
-       subtitle = paste0("n (M) = ", n_distinct(dt_est[dt_est$sex == "M", ]$individual_id),
-       "; n (F) = ",  n_distinct(dt_est[dt_est$sex == "F", ]$individual_id),
-       "; n (U) = ",  n_distinct(dt_est[dt_est$sex == "U", ]$individual_id))) +
+       subtitle = paste0("Male n) = ", n_distinct(dt_est[dt_est$sex == "M", ]$individual_id),
+       "; Female n = ",  n_distinct(dt_est[dt_est$sex == "F", ]$individual_id))) +
   theme(
     legend.position = "bottom",
     axis.text.y = element_blank(),
     axis.title.y = element_blank()
    # axis.text.x = element_text(angle = 45, hjust = 1)
   ) +
+  guides(
+    fill = guide_legend(override.aes = list(shape = 21), nrow = 2)
+  ) +
   coord_flip()
-p_est_sex
+p_est_sex_season_spread
 
-p_comb <- gridExtra::grid.arrange(p_est, p_est_sex, ncol = 2, widths = c(1.4, 1))
+
+p_est_sex_season <- dt_est %>% 
+  mutate(season = case_when(
+    season == "whole_year" ~ "Both", 
+    season == "dry_season" ~ "Dry", 
+    season == "wet_season" ~ "Wet"
+  )) %>% 
+  left_join(dt_me_sex_season[, c("term", "sex", "sig", "season", "sex_season")]) %>% 
+  filter(!sex == "U") %>% 
+  mutate(clean_term = case_when(
+    .default = term,
+    term == "evi_mean" ~ "EVI",
+    term == "distance_to_water_km" ~ "Distance to Water",
+    term == "distance_to_settlement_km" ~ "Distance to Settlement",
+    term == "human_modification" ~ "Human Modification Index",
+    term == "enerscape" ~ "Energy Landscape",
+    term == "slope" ~ "Slope",
+  )) %>% 
+  ggplot() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_pointrange(data = dt_me_sex_season %>% filter(!sex == "U") ,
+                  aes(x = clean_term, y = median_estimate,
+                      ymin = ci_lb, ymax = ci_ub,
+                      fill = sex_season, color = sex_season, shape = sig_me), 
+                  position = position_dodge(width = 0.75),
+                  size = 0.7, linewidth = 1.1
+  ) + 
+  theme_classic() +
+  scale_color_met_d(name = "Cassatt2", direction = -1) +
+  scale_fill_met_d(name = "Cassatt2", direction = -1) +
+  scale_alpha_manual(values = c("significant" = 0.5, "non-significant" = 0.1), guide = "none") +
+  scale_shape_manual(values = c("significant" = 23, "non-significant" = 21), guide = "none") +
+  labs(x = "Covariate", y = "Estimate", color = "Sex / Season", fill = "Sex / Season", 
+       subtitle = paste0("Male n = ", n_distinct(dt_est[dt_est$sex == "M", ]$individual_id),
+                         "; Female n = ",  n_distinct(dt_est[dt_est$sex == "F", ]$individual_id))) +
+  theme(
+    legend.position = "bottom",
+    axis.text.y = element_blank(),
+    axis.title.y = element_blank()
+    # axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  coord_flip()
+p_est_sex_season
+
+
+# Combine 
+p_comb_spread <- gridExtra::grid.arrange(p_est_spread,
+                                         p_est_sex_spread,
+                                         p_est_sex_season_spread,
+                                         ncol = 3,
+                                         widths = c(1.4, 1, 1))
+p_comb <- gridExtra::grid.arrange(p_est,
+                                  p_est_sex,
+                                  p_est_sex_season,
+                                  ncol = 3, 
+                                  widths = c(1.4, 1, 1))
 
 
 # Look at p value vs range and estimate vs term mean 
@@ -350,28 +582,41 @@ p_meta <- gridExtra::grid.arrange(p_p, p_est_tm)
 if(param == "1hr"){
   
   fwrite(dt_est, "builds/model_outputs/issf_estimates_1hr_steps.csv")
+  
   ggsave(plot = p_comb, "builds/plots/elephants_issf_estimates_1hr_steps.png",
-         dpi = 600, height = 6, width = 12)
+         dpi = 600, height = 6, width = 13)
+  
+  ggsave(plot = p_comb_spread, "builds/plots/elephants_issf_estimates_1hr_steps_spread.png",
+         dpi = 600, height = 6, width = 13)
+
   
   ggsave(plot = p_meta, "builds/plots/exploratory/elephants_issf_stats_1hr_steps.png",
          dpi = 600, height = 10, width = 9)
   
 } else if(param == "3hrs"){
   
-  fwrite(dt_est, "builds/model_outputs/issf_estimates_3hrs_steps.csv")
-  ggsave(plot = p_comb, "builds/plots/elephants_issf_estimates_3hrs_steps.png",
-         dpi = 600, height = 6, width = 12)
+  fwrite(dt_est, "builds/model_outputs/issf_estimates_3hr_steps.csv")
   
-  ggsave(plot = p_meta, "builds/plots/exploratory/elephants_issf_stats_1hr_steps.png",
+  ggsave(plot = p_comb, "builds/plots/elephants_issf_estimates_3hr_steps.png",
+         dpi = 600, height = 6, width = 13)
+  
+  ggsave(plot = p_comb_spread, "builds/plots/elephants_issf_estimates_3hr_steps_spread.png",
+         dpi = 600, height = 6, width = 13)
+  
+  ggsave(plot = p_meta, "builds/plots/exploratory/elephants_issf_stats_3hr_steps.png",
          dpi = 600, height = 10, width = 9)
   
 } else if(param == "12hrs"){
   
-  fwrite(dt_est, "builds/model_outputs/issf_estimates_12hrs_steps.csv")
-  ggsave(plot = p_comb, "builds/plots/elephants_issf_estimates_12hrs_steps.png",
-         dpi = 600, height = 6, width = 12)
+  fwrite(dt_est, "builds/model_outputs/issf_estimates_12hr_steps.csv")
   
-  ggsave(plot = p_meta, "builds/plots/exploratory/elephants_issf_stats_12hrs_steps.png",
+  ggsave(plot = p_comb, "builds/plots/elephants_issf_estimates_12hr_steps.png",
+         dpi = 600, height = 6, width = 13)
+  
+  ggsave(plot = p_comb_spread, "builds/plots/elephants_issf_estimates_12hr_steps_spread.png",
+         dpi = 600, height = 6, width = 13)
+  
+  ggsave(plot = p_meta, "builds/plots/exploratory/elephants_issf_stats_12hr_steps.png",
          dpi = 600, height = 10, width = 9)
   
 }

@@ -57,6 +57,17 @@ print(paste0(pa, " done"))
 sf_grid_raw <- sf_grid_raw %>% 
   mutate(grid_id = paste0("grid_", 1:nrow(.)))
 
+coords_moll <- sf_grid_raw %>% st_centroid() %>% st_coordinates()
+
+coords_lat_lon <- sf_grid_raw %>% st_transform(4326) %>% st_centroid() %>% st_coordinates()
+
+
+sf_grid_raw$x_mollweide <- coords_moll[,1]
+sf_grid_raw$y_mollweide <- coords_moll[,2]
+
+sf_grid_raw$lon <- coords_lat_lon[,1]
+sf_grid_raw$lat <- coords_lat_lon[,2]
+
 st_write(sf_grid_raw, "data/spatial_data/grid/empty_grid_pas.gpkg", append = FALSE)
 sf_grid_raw <- st_read("data/spatial_data/grid/empty_grid_pas.gpkg")
 

@@ -12,6 +12,7 @@ library(exactextractr)
 
 # param <- "grid"
  param = "pa_grid"
+# param = "pa_points"
 # param <- "indiv_grid"
 # param <- "steps_1hr"
 # param <- "steps_3hrs"
@@ -20,14 +21,20 @@ library(exactextractr)
 if(param == "grid"){
   vect <- read_sf("data/spatial_data/grid/empty_grid.gpkg") %>% 
     mutate(unique_id = grid_id)
+  
 } else if(param == "pa_grid"){
     vect <- read_sf("data/spatial_data/grid/empty_grid_pas.gpkg") %>% 
       mutate(
-        grid_id = paste0("grid_", 1:nrow(.)),
         unique_id = grid_id)
-  } else if(param == "indiv_grid"){
+    
+} else  if(param == "pa_points"){
+    vect <- read_sf("data/spatial_data/grid/empty_points_pas.gpkg") %>% 
+      st_buffer(dist = 50)
+    
+} else if(param == "indiv_grid"){
   vect <- read_sf("data/spatial_data/grid/individual_grids_relative_occurance.gpkg") %>% 
     mutate(unique_id = grid_id)
+  
 } else if(param == "steps_1hr"){
   vect <- fread("data/processed_data/data_fragments/steps_1hr_incl_random.csv") %>% 
     mutate(x = x2_, 
@@ -36,6 +43,7 @@ if(param == "grid"){
     st_as_sf(coords = c("x", "y"), 
              crs = "ESRI:54009") %>% 
     st_buffer(dist = 10)
+  
 } else if(param == "steps_3hrs"){
   vect <- fread("data/processed_data/data_fragments/steps_3hrs_incl_random.csv") %>% 
     mutate(x = x2_, 
@@ -44,6 +52,7 @@ if(param == "grid"){
     st_as_sf(coords = c("x", "y"), 
              crs = "ESRI:54009") %>% 
     st_buffer(dist = 10)
+  
 } else if(param == "steps_12hrs"){
   vect <- fread("data/processed_data/data_fragments/steps_12hrs_incl_random.csv") %>% 
     mutate(x = x2_, 
@@ -115,8 +124,8 @@ col_names <- c(
   
   #### categorical ####
   "functional_biome_num", # functional biome 
-  "olson_biome_num"#, # olson biome 
- # "land_cover_num" #esa landcover
+  "olson_biome_num", # olson biome 
+  "land_cover_num" #esa landcover
 )
 
 cov_paths <- c(
@@ -144,12 +153,12 @@ cov_paths <- c(
   
   #### categorical ####
   "data/spatial_data/covariates/raster/higgins_functional_biomes.tif", # functional biome 
-  "data/spatial_data/covariates/raster/wwf_olson_biome.tif"#, # olson biome 
- # "data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif" #esa landcover
+  "data/spatial_data/covariates/raster/wwf_olson_biome.tif", # olson biome 
+  "data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif" #esa landcover
 )
 
 
-funcs <- c(rep("mean", 12), rep("mode", 2))
+funcs <- c(rep("mean", 12), rep("mode", 3))
 
 covs <- data.table(
   col_name = col_names, 
@@ -159,12 +168,12 @@ covs <- data.table(
 
 #### write a little loop to plot all rasters and check if they're fine 
 
-# for(i in 1:nrow(covs)) {
-#   cov_r <- rast(covs[i, ]$cov_path)
-#   plot(cov_r, main = paste0(covs[i, ]$col_name))
-#   Sys.sleep(2)
-#   
-# }
+ for(i in 1:nrow(covs)) {
+   cov_r <- rast(covs[i, ]$cov_path)
+   plot(cov_r, main = paste0(covs[i, ]$col_name))
+   Sys.sleep(2)
+   
+ }
 
 
 vect_covs_raw <- vect %>% as.data.table() %>% mutate(geom = NULL, x = NULL, geometry = NULL)
@@ -247,11 +256,11 @@ dt_vect_covs <- vect_covs_raw %>%
   left_join(dt_covs) %>% 
   left_join(biome_leg) %>%
   left_join(fun_biome_leg) %>% 
- # left_join(lc_leg) %>% 
+  left_join(lc_leg) %>% 
   as.data.table() %>% 
   mutate(x = NULL, 
          geom = NULL) %>% 
-  dplyr::select(-functional_biome_num, -olson_biome_num)
+  dplyr::select(-functional_biome_num, -olson_biome_num, -land_cover_num)
 
 
 summary(dt_vect_covs)
@@ -290,6 +299,10 @@ if(param == "grid"){
   
   fwrite(dt_vect_covs %>% 
            mutate(unique_id = NULL), "data/processed_data/data_fragments/pa_grids_with_covariates.csv")
+  
+} else if(param == "pa_points"){
+  
+  fwrite(dt_vect_covs, "data/processed_data/data_fragments/pa_points_with_covariates.csv")
   
 } else if(param == "indiv_grid"){
   
