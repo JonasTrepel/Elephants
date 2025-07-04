@@ -124,7 +124,10 @@ dt_fin <- dt_comb %>%
     orig_name == "Mavinga" ~ "Mavinga National Park",
     orig_name == "Mana Pools" ~ "Mana Pools National Park",
     orig_name == "Kafue" ~ "Kafue",
-    orig_name == "North Luangwa" ~ "North Luangwa"
+    orig_name == "North Luangwa" ~ "North Luangwa", 
+    
+    orig_name == "Kaingo"  ~ "Kaingo Private Game Reserve", 
+    orig_name == "Lapalala"  ~ "Lapalala Nature Reserve"
   )) %>% 
   left_join(dt_pn)
 

@@ -8,8 +8,8 @@ library(tictoc)
 
 #param = "pas"
 #param = "grid"
-#param = "pa_grid"
-param = "pa_points"
+param = "pa_grid"
+#param = "pa_points"
 
 if(param == "pa_points"){
   dt <- fread("data/processed_data/data_fragments/pa_points_with_timeseries.csv") %>% 

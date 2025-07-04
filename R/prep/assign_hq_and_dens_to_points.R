@@ -14,8 +14,15 @@ dt_pc_trend <- data.frame()
 for(park in unique(dt_pc_raw$park_id)){
   
   dt_p <- dt_pc_raw %>% filter(park_id == park) %>% 
-    mutate(year_1 = year - min(year))
+    mutate(year_1 = year - min(year), 
+           population_count_scaled = as.numeric(scale(population_count)),
+           density_km2 = population_count/area_km2)
+           
   
+  if(nrow(dt_p) < 3){next}
+  if(any(is.na(dt_p$area_km2))){next}
+  
+  #regular trend
   m <- lm(population_count ~ year_1, data = dt_p) 
   
   m_tidy <- tidy(m) %>% 
@@ -26,7 +33,34 @@ for(park in unique(dt_pc_raw$park_id)){
     mutate(park_id = park,
            population_trend_n = nrow(dt_p))
   
-  dt_pc_trend <- rbind(m_tidy, dt_pc_trend)
+  #scaled trend 
+  m_scaled <- lm(population_count_scaled ~ year_1, data = dt_p) 
+  
+  m_tidy_scaled <- tidy(m_scaled) %>% 
+    filter(!grepl("Intercept", term)) %>%
+    select(population_trend_scaled_p_val = p.value, 
+           population_trend_scaled_std_error = std.error, 
+           population_trend_scaled_estimate = estimate) %>% 
+    mutate(park_id = park,
+           population_trend_scaled_n = nrow(dt_p))
+  
+  #density trend 
+  m_dens <- lm(density_km2 ~ year_1, data = dt_p) 
+  
+  m_tidy_dens <- tidy(m_dens) %>% 
+    filter(!grepl("Intercept", term)) %>%
+    select(density_km2_p_val = p.value, 
+           density_km2_std_error = std.error, 
+           density_km2_estimate = estimate) %>% 
+    mutate(park_id = park,
+           density_km2_trend_n = nrow(dt_p))
+  
+  #combine
+  m_tidy_comb <- m_tidy %>%
+    left_join(m_tidy_scaled) %>% 
+    left_join(m_tidy_dens)
+  
+  dt_pc_trend <- rbind(m_tidy_comb, dt_pc_trend)
   
 }
 summary(dt_pc_trend)
@@ -56,13 +90,23 @@ sf_grid_hq <- sf_grid %>%
   dplyr::select(park_id, habitat_quality_12hr_norm, local_density_km2, 
                mean_population_count, area_km2, mean_density_km2, 
                population_trend_estimate, population_trend_p_val, 
-               population_trend_n)
+               population_trend_n, 
+               population_trend_scaled_p_val, population_trend_scaled_std_error,
+               population_trend_scaled_estimate, population_trend_scaled_n,
+               density_km2_p_val, density_km2_std_error,density_km2_estimate)
 
 sum(sf_grid_hq[sf_grid_hq$park_id == "Kruger National Park", ]$local_density_km2, na.rm = T)
 sum(sf_grid_hq[sf_grid_hq$park_id == "Kruger National Park", ]$mean_density_km2, na.rm = T)
 
+dt_grid_trends <- fread("data/processed_data/data_fragments/pa_grid_with_trends.csv")
+#### get grids all inclusive
+
+dt_grid_all <- dt_grid_hq %>% 
+  left_join(dt_grid_trends)
+
+
 #### points 
-dt_points <- fread("data/processed_data/clean_data/pa_points_with_trends.csv") %>% 
+dt_points <- fread("data/processed_data/data_fragments/pa_points_with_trends.csv") %>% 
   mutate(wdpa_pid = as.character(wdpa_pid))
 
 sf_points <- read_sf("data/spatial_data/grid/empty_points_pas.gpkg") %>% 
@@ -84,7 +128,7 @@ dt_points_ellies <- sf_points_ellies %>%
   mutate(geom = NULL, geometry = NULL, x = NULL)
 
 
-
+summary(dt_points_ellies)
 #### Save 
 fwrite(dt_points_ellies, "data/processed_data/clean_data/final_point_data.csv")
 
@@ -111,7 +155,7 @@ dt_points_ellies %>%
 dt_points_ellies %>% 
   group_by(park_id) %>% 
   summarize(
-    mean_density_km2 = mean(population_trend_estimate), 
+    mean_density_km2 = mean(population_trend_scaled_estimate), 
     tree_cover_coef = mean(grass_cover_coef, na.rm = T)
   ) %>% 
   #filter(mean_density_km2 < 3) %>% 
