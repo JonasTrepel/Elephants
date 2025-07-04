@@ -50,6 +50,22 @@ for(pa in unique(sf_pa$NAME)){
 }
 
 
+
 sf_points <- sf_grid_raw %>% 
   mutate(unique_id = paste0("point_", 1:nrow(.)))
+
+coords_moll <- sf_points %>% st_centroid() %>% st_coordinates()
+
+coords_lat_lon <- sf_points %>% st_transform(4326) %>% st_centroid() %>% st_coordinates()
+
+
+sf_points$x_mollweide <- coords_moll[,1]
+sf_points$y_mollweide <- coords_moll[,2]
+
+sf_points$lon <- coords_lat_lon[,1]
+sf_points$lat <- coords_lat_lon[,2]
+
+
 st_write(sf_points, "data/spatial_data/grid/empty_points_pas.gpkg", append = FALSE)
+#sf_points <- st_read("data/spatial_data/grid/empty_points_pas.gpkg")
+

@@ -11,8 +11,8 @@ library(exactextractr)
 ### define if we want to run it for control or PA 
 
 # param <- "grid"
-param = "pa_grid"
-#param = "pa_points"
+# param = "pa_grid"
+param = "pa_points"
 
 if(param == "grid"){
   vect <- read_sf("data/spatial_data/grid/empty_grid.gpkg") %>% 
@@ -92,31 +92,31 @@ bare_cover_files <- data.table(filepath = list.files("data/spatial_data/time_ser
          colname = filename)
 
 
-# #Shannon 100m 
-# shannon_100m_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
-#                                                      pattern = "shannon", 
-#                                                      full.names = TRUE), 
-#                                filename = list.files("data/spatial_data/time_series/",
-#                                                      pattern = "shannon", 
-#                                                      full.names = FALSE)
-# ) %>% 
-#   filter(!grepl("1000m", filename)) %>% 
-#   mutate(filename = gsub(".tif", "", filename), 
-#          colname = gsub("shannon_diversity_habitat_vegetation_types_", "habitat_diversity_", filename)) 
-# 
-# #Shannon 1000m 
-# shannon_1000m_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
-#                                                        pattern = "shannon", 
-#                                                        full.names = TRUE), 
-#                                  filename = list.files("data/spatial_data/time_series/",
-#                                                        pattern = "shannon", 
-#                                                        full.names = FALSE)
-# ) %>% 
-#   filter(!grepl("100m", filename)) %>% 
-#   mutate(filename = gsub(".tif", "", filename), 
-#          colname = gsub("shannon_diversity_habitat_vegetation_types_", "habitat_diversity_", filename)) 
-# 
-# 
+#Shannon 100m
+shannon_100m_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                     pattern = "shannon",
+                                                     full.names = TRUE),
+                               filename = list.files("data/spatial_data/time_series/",
+                                                     pattern = "shannon",
+                                                     full.names = FALSE)
+) %>%
+  filter(!grepl("1000m", filename)) %>%
+  mutate(filename = gsub(".tif", "", filename),
+         colname = gsub("shannon_diversity_habitat_vegetation_types_", "habitat_diversity_", filename))
+
+#Shannon 1000m
+shannon_1000m_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                       pattern = "shannon",
+                                                       full.names = TRUE),
+                                 filename = list.files("data/spatial_data/time_series/",
+                                                       pattern = "shannon",
+                                                       full.names = FALSE)
+) %>%
+  filter(!grepl("100m", filename)) %>%
+  mutate(filename = gsub(".tif", "", filename),
+         colname = gsub("shannon_diversity_habitat_vegetation_types_", "habitat_diversity_", filename))
+
+
 
 
 
@@ -137,8 +137,8 @@ covs <- rbind(grass_cover_files,
               tree_cover_files,
               shrub_cover_files,
               bare_cover_files,
-             # shannon_100m_files, 
-             # shannon_1000m_files, 
+              shannon_100m_files, 
+              shannon_1000m_files, 
               mean_evi_files 
               )
 
@@ -221,8 +221,8 @@ vect_covs <- vect %>%
          mean_tree_cover = rowMeans(select(., contains("tree_cover")), na.rm = TRUE), 
          mean_shrub_cover = rowMeans(select(., contains("shrub_cover")), na.rm = TRUE), 
          mean_bare_cover = rowMeans(select(., contains("bare_cover")), na.rm = TRUE), 
-      #   mean_habitat_diversity_100m = rowMeans(select(., contains("habitat_diversity_100m")), na.rm = TRUE), 
-      #   mean_habitat_diversity_1000m = rowMeans(select(., contains("habitat_diversity_1000m")), na.rm = TRUE), 
+         mean_habitat_diversity_100m = rowMeans(select(., matches("habitat_diversity.*_100m")), na.rm = TRUE), 
+         mean_habitat_diversity_1000m = rowMeans(select(., matches("habitat_diversity.*_1000m")), na.rm = TRUE), 
          mean_evi = rowMeans(select(., contains("mean_evi")), na.rm = TRUE)) 
 
 if(param == "grid"){

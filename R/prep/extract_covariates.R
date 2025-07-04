@@ -11,10 +11,10 @@ library(exactextractr)
 ### define if we want to run it for control or PA 
 
 # param <- "grid"
- param = "pa_grid"
+# param = "pa_grid"
 # param = "pa_points"
 # param <- "indiv_grid"
-# param <- "steps_1hr"
+ param <- "steps_1hr"
 # param <- "steps_3hrs"
 # param <- "steps_12hrs"
 

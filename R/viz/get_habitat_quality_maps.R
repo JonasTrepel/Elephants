@@ -9,14 +9,14 @@ library(patchwork)
 library(ggcorrplot)
 
 
-dt_est_12 <- fread("builds/model_outputs/issf_estimates_12hrs_steps.csv") %>% 
+dt_est_12 <- fread("builds/model_outputs/issf_estimates_12hr_steps.csv") %>% 
   group_by(season, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T), 
             median_ci_lb = median(ci_lb),
             median_ci_ub = median(ci_ub),
             p_value = median(p_value)) %>% 
   ungroup()
-dt_est_3 <- fread("builds/model_outputs/issf_estimates_3hrs_steps.csv")  %>% 
+dt_est_3 <- fread("builds/model_outputs/issf_estimates_3hr_steps.csv")  %>% 
   group_by(season, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T), 
             median_ci_lb = median(ci_lb),
@@ -30,6 +30,7 @@ dt_est_1 <- fread("builds/model_outputs/issf_estimates_1hr_steps.csv")  %>%
             median_ci_ub = median(ci_ub),
             p_value = median(p_value)) %>% 
   ungroup()
+
 dt_est_ig <- fread("builds/model_outputs/elephants_individual_grid_estimates_glm_nb.csv")  %>% 
   group_by(season, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T), 
@@ -38,7 +39,7 @@ dt_est_ig <- fread("builds/model_outputs/elephants_individual_grid_estimates_glm
             p_value = median(p_value)) %>% 
   ungroup()
 
-dt_est_12_sex <- fread("builds/model_outputs/issf_estimates_12hrs_steps.csv") %>% 
+dt_est_12_sex <- fread("builds/model_outputs/issf_estimates_12hr_steps.csv") %>% 
   group_by(sex, season, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T), 
             median_ci_lb = median(ci_lb),

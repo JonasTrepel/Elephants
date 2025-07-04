@@ -30,7 +30,7 @@ aoi <- ee$Geometry$Rectangle(
 Map$addLayer(aoi)
 # Define years and dates for Landsat image collection
 
-years <- c(2019:2024)
+years <- c(2015:2024)
 
 
 for(year in years){ 
@@ -194,6 +194,6 @@ for(year in years){
   googledrive::drive_rm(unique(dw_fraction_mode_drive_files$name))
   googledrive::drive_rm("rgee_backup_dw_fraction_mode")
   
-  print(paste0("fraction_mode of images equal to mode done for ", year, " done. Time: ", Sys.time()))
+  print(paste0("fraction_mode of images equal to mode for ", year, " done. Time: ", Sys.time()))
   
 }

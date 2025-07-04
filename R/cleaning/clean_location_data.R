@@ -344,7 +344,8 @@ mapview(sf_ithala_bound)
 
 dt_ithala <- dt_ithala_raw %>% 
   filter(point_id %in% unique(sf_ithala_int$point_id)) %>% 
-  dplyr::select(-point_id)
+  dplyr::select(-point_id) %>% 
+  mutate(date_time = parse_date_time(date_time, orders = "dmy HM"))
 
 
 ####### CLEAN DATASET ########
@@ -355,8 +356,8 @@ dt_ithala <- dt_ithala_raw %>%
 
 dt_loc_raw <- rbind(
   dt_ceru, 
-  dt_hwange, 
-  dt_peanuts, 
+  dt_hwange , 
+  dt_peanuts , 
   dt_lapalala, 
   dt_hip, 
   dt_ithala
@@ -366,7 +367,6 @@ dt_loc_raw <- rbind(
   arrange(individual_id, date_time) %>%
   group_by(individual_id) %>%
   mutate(
-    individual_id = paste0(source, "_", individual_id), 
     n_obs = n(), 
     start_date = min(date_time),
     end_date = max(date_time),
@@ -477,7 +477,7 @@ for(id in unique(sf_loc_3$individual_id)){
   sf_loc_sub <- sf_loc_3 %>% 
     filter(individual_id == id)
   
-  grid <- st_make_grid(sf_loc_sub, cellsize = 5000, square = TRUE) %>% 
+  grid <- st_make_grid(sf_loc_sub, cellsize = 1000, square = TRUE) %>% 
     st_as_sf() %>% 
     mutate(n_obs = lengths(st_intersects(., sf_loc_sub)), 
            rel_obs = n_obs/nrow(sf_loc_sub)) %>% 
@@ -485,9 +485,11 @@ for(id in unique(sf_loc_3$individual_id)){
   
   #print(mapview(grid, zcol = "rel_obs"))
   
+  title_string <- paste0(id, " Source: ", unique(sf_loc_sub$source))
+  
   p <- ggplot(grid) +
     geom_sf(aes(color = rel_obs, fill = rel_obs)) +
-    labs(title = id) +
+    labs(title = title_string) +
     scale_color_viridis_c() +
     scale_fill_viridis_c() +
     theme_minimal()
@@ -496,7 +498,7 @@ for(id in unique(sf_loc_3$individual_id)){
   if(nrow(grid[grid$rel_obs > 0.25, ]) > 0){
   sus_ids <- c(sus_ids, id)
   
-  p <- p + labs(title = id, subtitle = "Strange")
+  p <- p + labs(title = title_string, subtitle = "Strange")
 
   } 
   
@@ -801,7 +803,7 @@ sum(!is.na(park_for_id$park_id))
 
 dt_final <- dt_loc_sub %>% 
   dplyr::select(-park_id) %>% 
-  left_join(park_for_id[, -c("is_area_km2", "hr_area_km2")]) %>% 
+  left_join(park_for_id[, !(names(park_for_id) %in% c("is_area_km2", "hr_area_km2"))]) %>% 
   left_join(hr_meta)
 
 
