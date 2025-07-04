@@ -7,7 +7,7 @@ library(MetBrewer)
 library(scico)
 library(patchwork)
 
-dt_est <- fread("builds/model_outputs/issf_estimates_12hrs_steps.csv")
+dt_est <- fread("builds/model_outputs/issf_estimates_12hr_steps.csv")
 
 
 p_est_ridges <- dt_est %>% 
