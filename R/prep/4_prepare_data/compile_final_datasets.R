@@ -72,10 +72,10 @@ dt_pc <- dt_pc_raw %>%
 
 
 #### grid with habitat quality 
-dt_grid_hq <- fread("data/processed_data/data_fragments/pa_grid_with_habitat_quality.csv")
+dt_grid_hq <- fread("data/processed_data/data_fragments/pa_grid_with_habitat_quality.csv") %>% 
+  mutate(wdpa_pid = as.character(wdpa_pid))
 sf_grid <- st_read("data/spatial_data/grid/empty_grid_pas.gpkg") %>% 
-  left_join(dt_grid_hq[, -c("park_id", "country_code_iso3", "designation", "wdpa_pid", "iucn_cat",
-                              "x_mollweide", "y_mollweide", "lon", "lat")])
+  left_join(dt_grid_hq[, -c("x_mollweide", "y_mollweide", "lon", "lat")])
 
 sf_grid_hq <- sf_grid %>%
   select(contains("_norm"), park_id) %>% 
@@ -98,22 +98,37 @@ sf_grid_hq <- sf_grid %>%
 sum(sf_grid_hq[sf_grid_hq$park_id == "Kruger National Park", ]$local_density_km2, na.rm = T)
 sum(sf_grid_hq[sf_grid_hq$park_id == "Kruger National Park", ]$mean_density_km2, na.rm = T)
 
-dt_grid_trends <- fread("data/processed_data/data_fragments/pa_grid_with_trends.csv")
+unique(sf_grid_hq[sf_grid_hq$park_id == "Kruger National Park", ]$density_km2_estimate)
+
+dt_grid_trends <- fread("data/processed_data/data_fragments/pa_grid_with_trends.csv") %>% 
+  mutate(wdpa_pid = as.character(wdpa_pid))
+
 #### get grids all inclusive
+dt_grid_ld <- sf_grid %>%
+  select(contains("_norm"), park_id, grid_id) %>% 
+  left_join(dt_pc) %>% 
+  mutate(cell_area_km2 = as.numeric(st_area(.) / 1000000)) %>%
+  group_by(park_id) %>% 
+  mutate(total_hq = sum(habitat_quality_12hr_norm), 
+         rel_hq = habitat_quality_12hr_norm/total_hq, 
+         rel_pc = mean_population_count*rel_hq, 
+         local_density_km2 = rel_pc/cell_area_km2) %>% 
+  ungroup() %>% 
+  as.data.frame() %>% 
+  mutate(geom = NULL, geometry = NULL, x = NULL)
 
 dt_grid_all <- dt_grid_hq %>% 
-  left_join(dt_grid_trends)
+  left_join(dt_grid_trends[, -c("x_mollweide", "y_mollweide", "lon", "lat")]) %>% 
+  left_join(dt_grid_ld)
 
+fwrite(dt_grid_all, "data/processed_data/clean_data/final_grid_data.csv")
 
 #### points 
 dt_points <- fread("data/processed_data/data_fragments/pa_points_with_trends.csv") %>% 
   mutate(wdpa_pid = as.character(wdpa_pid))
 
 sf_points <- read_sf("data/spatial_data/grid/empty_points_pas.gpkg") %>% 
-  left_join(dt_points[, -c(
-    "country_code_iso3", "designation", "wdpa_pid", "iucn_cat",
-    "x_mollweide", "y_mollweide", "lon", "lat"
-  )])
+  left_join(dt_points[, -c("x_mollweide", "y_mollweide", "lon", "lat")])
 
 hist(sf_points$grass_cover_coef)
 
@@ -121,12 +136,29 @@ hist(sf_points$grass_cover_coef)
 st_crs(sf_points) == st_crs(sf_grid_hq)
 names(sf_points)
 names(sf_grid_hq)
-sf_points_ellies <- st_join(sf_points, sf_grid_hq %>% dplyr::select(-park_id))
+
+sf_grid_hq %>%
+  as.data.table() %>% 
+  mutate(geom = NULL) %>% 
+  select(park_id, population_trend_estimate, density_km2_estimate) %>% 
+  unique()
+
+sf_points_ellies <- st_join(sf_points, sf_grid_hq %>% rename(park_id_grid = park_id))
+
+#get Ids of points that overlap with multiple parks. Tjose we don't want
+problematic_ids <- sf_points_ellies %>% 
+  as.data.frame() %>% 
+  mutate(geom = NULL, geometry = NULL, x = NULL) %>% 
+  filter(!park_id == park_id_grid) %>% 
+  select(unique_id) %>% pull()
 
 dt_points_ellies <- sf_points_ellies %>% 
   as.data.frame() %>% 
-  mutate(geom = NULL, geometry = NULL, x = NULL)
+  mutate(geom = NULL, geometry = NULL, x = NULL) %>% 
+  filter(!unique_id %in% problematic_ids)
 
+dt_points_ellies %>% select(park_id, population_trend_estimate, density_km2_estimate) %>% 
+  unique()
 
 summary(dt_points_ellies)
 #### Save 

@@ -12,7 +12,7 @@ library(exactextractr)
 
 # param <- "grid"
 # param = "pa_grid"
-param = "pa_points"
+ param = "pa_points"
 
 if(param == "grid"){
   vect <- read_sf("data/spatial_data/grid/empty_grid.gpkg") %>% 
@@ -94,10 +94,10 @@ bare_cover_files <- data.table(filepath = list.files("data/spatial_data/time_ser
 
 #Shannon 100m
 shannon_100m_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
-                                                     pattern = "shannon",
+                                                     pattern = "shannon_diversity",
                                                      full.names = TRUE),
                                filename = list.files("data/spatial_data/time_series/",
-                                                     pattern = "shannon",
+                                                     pattern = "shannon_diversity",
                                                      full.names = FALSE)
 ) %>%
   filter(!grepl("1000m", filename)) %>%
@@ -106,20 +106,17 @@ shannon_100m_files <- data.table(filepath = list.files("data/spatial_data/time_s
 
 #Shannon 1000m
 shannon_1000m_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
-                                                       pattern = "shannon",
+                                                       pattern = "shannon_diversity",
                                                        full.names = TRUE),
                                  filename = list.files("data/spatial_data/time_series/",
-                                                       pattern = "shannon",
+                                                       pattern = "shannon_diversity",
                                                        full.names = FALSE)
 ) %>%
   filter(!grepl("100m", filename)) %>%
   mutate(filename = gsub(".tif", "", filename),
          colname = gsub("shannon_diversity_habitat_vegetation_types_", "habitat_diversity_", filename))
 
-
-
-
-
+# EVI
 mean_evi_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
                                                    pattern = "evi_", 
                                                    full.names = TRUE), 
@@ -128,6 +125,39 @@ mean_evi_files <- data.table(filepath = list.files("data/spatial_data/time_serie
                                                    full.names = FALSE)) %>% 
   mutate(filename = gsub(".tif", "", filename),
          colname =  gsub("evi_mean_500m", "mean_evi", filename))
+
+### MAT
+
+mat_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                   pattern = "mat_", 
+                                                   full.names = TRUE), 
+                             filename = list.files("data/spatial_data/time_series/",
+                                                   pattern = "mat_", 
+                                                   full.names = FALSE)) %>% 
+  mutate(filename = gsub(".tif", "", filename),
+         colname =  gsub("mat_", "mat_", filename))
+
+### Prec sum 
+
+prec_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                              pattern = "precipitation_sum", 
+                                              full.names = TRUE), 
+                        filename = list.files("data/spatial_data/time_series/",
+                                              pattern = "precipitation_sum", 
+                                              full.names = FALSE)) %>% 
+  mutate(filename = gsub(".tif", "", filename),
+         colname =  gsub("precipitation_sum_", "prec_", filename))
+
+### Burned area 
+
+burned_area_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                              pattern = "burned_area_", 
+                                              full.names = TRUE), 
+                        filename = list.files("data/spatial_data/time_series/",
+                                              pattern = "burned_area_", 
+                                              full.names = FALSE)) %>% 
+  mutate(filename = gsub(".tif", "", filename),
+         colname =  gsub("burned_area_5000m_", "burned_area_", filename))
 
 
 # may have to add other drivers (eg.., climate etc here too...)
@@ -139,7 +169,10 @@ covs <- rbind(grass_cover_files,
               bare_cover_files,
               shannon_100m_files, 
               shannon_1000m_files, 
-              mean_evi_files 
+              mean_evi_files, 
+              mat_files,
+              prec_files,
+              burned_area_files
               )
 
 
@@ -223,7 +256,11 @@ vect_covs <- vect %>%
          mean_bare_cover = rowMeans(select(., contains("bare_cover")), na.rm = TRUE), 
          mean_habitat_diversity_100m = rowMeans(select(., matches("habitat_diversity.*_100m")), na.rm = TRUE), 
          mean_habitat_diversity_1000m = rowMeans(select(., matches("habitat_diversity.*_1000m")), na.rm = TRUE), 
-         mean_evi = rowMeans(select(., contains("mean_evi")), na.rm = TRUE)) 
+         mean_evi = rowMeans(select(., contains("mean_evi")), na.rm = TRUE), 
+         mean_mat = rowMeans(select(., contains("mat")), na.rm = TRUE),
+         mean_prec = rowMeans(select(., contains("prec")), na.rm = TRUE),
+         mean_burned_area = rowMeans(select(., contains("burned_area")), na.rm = TRUE)) 
+
 
 if(param == "grid"){
   
@@ -243,8 +280,7 @@ if(param == "grid"){
   
   
   fwrite(vect_covs %>% 
-           left_join(dt_habitat_vars[, -c("country_code_iso3", "designation", "wdpa_pid", "iucn_cat",
-                                          "x_mollweide", "y_mollweide", "lon", "lat")]),
+           left_join(dt_habitat_vars[, -c("x_mollweide", "y_mollweide", "lon", "lat")]),
          "data/processed_data/data_fragments/pa_grid_with_timeseries.csv")
   
 } else if(param == "pa_points"){
@@ -254,7 +290,7 @@ if(param == "grid"){
   
   
   fwrite(vect_covs %>% 
-           left_join(dt_habitat_vars),
+           left_join(dt_habitat_vars[, -c("x_mollweide", "y_mollweide", "lon", "lat")]),
          "data/processed_data/data_fragments/pa_points_with_timeseries.csv")
   
 }

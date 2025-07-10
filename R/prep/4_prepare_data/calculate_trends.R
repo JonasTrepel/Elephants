@@ -8,8 +8,8 @@ library(tictoc)
 
 #param = "pas"
 #param = "grid"
-param = "pa_grid"
-#param = "pa_points"
+#param = "pa_grid"
+param = "pa_points"
 
 if(param == "pa_points"){
   dt <- fread("data/processed_data/data_fragments/pa_points_with_timeseries.csv") %>% 
@@ -52,12 +52,16 @@ process_trend <- function(cols_pattern, trend_name, dt) {
 trend_configs <- data.frame(
   pattern = c("grass_cover_", "gr_n_cr_cover_",
               "tree_cover_", "shrub_cover_", "bare_cover_",
-             # "habitat_diversity_100m_", "habitat_diversity_1000m_", 
-              "mean_evi_"),
+              "habitat_diversity_100m_", "habitat_diversity_1000m_", 
+              "mean_evi_", 
+              "mat_", "prec_", 
+              "burned_area_"),
   name = c("grass_cover", "gr_n_cr_cover",
            "tree_cover", "shrub_cover", "bare_cover",
-           # "habitat_diversity_100m", "habitat_diversity_1000m", 
-           "mean_evi"),
+            "habitat_diversity_100m", "habitat_diversity_1000m", 
+           "mean_evi", 
+           "mat", "prec", 
+           "burned_area"),
   stringsAsFactors = FALSE
 )
 
@@ -68,7 +72,7 @@ trend_configs <- data.frame(
 
 ################################## LOOOOOOOOOOOOP ############################            
 options(future.globals.maxSize = 10 * 1024^3)  # 10 GB
-plan(multisession, workers = 6)
+plan(multisession, workers = 11)
 tic()
 
 # Add chunk_id column
@@ -125,8 +129,10 @@ dt_trend_from_list <- rbindlist(all_trends_list)
 ctk <- dt %>% dplyr::select(unique_id,
                             mean_grass_cover, mean_gr_n_cr_cover, 
                             mean_shrub_cover, mean_tree_cover, mean_bare_cover,
-                            #mean_habitat_diversity_100m, mean_habitat_diversity_1000m,
-                            mean_evi)
+                            mean_habitat_diversity_100m, mean_habitat_diversity_1000m,
+                            mean_evi, 
+                            mean_mat, mean_prec, 
+                            mean_burned_area)
 
 dt_res <- dt %>% 
   as.data.table() %>% 
@@ -135,9 +141,12 @@ dt_res <- dt %>%
                 -all_of(grep("gr_n_cr_cover_", names(dt), value = T)),
                 -all_of(grep("shrub_cover_", names(dt), value = T)),
                 -all_of(grep("tree_cover_", names(dt), value = T)),
-                -all_of(grep("bare_cover_cover_", names(dt), value = T)),
-                #-all_of(grep("habitat_diversity_", names(dt), value = T)),
-                -all_of(grep("mean_evi_", names(dt), value = T))) %>% 
+                -all_of(grep("bare_cover_", names(dt), value = T)),
+                -all_of(grep("habitat_diversity_", names(dt), value = T)),
+                -all_of(grep("mean_evi_", names(dt), value = T)),
+                -all_of(grep("mat_", names(dt), value = T)),
+                -all_of(grep("prec_", names(dt), value = T)),
+                -all_of(grep("burned_area_", names(dt), value = T))) %>% 
   left_join(ctk)
 
 

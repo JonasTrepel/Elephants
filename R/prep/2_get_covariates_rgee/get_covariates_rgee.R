@@ -1,8 +1,10 @@
+rgee_env_dir <- c("C:\\Users\\au713983\\.conda\\envs\\rgee_env")
+reticulate::use_python(rgee_env_dir, required=T)
+
 library(rgee)
 library(data.table)
 library(tidyverse)
 library(googledrive)
-library("enerscape")
 library(terra)
 library(exactextractr)
 
@@ -10,18 +12,21 @@ library(exactextractr)
 
 source("R/functions/monitor_gee_task.R")
 
-rgee_env_dir <- c("C:\\Users\\au713983\\.conda\\envs\\rgee_env")
-reticulate::use_python(rgee_env_dir, required=T)
-
 #ee_clean_user_credentials()
 #ee$Authenticate(auth_mode='notebook')
-#ee_Authenticate(auth_mode='notebook')
-ee$Initialize(project = "ee-jonastrepel")
-drive_auth(email = "jonas.trepel@bio.au.dk")
+#when on GIS04
+#ee$Initialize(project = "ee-jonastrepel")
+#drive_auth(email = "jonas.trepel@bio.au.dk")
+#mail <- "jonas.trepel@bio.au.dk"
+#when GIS07
+ee$Initialize(project = "jonas-trepel")
+drive_auth(email = "jonas.trepel@gmail.com")
+mail <- "jonas.trepel@gmail.com"
+
 ee$String('Hello from the Earth Engine servers!')$getInfo()
 
 ### Get sub-saharan Africa extent
-ssa_ext <- ee$Geometry$Rectangle(
+aoi <- ee$Geometry$Rectangle(
   coords = c(7.5, -35.0, 45.0, 5.0), # xmin, ymin, xmax, ymax
   proj = "EPSG:4326",
   geodesic = FALSE
@@ -41,13 +46,13 @@ evi_img <- ee$
   img$updateMask(qa$eq(0))
 })$ ## select only high quality data
   select("EVI")$
-  filterDate("2001-01-01", "2024-12-31")$
+  filterDate("2001-07-01", "2025-06-30")$
   mean()
 
 export_evi <- ee_image_to_drive(
   image = evi_img,
-  region = ssa_ext,
-  folder = "rgee_backup_evi",
+  region = aoi,
+  folder = "rgee_backup_evi_mean",
   description = "evi",
   scale = 500,
   timePrefix = FALSE,
@@ -56,9 +61,10 @@ export_evi <- ee_image_to_drive(
 export_evi$start()
 
 Sys.sleep(60)
-monitor_gee_task(pattern = "evi", path = "rgee_backup_evi")
+monitor_gee_task(pattern = "evi", path = "rgee_backup_evi_mean",
+                 mail = mail, last_sleep_time = 10)
 
-drive_files_evi <- drive_ls(path = "rgee_backup_evi", pattern = "evi") %>%
+drive_files_evi <- drive_ls(path = "rgee_backup_evi_mean", pattern = "evi") %>%
   dplyr::select(name) %>% 
   unique()
 
@@ -66,7 +72,7 @@ drive_files_evi <- drive_ls(path = "rgee_backup_evi", pattern = "evi") %>%
 filename_evi <- unique(drive_files_evi$name)
 drive_download(file = filename_evi, path = "data/spatial_data/covariates/raster/mean_evi_2001_2024.tif", overwrite = TRUE)
 googledrive::drive_rm(unique(drive_files_evi$name))
-googledrive::drive_rm("rgee_backup_evi")
+googledrive::drive_rm("rgee_backup_evi_mean")
 
 evi_r <- rast("data/spatial_data/covariates/raster/mean_evi_2001_2024.tif")
 plot(evi_r)
@@ -76,7 +82,7 @@ plot(evi_r)
 #https://www.cpc.ncep.noaa.gov/products/assessments/assess_96/safr.html
 
 evi_dry <- ee$ImageCollection("MODIS/061/MOD13A1")$
-  filterDate("2001-01-01", "2024-12-31")$
+  filterDate("2001-07-01", "2025-06-30")$
   filter(ee$Filter$calendarRange(5, 9, 'month'))$  #Filter for May to September
   map(function(img) {
     qa <- img$select("SummaryQA")
@@ -86,7 +92,7 @@ evi_dry <- ee$ImageCollection("MODIS/061/MOD13A1")$
 
 export_evi_dry <- ee_image_to_drive(
   image = evi_dry,
-  region = ssa_ext,
+  region = aoi,
   folder = "rgee_backup_evi_dry",
   description = "evi_dry",
   scale = 500,
@@ -95,7 +101,8 @@ export_evi_dry <- ee_image_to_drive(
 )
 export_evi_dry$start()
 Sys.sleep(60)
-monitor_gee_task(pattern = "evi_dry", path = "rgee_backup_evi_dry")
+monitor_gee_task(pattern = "evi_dry", path = "rgee_backup_evi_dry", 
+                 mail = mail, last_sleep_time = 10)
 
 (drive_files_evi_dry <- drive_ls(path = "rgee_backup_evi_dry", pattern = "evi_dry") %>%
   dplyr::select(name) %>% 
@@ -116,7 +123,7 @@ plot(evi_dry_r)
 
 
 evi_wet <- ee$ImageCollection("MODIS/061/MOD13A1")$
-  filterDate("2001-01-01", "2024-12-31")$
+  filterDate("2001-07-01", "2025-06-30")$
   filter(ee$Filter$calendarRange(10, 4, 'month'))$  #Filter for October to April
   map(function(img) {
     qa <- img$select("SummaryQA")
@@ -126,7 +133,7 @@ evi_wet <- ee$ImageCollection("MODIS/061/MOD13A1")$
 
 export_evi_wet <- ee_image_to_drive(
   image = evi_wet,
-  region = ssa_ext,
+  region = aoi,
   folder = "rgee_backup_evi_wet",
   description = "evi_wet",
   scale = 500,
@@ -135,7 +142,8 @@ export_evi_wet <- ee_image_to_drive(
 )
 export_evi_wet$start()
 Sys.sleep(60)
-monitor_gee_task(pattern = "evi_wet", path = "rgee_backup_evi_wet")
+monitor_gee_task(pattern = "evi_wet", path = "rgee_backup_evi_wet", 
+                 mail = mail, last_sleep_time = 10)
 
 drive_files_evi_wet <- drive_ls(path = "rgee_backup_evi_wet", pattern = "evi_wet") %>%
   dplyr::select(name) %>% 
@@ -162,7 +170,7 @@ Map$addLayer(esa_wc_img)
 
 export_esa_wc <- ee_image_to_drive(
   image = esa_wc_img,
-  region = ssa_ext,
+  region = aoi,
   folder = "rgee_backup_esa_wc",
   description = "esa_world_cover",
   scale = 10,
@@ -174,7 +182,7 @@ export_esa_wc$start()
 
 Sys.sleep(60)
 monitor_gee_task(pattern = "esa_world_cover", path = "rgee_backup_esa_wc", 
-                 last_sleep_time = 3600)
+                 last_sleep_time = 3600, mail = mail)
 
 Sys.sleep(600)
 (esa_wc_drive_files <- drive_ls(path = "rgee_backup_esa_wc", pattern = "esa_world_cover") %>%
@@ -216,40 +224,6 @@ wc_50m_r <- terra::aggregate(esa_wc_r,
                               cores = 20)
 plot(wc_50m_r)
 
-##### ESA Worldcover 100m
-
-
-# Load and select the ESA WorldCover image
-esa_wc_img <- ee$ImageCollection("ESA/WorldCover/v200")$
-  select("Map")$
-  first()
-
-# Define the target projection: 100m resolution, using the native EPSG
-esa_proj <- esa_wc_img$projection()$atScale(100)
-
-# Reduce resolution using mode (most common class) and reproject to 100m
-esa_wc_img_100m <- esa_wc_img$
-  reduceResolution(
-    reducer = ee$Reducer$mode(),
-    maxPixels = 1024
-  )$
-  reproject(crs = esa_proj, scale = 100)
-
-# Optional: visualize the layer (Map viewer is limited to 5000x5000px)
-Map$centerObject(esa_wc_img)
-Map$addLayer(esa_wc_img_100m, list(min = 10, max = 100), "ESA WC 100m (mode)")
-
-# Export to Google Drive
-export_esa_wc <- ee_image_to_drive(
-  image = esa_wc_img_100m,
-  region = ssa_ext,  # Make sure ssa_ext is defined (an ee$Geometry)
-  folder = "rgee_backup_esa_wc",
-  description = "esa_world_cover_100m_mode",
-  scale = 100,
-  timePrefix = FALSE,
-  maxPixels = 1e13
-)
-export_esa_wc$start()
 
 
 ##### Water ESA worldcover -----------------------------
@@ -263,7 +237,7 @@ Map$addLayer(esa_water, list(min = 0, max = 1), "ESA Water")
 
 export_esa_water <- ee_image_to_drive(
   image = esa_water,
-  region = ssa_ext,
+  region = aoi,
   folder = "rgee_backup_esa_water",
   description = "esa_water",
   scale = 10,
@@ -274,7 +248,8 @@ export_esa_water$start()
 
 
 Sys.sleep(60)
-monitor_gee_task(pattern = "esa_water", path = "rgee_backup_esa_water")
+monitor_gee_task(pattern = "esa_water", path = "rgee_backup_esa_water", 
+                 mail = mail)
 
 Sys.sleep(600)
 (esa_water_drive_files <- drive_ls(path = "rgee_backup_esa_water", pattern = "esa_water") %>%
@@ -316,7 +291,7 @@ dem_img$getInfo()
 
 export_dem <- ee_image_to_drive(
   image = dem_img,
-  region = ssa_ext,
+  region = aoi,
   folder = "rgee_backup_dem",
   description = "dem",
   scale = 30,
@@ -326,7 +301,8 @@ export_dem <- ee_image_to_drive(
 export_dem$start()
 
 Sys.sleep(60)
-monitor_gee_task(pattern = "dem", path = "rgee_backup_dem")
+monitor_gee_task(pattern = "dem", path = "rgee_backup_dem", 
+                 mail = mail)
 
 Sys.sleep(600)
 (drive_files_dem <- drive_ls(path = "rgee_backup_dem", pattern = "dem") %>%
@@ -371,7 +347,7 @@ Map$addLayer(wsf_binary, list(min = 0, max = 1), "WSF 10m")
 
 export_wsf <- ee_image_to_drive(
   image = wsf_binary,
-  region = ssa_ext,
+  region = aoi,
   folder = "rgee_backup_wsf",
   description = "wsf",
   scale = 10,
@@ -381,7 +357,8 @@ export_wsf <- ee_image_to_drive(
 export_wsf$start()
 
 Sys.sleep(60)
-monitor_gee_task(pattern = "wsf", path = "rgee_backup_wsf")
+monitor_gee_task(pattern = "wsf", path = "rgee_backup_wsf", 
+                 mail = mail)
 
 Sys.sleep(600)
 (drive_files_wsf <- drive_ls(path = "rgee_backup_wsf", pattern = "wsf") %>%
@@ -423,9 +400,105 @@ file.remove(wsf_files)
 
 
 
-##### Roads -> not available at GEE, but there's a vector layer: 
-#https://www.globio.info/download-grip-dataset
+##### Fire frequency #####
+
+## important - here a year ranges from July of a year to June of year + 1 
+## should probably be changed to Jan-Dec of year when used in nothern hemisphere
+
+year_list <- ee$List$sequence(2001, 2024)
+n_years <- 2024-2001
+
+modis_burndate <- ee$ImageCollection("MODIS/061/MCD64A1")$
+  select("BurnDate")
+
+modis_qa <- ee$ImageCollection("MODIS/061/MCD64A1")$
+  select("QA")
+
+# Bitwise extraction function (bit 0: valid burn)
+bitwise_extract <- function(input, from_bit, to_bit) {
+  mask_size <- ee$Number(1)$add(to_bit)$subtract(from_bit)
+  mask <- ee$Number(1)$leftShift(mask_size)$subtract(1)
+  input$rightShift(from_bit)$bitwiseAnd(mask)
+}
+
+# Function to get annual binary burn map (1 = burned, 0 = unburned)
+get_annual_binary <- function(year) {
+  year <- ee$Number(year)
+  next_year <- year$add(1)
+  
+  # BurnDate and QA filtered by July 1 - June 30
+  start_date <- ee$Date$fromYMD(year, 7, 1)
+  end_date <- ee$Date$fromYMD(next_year, 6, 30)
+  
+  burn_img <- modis_burndate$
+    filterDate(start_date, end_date)$
+    select("BurnDate")$
+    max()
+  
+  qa_img <- modis_qa$
+    filterDate(start_date, end_date)$
+    select("QA")$
+    max()
+  
+  # Mask: burn pixels with good quality
+  mask <- bitwise_extract(qa_img, 0, 0)$eq(1)
+  
+  # Burned = 1, Unburned = 0
+  burned_bin <- burn_img$
+    where(burn_img$neq(0), 1)$
+    unmask(0)$
+    updateMask(mask)$
+    rename("Burned")$
+    set("system:time_start", start_date)
+  
+  return(burned_bin)
+}
+
+# Build the annual binary image collection
+burned_col <- ee$ImageCollection$fromImages(
+  year_list$map(ee_utils_pyfunc(function(yr) {
+    get_annual_binary(yr)
+  }))
+)
+
+# Sum the collection to get fire frequency
+fire_frequency <- burned_col$sum()$clip(aoi)$divide(n_years)
+
+# Visualization
+vis_params <- list(
+  min = 0,
+  max = 1,
+  palette = c("#ffffff", "#ffffb2", "#fd8d3c", "#e31a1c", "#b10026")  # white to dark red
+)
+Map$centerObject(aoi, 6)
+Map$addLayer(fire_frequency, vis_params, "Fire Frequency")
 
 
+export_fire_frequency <- ee_image_to_drive(
+  image = fire_frequency,
+  region = aoi,
+  folder = "rgee_backup_fire_frequency",
+  description = "fire_frequency",
+  scale = 500,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_fire_frequency$start()
 
+Sys.sleep(60)
+monitor_gee_task(pattern = "fire_frequency", path = "rgee_backup_fire_frequency",
+                 mail = mail, last_sleep_time = 10)
+
+drive_files_fire_frequency <- drive_ls(path = "rgee_backup_fire_frequency", pattern = "fire_frequency") %>%
+  dplyr::select(name) %>% 
+  unique()
+
+# since it's only one tile we can save it directly 
+filename_fire_frequency <- unique(drive_files_fire_frequency$name)
+drive_download(file = filename_fire_frequency, path = "data/spatial_data/covariates/raster/fire_frequency_500m_2001_2024.tif", overwrite = TRUE)
+googledrive::drive_rm(unique(drive_files_fire_frequency$name))
+googledrive::drive_rm("rgee_backup_fire_frequency")
+
+fire_frequency_r <- rast("data/spatial_data/covariates/raster/fire_frequency_500m_2001_2024.tif")
+plot(fire_frequency_r)
 

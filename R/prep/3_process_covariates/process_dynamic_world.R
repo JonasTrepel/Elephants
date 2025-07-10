@@ -6,6 +6,8 @@ library("furrr")
 library(vegan)
 
 
+
+# Get percentage cover of the different habitat types 
 dynamic_world_files <- list.files("data/spatial_data/time_series",
                                   full.names = T, pattern = "dynamic_world")
 
@@ -254,8 +256,8 @@ future_walk(1:length(vegetation_type_files),
                          sh_div <- vegan::diversity(community_matrix, index = "shannon")
                          return(sh_div)}, 
                        filename = paste0(
-                         "data/spatial_data/time_series/shannon_diversity_habitat_vegetation_types_",
-                         years, "_100m.tif"), 
+                         "data/spatial_data/time_series/shannon_diversity_habitat_vegetation_types_100m_",
+                         years, ".tif"), 
                        cores = 1)
     
     #aggregate at the 1 km scale 
@@ -275,8 +277,8 @@ future_walk(1:length(vegetation_type_files),
                               sh_div <- vegan::diversity(community_matrix, index = "shannon")
                               return(sh_div)}, 
                             filename = paste0(
-                              "data/spatial_data/time_series/shannon_diversity_habitat_vegetation_types_",
-                              years, "_1000m.tif"), 
+                              "data/spatial_data/time_series/shannon_diversity_habitat_vegetation_types_1000m_",
+                              years, ".tif"), 
                             cores = 1)
      
     
@@ -284,3 +286,143 @@ future_walk(1:length(vegetation_type_files),
 print(paste0("All done. Time: ", Sys.time()))
 
 plan(sequential) 
+
+
+#### Habitat diversity Grasses and crops joined -------------------------
+
+veg_type_files <- list.files("data/spatial_data/time_series",
+                                    full.names = T, pattern = "veg_types")
+
+terraOptions(memfrac = 0.5)
+
+# veg_type_files <- veg_type_files[
+#   grepl("2018_2019", veg_type_files) |
+#     grepl("2019_2020", veg_type_files)  | 
+#     grepl("2024_2025", veg_type_files)]
+
+plan(multisession, workers = 5)
+
+future_walk(1:length(veg_type_files),
+            .progress = TRUE,
+            function(i){
+              
+              #for(file in unique(dynamic_world_files)){
+              
+              file <- veg_type_files[i]
+              dw_r <- rast(file)
+              plot(dw_r)
+              
+              data_type_dw <- terra::datatype(dw_r)
+              
+              years <- gsub("data/spatial_data/time_series/veg_types_grass_and_crops_joined_", "", file)
+              years <- gsub("_10m.tif", "", years)
+              
+              #aggregate at 100m 
+              div_100m_r <- aggregate(dw_r, 
+                                      fact = 10, 
+                                      fun = function(x){ 
+                                        #remove NAs
+                                        x <- x[!is.na(x)]
+                                        if(length(x) == 0){return(NA)}
+                                        
+                                        # calculate shannon diversity 
+                                        abundances <- table(x)
+                                        
+                                        community_matrix <- matrix(abundances, nrow = 1)
+                                        colnames(community_matrix) <- names(abundances) #probably unnecceary, but just for the record
+                                        
+                                        sh_div <- vegan::diversity(community_matrix, index = "shannon")
+                                        return(sh_div)}, 
+                                      filename = paste0(
+                                        "data/spatial_data/time_series/shannon_div_habitat_veg_types_gr_n_cr_100m_",
+                                        years, ".tif"), 
+                                      cores = 1)
+              
+              #aggregate at the 1 km scale 
+              div_1000m_r <- aggregate(dw_r, 
+                                       fact = 100, 
+                                       fun = function(x){ 
+                                         #remove NAs
+                                         x <- x[!is.na(x)]
+                                         if(length(x) == 0){return(NA)}
+                                         
+                                         # calculate shannon diversity 
+                                         abundances <- table(x)
+                                         
+                                         community_matrix <- matrix(abundances, nrow = 1)
+                                         colnames(community_matrix) <- names(abundances) #probably unnecessary, but just for the record
+                                         
+                                         sh_div <- vegan::diversity(community_matrix, index = "shannon")
+                                         return(sh_div)}, 
+                                       filename = paste0(
+                                         "data/spatial_data/time_series/shannon_div_habitat_veg_types_gr_n_cr_1000m_",
+                                         years, ".tif"), 
+                                       cores = 1)
+              
+              
+            })
+print(paste0("All done. Time: ", Sys.time()))
+
+plan(sequential) 
+
+
+### aggregate quality layer -----------
+
+
+fraction_mode_files <- list.files("data/spatial_data/time_series",
+                             full.names = T, pattern = "dw_fraction_mode_")
+
+terraOptions(memfrac = 0.5)
+
+# veg_type_files <- veg_type_files[
+#   grepl("2018_2019", veg_type_files) |
+#     grepl("2019_2020", veg_type_files)  | 
+#     grepl("2024_2025", veg_type_files)]
+
+plan(multisession, workers = 5)
+
+future_walk(1:length(fraction_mode_files),
+            .progress = TRUE,
+            function(i){
+              
+              #for(file in unique(dynamic_world_files)){
+              
+              file <- fraction_mode_files[i]
+              dw_r <- rast(file)
+              plot(dw_r)
+              
+              data_type_dw <- terra::datatype(dw_r)
+              
+              years <- gsub("data/spatial_data/time_series/dw_fraction_mode_", "", file)
+              years <- gsub("_10m.tif", "", years)
+              
+              #aggregate at 100m 
+              fraction_mode_100m_r <- terra::aggregate(dw_r, 
+                                      fact = 10, 
+                                      fun = "min", 
+                                      filename = paste0(
+                                        "data/spatial_data/time_series/dw_mode_fraction_100m_",
+                                        years, ".tif"), 
+                                      cores = 1, 
+                                      overwrite = T)
+              #plot(fraction_mode_100m_r)
+})
+plant(sequential)
+
+#### now get the minimum...
+
+fraction_mode_100m_files <- list.files("data/spatial_data/time_series",
+                                  full.names = T, pattern = "dw_mode_fraction_100m_")
+
+
+r_stack <- rast(fraction_mode_100m_files)
+
+r_min_mode_fraction <-  min(r_stack, na.rm = TRUE)
+plot(r_min_mode_fraction)
+datatype(r_min_mode_fraction)
+writeRaster(r_min_mode_fraction, 
+            filename = "data/spatial_data/covariates/raster/dw_min_mode_fraction_100m.tif", 
+            overwrite = T)
+
+r <- rast("data/spatial_data/covariates/raster/dw_min_mode_fraction_100m.tif")
+datatype(r)

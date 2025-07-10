@@ -11,10 +11,10 @@ library(exactextractr)
 ### define if we want to run it for control or PA 
 
 # param <- "grid"
-# param = "pa_grid"
+ param = "pa_grid"
 # param = "pa_points"
 # param <- "indiv_grid"
- param <- "steps_1hr"
+# param <- "steps_1hr"
 # param <- "steps_3hrs"
 # param <- "steps_12hrs"
 
@@ -121,6 +121,10 @@ col_names <- c(
   "evi_mean", #Average EVI
   "evi_dry_season", #Average EVI in the dry season
   "evi_wet_season", #Average EVI in the wet season
+
+  "fire_frequency", #average number of fires per year
+
+  "dw_min_mode_fraction", #minimum fractzio of the mode (dynamic world) 
   
   #### categorical ####
   "functional_biome_num", # functional biome 
@@ -151,6 +155,9 @@ cov_paths <- c(
   "data/spatial_data/covariates/raster/dry_season_mean_evi_2001_2024.tif", #Average EVI in the dry season
   "data/spatial_data/covariates/raster/wet_season_mean_evi_2001_2024.tif", #Average EVI in the wet season
   
+  "data/spatial_data/covariates/raster/fire_frequency_500m_2001_2024.tif", #average number of fires per year
+
+  "data/spatial_data/covariates/raster/dw_min_mode_fraction_100m.tif", #min mode fraciton 
   #### categorical ####
   "data/spatial_data/covariates/raster/higgins_functional_biomes.tif", # functional biome 
   "data/spatial_data/covariates/raster/wwf_olson_biome.tif", # olson biome 
@@ -158,7 +165,7 @@ cov_paths <- c(
 )
 
 
-funcs <- c(rep("mean", 12), rep("mode", 3))
+funcs <- c(rep("mean", 14), rep("mode", 3))
 
 covs <- data.table(
   col_name = col_names, 
@@ -185,7 +192,7 @@ vect <- vect_backup
 
 ################################## LOOOOOOOOOOOOP ############################            
 options(future.globals.maxSize = 10 * 1024^3)  # 10 GB
-plan(multisession, workers = 15)
+plan(multisession, workers = 17)
 tic()
 
 # Add chunk_id column

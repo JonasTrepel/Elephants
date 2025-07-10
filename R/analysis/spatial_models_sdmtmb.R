@@ -12,6 +12,7 @@ library(sdmTMBextra)
 library(future)
 library(furrr)
 library(groupdata2)
+library(rnaturalearth)
 #first sfuture#first stab at sdmTMB
 
 
@@ -98,12 +99,29 @@ range(dt_mod$mean_density_km2)
 table(dt_mod$park_id)
 n_distinct(dt_mod$park_id)
 glimpse(dt_mod)
-dt_mod %>% ggplot() +
-  geom_sf(data = sf_parks) +
-  geom_point(aes(x = x_mollweide, y = y_mollweide, color = park_id), size = 0.2) + 
-  geom_sf(data = sf_parks, fill = "transparent") +
+
+### plot final dataset -----
+# World 
+sf_world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Africa 
+sf_africa <- sf_world %>% filter(region_un == "Africa") %>% 
+  filter(!name == "Madagascar") %>% 
+  st_transform(., crs = 4326)
+
+
+p_loc_fin <- dt_mod %>% ggplot() +
+  ylim(-35, -7.5) +
+  xlim(9, 40) +
+  geom_sf(data = sf_africa, fill = "grey99") +
+  geom_point(aes(x = lon, y = lat), size = 0.1, alpha = 0.5) + 
+  geom_sf(data = sf_parks %>% filter(NAME %in% unique(dt_mod$park_id)) %>% 
+            st_transform(crs = 4326), fill = "orange", alpha = 0.5) +
   theme_void() +
   theme(legend.position = "none")
+p_loc_fin 
+  
+ggsave(plot = p_loc_fin, "builds/plots/pas_included_in_analysis.png", dpi = 600)
 
 dt_mod %>% ggplot() +
   geom_point(aes(x = x_moll_km, y = y_moll_km, color = park_id), size = 0.2) + 
@@ -258,7 +276,24 @@ print(paste0("Started loop at: ", start_time, " and finished at: ", Sys.time()))
 
 ## bind results 
 
-dt_mesh_res <- rbindlist(mesh_res_list)
+dt_mesh_res <- rbindlist(mesh_res_list) %>% 
+  mutate(clean_response = case_when(
+    .default = response,
+    response == "tree_cover_coef" ~ "Woody Cover Trend",
+    response == "mean_evi_coef" ~  "EVI Trend",
+    response == "habitat_diversity_100m_coef" ~ "Habitat Diversity Trend (100m)",
+    response == "habitat_diversity_1000m_coef" ~ "Habitat Diversity Trend (1000m)"), 
+    clean_term = case_when(
+      .default = term,
+      term == "local_density_km2_scaled" ~ "Local Elephant Density",
+      term == "density_km2_estimate_scaled" ~ "Elephant Density Trend",
+      term == "mat_coef_scaled" ~ "MAT Trend",
+      term == "prec_coef_scaled" ~ "Precipitation Trend",
+      term == "n_deposition_scaled" ~ "Nitrogen deposition",
+      term == "fire_frequency_scaled" ~ "Fire frequency",
+      term == "burned_area_coef_scaled" ~ "Burned Area Trend"))
+
+fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results.csv")
 
 dt_mesh_res %>% 
   ggplot() +
@@ -267,7 +302,7 @@ dt_mesh_res %>%
   scale_color_manual(values = c("non-significant" = "grey", 
                                 positive = "forestgreen", 
                                 negative = "darkred")) +
-  facet_grid(rows = vars(response), cols = vars(term), scales = "free") +
+  facet_grid(rows = vars(clean_response), cols = vars(clean_term), scales = "free") +
   theme(legend.position = "none")
 
 dt_mesh_res %>% 
@@ -281,7 +316,7 @@ dt_mesh_res %>%
   scale_color_manual(values = c("non-significant" = "grey", 
                                 positive = "forestgreen", 
                                 negative = "darkred")) +
-  facet_wrap(~response, scales = "free")
+  facet_wrap(~clean_response, scales = "free")
 
 dt_mesh_res %>% 
  # filter(sanity_checks == TRUE) %>% 
@@ -289,36 +324,5 @@ dt_mesh_res %>%
   slice_min(aic) %>% 
   ungroup() %>% 
   select(cutoff, max_inner_edge, response) %>% unique()
-# likely overfit! 
 
-
-
-
-tidy(fit, conf.int = TRUE) %>%
-  filter(!grepl("(Intercept)", term)) %>%
-  mutate(sig = case_when(
-    .default = "non-significant",
-    conf.low > 0 ~ "positive",
-    conf.high < 0 ~ "negative"
-  )) %>% 
-  ggplot() +
-  geom_pointrange(aes(y = term, x = estimate, xmin = conf.low, xmax = conf.high, color = sig)) +
-  geom_hline(yintercept = 0) +
-  scale_color_manual(values = c("non-significant" = "grey", 
-                                positive = "forestgreen", 
-                                negative = "darkred")) 
-
-tidy(fit2, conf.int = TRUE) %>%
-  filter(!grepl("(Intercept)", term)) %>%
-  mutate(sig = case_when(
-    .default = "non-significant",
-    conf.low > 0 ~ "positive",
-    conf.high < 0 ~ "negative"
-  )) %>% 
-  ggplot() +
-  geom_pointrange(aes(y = term, x = estimate, xmin = conf.low, xmax = conf.high, color = sig)) +
-  geom_hline(yintercept = 0) +
-  scale_color_manual(values = c("non-significant" = "grey", 
-                                positive = "forestgreen", 
-                                negative = "darkred")) 
 

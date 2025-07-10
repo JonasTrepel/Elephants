@@ -271,7 +271,7 @@ p2
 p_comb <- p1 / p2 +
   plot_annotation(title = park)
 
-filename <- paste0("builds/plots/supplement/",gsub(" ", "_", tolower(park)), "_habitat_quality.png")
+filename <- paste0("builds/plots/supplement/habitat_quality_maps/",gsub(" ", "_", tolower(park)), "_habitat_quality.png")
 
 ggsave(plot = p_comb, filename = filename, dpi = 600, height = 8, width = 12) 
 
@@ -327,6 +327,6 @@ for (park in unique(sf_grid_hq$park_id)) {
           strip.text = element_text(size = 10, face = "bold"))
   p
   # Save plot
-  filename <- paste0("builds/plots/supplement/", gsub(" ", "_", tolower(park)), "_hq_and_drivers_rescaled.png")
+  filename <- paste0("builds/plots/supplement/habitat_quality_maps/", gsub(" ", "_", tolower(park)), "_hq_and_drivers_rescaled.png")
   ggsave(plot = p, filename = filename, dpi = 600, height = 4, width = 12)
 }
