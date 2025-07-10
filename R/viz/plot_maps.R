@@ -20,6 +20,9 @@ sf_loc <- fread("data/processed_data/clean_data/all_location_data.csv") %>%
            crs = 4326) %>% 
   st_transform(., crs = 4326)
 
+#12hr estimates 
+
+dt_est <- fread("builds/model_outputs/issf_estimates_12hr_steps.csv")
 
 # PAs with location points 
 sf_pas_ld <- st_read("data/spatial_data/protected_areas/pas_intersecting_with_locations_data.gpkg") %>% 
@@ -59,6 +62,18 @@ p_pas <- sf_pas_pc %>%
   theme_minimal()
 p_pas
 
+p_loc <- sf_loc %>% 
+  filter(individual_id %in% unique(dt_est$individual_id)) %>%
+  sample_n(250000) %>% 
+  ggplot() +
+  ylim(-35, -7.5) +
+  xlim(9, 40) +
+  geom_sf(data = sf_africa, fill = "grey99") +
+  geom_sf(size = 0.1, alpha = 0.1) +
+  # geom_sf(data = sf_clust, alpha = 0.1, fill = "yellow") + 
+  theme_void()
+p_loc
+
 ggsave(plot = p_pa_pc_loc, "builds/plots/exploratory/location_data_and_pas.png", dpi = 600)
 ggsave(plot = p_pas, "builds/plots/exploratory/pas_with_population_counts.png", dpi = 600)
-
+ggsave(plot = p_loc, "builds/plots/exploratory/location_data_12hr_individuals.png", dpi = 600)

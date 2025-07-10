@@ -169,7 +169,7 @@ sd(dt_mod$habitat_diversity_1000m_coef)/abs(mean(dt_mod$habitat_diversity_1000m_
 mesh_grid <- expand.grid(max_inner_edge = seq(50, 150, by = 50), cutoff = seq(2, 20, by = 2), loc_cpo = NA)
 responses <- c("tree_cover_coef", "mean_evi_coef", "habitat_diversity_100m_coef", "habitat_diversity_1000m_coef")
 
-plan(multisession(workers = 4))
+plan(multisession, workers = 4)
 options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
 start_time <- Sys.time()
 
@@ -244,7 +244,7 @@ mesh_res_list <- future_map(unique(responses),
       
       
       tmp_tidy <- broom::tidy(fit, conf.int = TRUE) %>%
-        dplyr::filter(!grepl("(Intercept)", term)) %>%
+        #dplyr::filter(!grepl("(Intercept)", term)) %>%
         dplyr::mutate(sig = case_when(
           .default = "non-significant",
           conf.low > 0 ~ "positive",
@@ -295,7 +295,7 @@ dt_mesh_res <- rbindlist(mesh_res_list) %>%
 
 fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results.csv")
 
-dt_mesh_res %>% 
+p_covs <- dt_mesh_res %>% 
   ggplot() +
   geom_pointrange(aes(x = cutoff, y = estimate, ymin = conf.low, ymax = conf.high, color = sig)) +
   geom_hline(yintercept = 0) +
@@ -304,24 +304,41 @@ dt_mesh_res %>%
                                 negative = "darkred")) +
   facet_grid(rows = vars(clean_response), cols = vars(clean_term), scales = "free") +
   theme(legend.position = "none")
+p_covs
+ggsave(plot = p_covs, "builds/plots/supplement/cov_estimates_different_meshs.png", dpi = 600, height = 8, width = 12)
 
-dt_mesh_res %>% 
-  filter(sanity_checks == TRUE) %>% 
+p_est <- dt_mesh_res %>% 
+  #filter(sanity_checks == TRUE) %>% 
   group_by(response, term) %>% 
-  slice_min(aic) %>% 
+  slice_max(log_cpo_approx) %>% 
   ungroup() %>% 
   ggplot() +
-  geom_pointrange(aes(y = term, x = estimate, xmin = conf.low, xmax = conf.high, color = sig)) +
+  geom_vline(xintercept = 0,linetype = "dashed") +
+  geom_pointrange(aes(y = clean_term, x = estimate, xmin = conf.low, xmax = conf.high, color = sig), 
+                  linewidth = 1.1, size = 1.1) +
   geom_hline(yintercept = 0) +
   scale_color_manual(values = c("non-significant" = "grey", 
                                 positive = "forestgreen", 
                                 negative = "darkred")) +
-  facet_wrap(~clean_response, scales = "free")
+  facet_wrap(~clean_response, scales = "free_x", ncol = 4) +
+  labs(y = "") +
+  theme(legend.position = "none")
+p_est
+ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh.png", dpi = 600, height = 6, width = 12)
+
+p_cpo <- dt_mesh_res %>% 
+  ggplot() +
+  geom_point(aes(x = cutoff, y = log_cpo_approx, color = max_inner_edge)) +
+  facet_wrap(~clean_response, scales = "free") 
+p_cpo
+ggsave(plot = p_cpo, "builds/plots/supplement/log_cpo_approx_different_meshs.png", dpi = 600, height = 8, width = 8)
+
+
 
 dt_mesh_res %>% 
  # filter(sanity_checks == TRUE) %>% 
   group_by(response, term) %>% 
-  slice_min(aic) %>% 
+  slice_max(aic) %>% 
   ungroup() %>% 
   select(cutoff, max_inner_edge, response) %>% unique()
 
