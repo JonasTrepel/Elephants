@@ -311,6 +311,7 @@ dt_mesh_res <- rbindlist(mesh_res_list) %>%
       term == "burned_area_coef_scaled" ~ "Burned Area Trend"))
 
 fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results_mean_density.csv")
+dt_mesh_res <- fread("builds/model_outputs/sdmtmb_results_mean_density.csv")
 
 p_covs <- dt_mesh_res %>% 
   filter(!grepl("Intercept", term)) %>% 
@@ -343,7 +344,7 @@ p_est <- dt_mesh_res %>%
   labs(y = "") +
   theme(legend.position = "none")
 p_est
-ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh_mean_density.png", dpi = 600, height = 6, width = 12)
+ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh_mean_density.png", dpi = 600, height = 3, width = 9)
 
 p_cpo <- dt_mesh_res %>% 
   ggplot() +

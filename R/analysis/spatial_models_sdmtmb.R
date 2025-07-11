@@ -326,7 +326,7 @@ p_est <- dt_mesh_res %>%
   labs(y = "") +
   theme(legend.position = "none")
 p_est
-ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh.png", dpi = 600, height = 6, width = 12)
+ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh.png", dpi = 600, height = 3, width = 9)
 
 p_cpo <- dt_mesh_res %>% 
   ggplot() +
