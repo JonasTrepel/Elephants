@@ -63,6 +63,7 @@ dt_mod <- dt %>%
   filter(complete.cases(.)) %>% 
   mutate(
     local_density_km2_scaled = as.numeric(scale(log(local_density_km2 +0.0001))),
+    mean_density_km2_scaled = as.numeric(scale(log(mean_density_km2))),
     density_km2_estimate_scaled = as.numeric(scale(density_km2_estimate)),
     mat_coef_scaled = as.numeric(scale(mat_coef)),
     prec_coef_scaled = as.numeric(scale(prec_coef)),
@@ -120,7 +121,7 @@ p_loc_fin <- dt_mod %>% ggplot() +
   theme_void() +
   theme(legend.position = "none")
 p_loc_fin 
-  
+
 ggsave(plot = p_loc_fin, "builds/plots/pas_included_in_analysis.png", dpi = 600)
 
 dt_mod %>% ggplot() +
@@ -174,42 +175,42 @@ options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
 start_time <- Sys.time()
 
 mesh_res_list <- future_map(unique(responses),
-  .progress = TRUE,
-  .options = furrr_options(seed = TRUE),
-  function(resp) {
-    
-    library(tidyverse)
-    library(data.table)
-    library(sf)
-    library(DHARMa)
-    library(broom)
-    library("sdmTMB")
-    library(sdmTMBextra)
-    library(future)
-    library(furrr)
-    
-    
-    dt_mesh_res_sub <- data.frame()
-    
-    for (i in 1:nrow(mesh_grid)) {
-      co <- mesh_grid[i, ]$cutoff
-      i_e <- mesh_grid[i, ]$max_inner_edge
-
-      inla_mesh <- fmesher::fm_mesh_2d_inla(
-        loc = cbind(dt_mod$x_moll_km, dt_mod$y_moll_km),
-        cutoff = co, max.edge = c(i_e, 10000)
-      )
-
-      mesh <- make_mesh(
-        data = dt_mod,
-        xy_cols = c("x_moll_km", "y_moll_km"),
-        mesh = inla_mesh
-      )
-
-      nrow(mesh$mesh$loc)
-      #plot(mesh)
-
-      formula <- as.formula(paste0(resp, " ~ local_density_km2_scaled +
+                            .progress = TRUE,
+                            .options = furrr_options(seed = TRUE),
+                            function(resp) {
+                              
+                              library(tidyverse)
+                              library(data.table)
+                              library(sf)
+                              library(DHARMa)
+                              library(broom)
+                              library("sdmTMB")
+                              library(sdmTMBextra)
+                              library(future)
+                              library(furrr)
+                              
+                              
+                              dt_mesh_res_sub <- data.frame()
+                              
+                              for (i in 1:nrow(mesh_grid)) {
+                                co <- mesh_grid[i, ]$cutoff
+                                i_e <- mesh_grid[i, ]$max_inner_edge
+                                
+                                inla_mesh <- fmesher::fm_mesh_2d_inla(
+                                  loc = cbind(dt_mod$x_moll_km, dt_mod$y_moll_km),
+                                  cutoff = co, max.edge = c(i_e, 10000)
+                                )
+                                
+                                mesh <- make_mesh(
+                                  data = dt_mod,
+                                  xy_cols = c("x_moll_km", "y_moll_km"),
+                                  mesh = inla_mesh
+                                )
+                                
+                                nrow(mesh$mesh$loc)
+                                #plot(mesh)
+                                
+                                formula <- as.formula(paste0(resp, " ~ mean_density_km2_scaled +
       density_km2_estimate_scaled +
       mat_coef_scaled +
       prec_coef_scaled+ 
@@ -217,58 +218,73 @@ mesh_res_list <- future_map(unique(responses),
       fire_frequency_scaled +
       burned_area_coef_scaled +
       (1 | park_id)"))
-      
-
-      
-      fit_cv <- sdmTMB::sdmTMB_cv(formula,
-        data = dt_mod,
-        mesh = mesh,
-        spatial = "on", 
-        fold_ids = "fold_id" # created above, folds are stratified to ensure each park is present in each fold 
-      )
-      
-      fit <- sdmTMB::sdmTMB(formula,
-                    data = dt_mod,
-                    mesh = mesh,
-                    spatial = "on"
-      )
-      
-
-      # sanity(fit)
-      # summary(fit)
-
-      san <- sdmTMB::sanity(fit)
-
-      # AIC(fit) #-232056
-
-      
-      
-      tmp_tidy <- broom::tidy(fit, conf.int = TRUE) %>%
-        #dplyr::filter(!grepl("(Intercept)", term)) %>%
-        dplyr::mutate(sig = case_when(
-          .default = "non-significant",
-          conf.low > 0 ~ "positive",
-          conf.high < 0 ~ "negative"
-        )) %>%
-        dplyr::mutate(
-          cutoff = co,
-          max_inner_edge = i_e,
-          n_vertices = nrow(mesh$mesh$loc),
-          aic = AIC(fit),
-          sanity_checks = all(san == TRUE),
-          response = resp, 
-          log_cpo_approx = fit_cv$sum_loglik / nrow(dt_mod)
-        )
-
-
-      dt_mesh_res_sub <- rbind(tmp_tidy, dt_mesh_res_sub)
-
-      print(paste0(i, " done"))
-    }
-
-
-    return(dt_mesh_res_sub)
-  }
+                                
+                                
+                                fit_cv <- tryCatch({
+                                  sdmTMB::sdmTMB_cv(
+                                    formula,
+                                    data = dt_mod,
+                                    mesh = mesh,
+                                    spatial = "on",
+                                    fold_ids = "fold_id"  # folds stratified so each park is present in each fold
+                                  )
+                                }, error = function(e) {
+                                  message("sdmTMB_cv failed: ", e$message)
+                                  return(NULL)
+                                })
+                                
+                                if (is.null(fit_cv)) {next}
+                                
+                                
+                                fit <- tryCatch({
+                                  sdmTMB::sdmTMB(
+                                    formula,
+                                    data = dt_mod,
+                                    mesh = mesh,
+                                    spatial = "on"
+                                  )
+                                }, error = function(e) {
+                                  message("sdmTMB failed: ", e$message)
+                                  return(NULL)
+                                })
+                                
+                                if (is.null(fit)) {next}
+                                
+                                # sanity(fit)
+                                # summary(fit)
+                                
+                                san <- sdmTMB::sanity(fit)
+                                
+                                # AIC(fit) #-232056
+                                
+                                
+                                
+                                tmp_tidy <- broom::tidy(fit, conf.int = TRUE) %>%
+                                  #dplyr::filter(!grepl("(Intercept)", term)) %>%
+                                  dplyr::mutate(sig = case_when(
+                                    .default = "non-significant",
+                                    conf.low > 0 ~ "positive",
+                                    conf.high < 0 ~ "negative"
+                                  )) %>%
+                                  dplyr::mutate(
+                                    cutoff = co,
+                                    max_inner_edge = i_e,
+                                    n_vertices = nrow(mesh$mesh$loc),
+                                    aic = AIC(fit),
+                                    sanity_checks = all(san == TRUE),
+                                    response = resp, 
+                                    log_cpo_approx = fit_cv$sum_loglik / nrow(dt_mod)
+                                  )
+                                
+                                
+                                dt_mesh_res_sub <- rbind(tmp_tidy, dt_mesh_res_sub)
+                                
+                                print(paste0(i, " done"))
+                              }
+                              
+                              
+                              return(dt_mesh_res_sub)
+                            }
 )
 plan(sequential)
 
@@ -286,6 +302,7 @@ dt_mesh_res <- rbindlist(mesh_res_list) %>%
     clean_term = case_when(
       .default = term,
       term == "local_density_km2_scaled" ~ "Local Elephant Density",
+      term == "mean_density_km2_scaled" ~ "Mean Elephant Density",
       term == "density_km2_estimate_scaled" ~ "Elephant Density Trend",
       term == "mat_coef_scaled" ~ "MAT Trend",
       term == "prec_coef_scaled" ~ "Precipitation Trend",
@@ -293,7 +310,7 @@ dt_mesh_res <- rbindlist(mesh_res_list) %>%
       term == "fire_frequency_scaled" ~ "Fire frequency",
       term == "burned_area_coef_scaled" ~ "Burned Area Trend"))
 
-fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results.csv")
+fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results_mean_density.csv")
 
 p_covs <- dt_mesh_res %>% 
   filter(!grepl("Intercept", term)) %>% 
@@ -306,11 +323,11 @@ p_covs <- dt_mesh_res %>%
   facet_grid(rows = vars(clean_response), cols = vars(clean_term), scales = "free") +
   theme(legend.position = "none")
 p_covs
-ggsave(plot = p_covs, "builds/plots/supplement/cov_estimates_different_meshs.png", dpi = 600, height = 8, width = 12)
+ggsave(plot = p_covs, "builds/plots/supplement/cov_estimates_different_meshs_mean_density.png", dpi = 600, height = 8, width = 12)
 
 p_est <- dt_mesh_res %>% 
-  #filter(sanity_checks == TRUE) %>% 
   filter(!grepl("Intercept", term)) %>% 
+  #filter(sanity_checks == TRUE) %>% 
   group_by(response, term) %>% 
   slice_max(log_cpo_approx) %>% 
   ungroup() %>% 
@@ -326,19 +343,19 @@ p_est <- dt_mesh_res %>%
   labs(y = "") +
   theme(legend.position = "none")
 p_est
-ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh.png", dpi = 600, height = 6, width = 12)
+ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh_mean_density.png", dpi = 600, height = 6, width = 12)
 
 p_cpo <- dt_mesh_res %>% 
   ggplot() +
   geom_point(aes(x = cutoff, y = log_cpo_approx, color = max_inner_edge)) +
   facet_wrap(~clean_response, scales = "free") 
 p_cpo
-ggsave(plot = p_cpo, "builds/plots/supplement/log_cpo_approx_different_meshs.png", dpi = 600, height = 8, width = 8)
+ggsave(plot = p_cpo, "builds/plots/supplement/log_cpo_approx_different_meshs_mean_density.png", dpi = 600, height = 8, width = 8)
 
 
 
 dt_mesh_res %>% 
- # filter(sanity_checks == TRUE) %>% 
+  # filter(sanity_checks == TRUE) %>% 
   group_by(response, term) %>% 
   slice_max(aic) %>% 
   ungroup() %>% 
