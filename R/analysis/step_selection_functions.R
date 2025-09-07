@@ -5,9 +5,9 @@ library(MuMIn)
 library(broom)
 library(MetBrewer)
 library(survival)
-param = "1hr"
+#param = "1hr"
 #param = "3hrs"
-#param = "12hrs"
+param = "12hrs"
 
 if(param == "1hr"){
   
@@ -38,8 +38,6 @@ n_distinct(dt$individual_id)
 corr_vars <- dt %>%
   select(
     evi_mean,
-    evi_dry_season, 
-    evi_wet_season,
     distance_to_water_km,
     distance_to_settlement_km,
     human_modification,
@@ -54,7 +52,7 @@ corr_matrix <- cor(corr_vars, use = "complete.obs")
 ggcorrplot::ggcorrplot(corr_matrix, 
                        lab = TRUE, 
                        type = "lower", 
-                       colors = c("blue", "white", "red"))
+                       colors = c("skyblue", "white", "darkorange"))
 
 
 
@@ -102,8 +100,6 @@ for(id in unique(dt$individual_id)){
   dt_sub <- dt_sub %>%
     mutate(
       evi_mean = as.numeric(scale(evi_mean)),
-      evi_dry_season = as.numeric(scale(evi_dry_season)),
-      evi_wet_season = as.numeric(scale(evi_wet_season)),
       distance_to_water_km = as.numeric(scale(distance_to_water_km)),
       distance_to_settlement_km = as.numeric(scale(distance_to_settlement_km)),
       human_modification = as.numeric(scale(human_modification)),

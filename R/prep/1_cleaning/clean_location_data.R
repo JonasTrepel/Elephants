@@ -9,8 +9,10 @@ library(rnaturalearth)
 library(tidylog)
 library(mapview)
 library(amt)
+library(tidylog)
 
 source("R/functions/assign_park.R")
+source("R/functions/assign_cluster.R")
 
 
 ######## LOAD AND CLEAN DATA ########
@@ -18,6 +20,12 @@ source("R/functions/assign_park.R")
 # Park Boundaries 
 
 pas <- st_read("data/spatial_data/protected_areas/pas_intersecting_with_locations_data.gpkg")
+
+
+# Clusters
+sf_clust <- st_read("data/spatial_data/protected_areas/pa_clusters.gpkg") %>% 
+  st_transform(crs = "ESRI:54009")
+
 
 # Africa 
 
@@ -49,15 +57,13 @@ dt_ceru_raw <- fread("data/raw_data/ceru/Full Telemetry Data.csv") %>%
                   lat = "lat", 
                   species = "individual_id", 
                   tests = c("capitals", "centroids",
-                            "equal", "zeros", "outliers"),
-                  outliers_td = 100, #distance to all other points of a species in km
-                  capitals_rad = 10000, #radius around capitol in m
-                  outliers_method = "distance")
+                            "equal", "zeros"),
+                  capitals_rad = 10000) #radius around capitol in m
 
 
 dt_ceru <- dt_ceru_raw %>%
   filter(.summary == TRUE) %>% #select only clean coords
-  dplyr::select(-c(".otl", ".summary", ".val", ".equ", ".zer", ".cap", ".cen")) 
+  dplyr::select(-c(".summary", ".val", ".equ", ".zer", ".cap", ".cen")) 
 
 range(dt_ceru$lon)
 range(dt_ceru$lat)
@@ -96,15 +102,13 @@ dt_hwange_raw <- fread("data/raw_data/hwange/cnrs_gps_elephant_hwange.csv") %>%
                     lat = "lat", 
                     species = "individual_id", 
                     tests = c("capitals", "centroids",
-                              "equal", "zeros", "outliers"),
-                    outliers_td = 100, #distance to all other points of a species in km
-                    capitals_rad = 10000, #radius around capital in m
-                    outliers_method = "distance")
+                              "equal", "zeros"),
+                    capitals_rad = 10000) #radius around capitol in m
 
 
 dt_hwange <- dt_hwange_raw %>%
   filter(.summary == TRUE) %>% #select only clean coords
-  dplyr::select(-c(".otl", ".summary", ".val", ".equ", ".zer", ".cap", ".cen")) %>% 
+  dplyr::select(-c(".summary", ".val", ".equ", ".zer", ".cap", ".cen")) %>% 
   filter(!lat < -35 & !lat > 35 & !lon < -20 & !lon > 55) #exclude points outside of africa
 range(dt_hwange$lon)
 range(dt_hwange$lat)
@@ -149,16 +153,13 @@ dt_kaingo_raw <- fread("data/raw_data/kaingo/Event Export 2025-02-28.csv") %>%
                     lat = "lat", 
                     species = "individual_id", 
                     tests = c("capitals", "centroids",
-                              "equal", "zeros", "outliers", 
-                              "seas"),
-                    outliers_td = 100, #distance to all other points of a species in km
-                    capitals_rad = 10000, #radius around capitol
-                    outliers_method = "distance")
+                              "equal", "zeros"),
+                    capitals_rad = 10000) #radius around capitol in m
 
 
 dt_kaingo <- dt_kaingo_raw %>%
   filter(.summary == TRUE) %>% #select only clean coords
-  dplyr::select(-c(".otl", ".summary", ".val", ".equ", ".zer", ".cap", ".cen")) %>% 
+  dplyr::select(-c(".summary", ".val", ".equ", ".zer", ".cap", ".cen")) %>% 
   filter(!lat < -35 & !lat > 35 & !lon < -20 & !lon > 55) #exclude points outside of africa
 range(dt_kaingo$lon)
 range(dt_kaingo$lat)
@@ -432,35 +433,68 @@ sf_loc_2 <- sf_loc_raw %>%
   
 # Remove spatial outliers ----------------------------------- 
 discard_2 <- c()
+sf_loc_2.5 <- sf_loc_2 %>% 
+  filter(individual_id == "nope")
 i <- 0
-min_neighbor_dist = 50000 # 50km
+max_speed_kmh = 25 # 25 kmh https://doi.org/10.1242/jeb.02443
+max_dist_km = 50
+
+#id = "0F08"
 for(id in unique(sf_loc_2$individual_id)){ 
   
+  # get in ordere
   sf_loc_sub <- sf_loc_2 %>% 
-    filter(individual_id == id)
+    filter(individual_id == id) %>% 
+    arrange(date_time)
   
-  dist_matrix <- st_distance(sf_loc_sub)
-  diag(dist_matrix) <- NA
+  # get distance, time and speed between consecutive ponits
+  dist_prev <- as.numeric(st_distance(sf_loc_sub, lag(sf_loc_sub), by_element = TRUE)/1000) #in km
+  dist_next <- as.numeric(st_distance(sf_loc_sub, lead(sf_loc_sub), by_element = TRUE)/1000)
   
-  min_dists <- apply(dist_matrix, MARGIN = 1, min, na.rm = TRUE) #margin = 1 --> for each row
+  time_prev <- as.numeric(difftime(sf_loc_sub$date_time, lag(sf_loc_sub$date_time), units = "hours"))
+  time_next <- as.numeric(difftime(lead(sf_loc_sub$date_time), sf_loc_sub$date_time, units = "hours"))
   
-  too_far_away <- sf_loc_sub[min_dists > min_neighbor_dist, ] %>% 
-    as.data.frame() %>% 
-    mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
-    dplyr::select(obs_id) %>% 
-    pull()
+  kmh_prev <- dist_prev/time_prev
+  kmh_next <- dist_next/time_next
+  
+  sf_loc_sub <- sf_loc_sub %>%
+    mutate(
+      dist_prev = dist_prev,
+      dist_next = dist_next,
+      time_prev = time_prev,
+      time_next = time_next,
+      kmh_prev = kmh_prev,
+      kmh_next = kmh_next )
+  
+  too_far_away <- sf_loc_sub %>% 
+    mutate(discard = (kmh_next > max_speed_kmh | kmh_prev > max_speed_kmh) |
+             (dist_prev > max_dist_km | dist_next > max_dist_km)) %>% 
+    filter(discard) %>% 
+    pull(obs_id)
+  
+  
+  sf_loc_sub <- sf_loc_sub %>% 
+    mutate(discard = ifelse((kmh_next > max_speed_kmh | kmh_prev > max_speed_kmh) |
+                              (dist_prev > max_dist_km | dist_next > max_dist_km), 
+                            TRUE, FALSE))
   
   discard_2 <- c(discard_2, too_far_away)
+  
+  sf_loc_2.5 <- rbind(sf_loc_sub, sf_loc_2.5)
   
   i = i+1
   print(paste0(id, " done (",
                i, " of ", n_distinct(sf_loc_2$individual_id), 
                " (", Sys.time(),")"))
 }
-  
 
-sf_loc_3 <- sf_loc_2 %>% 
-  filter(!obs_id %in% discard_2)
+
+sf_loc_3 <- sf_loc_2.5 %>% 
+  mutate(discard = ifelse(is.na(discard), FALSE, discard)) %>% 
+  filter(!discard == TRUE)
+
+nrow(sf_loc_2.5) - nrow(sf_loc_3) #109205 discarded whooping 109000 obs
+
 
 # Identify suspicious elephants ------------------------ 
 # e.g., elephants having the majority of their points in a small area 
@@ -476,7 +510,9 @@ for(id in unique(sf_loc_3$individual_id)){
   
   sf_loc_sub <- sf_loc_3 %>% 
     filter(individual_id == id)
-  
+ 
+  if(nrow(sf_loc_sub) < 10){next}
+    
   grid <- st_make_grid(sf_loc_sub, cellsize = 1000, square = TRUE) %>% 
     st_as_sf() %>% 
     mutate(n_obs = lengths(st_intersects(., sf_loc_sub)), 
@@ -669,6 +705,8 @@ sf_loc_4 <- sf_loc_3 %>%
     discard_17, 
     discard_18))
 
+nrow(sf_loc_3) - nrow(sf_loc_4)
+
 ################## Get Duration, Start and End of Tracking and mean relocation interval ###################
 
 dt_loc <- dt_loc_raw %>%
@@ -678,21 +716,25 @@ dt_loc <- dt_loc_raw %>%
   arrange(individual_id, date_time) %>%
   group_by(individual_id) %>%
   mutate(
-    n = n(), 
+    n_obs = n(), 
     start_date = min(date_time),
     end_date = max(date_time),
     start_year = year(start_date),
     end_year = year(end_date),
     duration_days = as.numeric(difftime(end_date, start_date, units = "days")),
     duration_years = duration_days / 365.25,
-    mean_interval_mins = ifelse(n() > 1, mean(diff(date_time), na.rm = TRUE) / dminutes(1), NA), 
-    median_interval_mins = ifelse(n() > 1, median(diff(date_time), na.rm = TRUE) / dminutes(1), NA)) %>% 
+    interval_hrs = as.numeric(difftime(date_time, lag(date_time), units = "hours")), 
+    mean_interval_hrs = mean(interval_hrs, na.rm = T), 
+    median_interval_hrs = median(interval_hrs, na.rm = T)
+    #mean_interval_mins = ifelse(n() > 1, mean(diff(date_time), na.rm = TRUE) / dminutes(1), NA), 
+    #median_interval_mins = ifelse(n() > 1, median(diff(date_time), na.rm = TRUE) / dminutes(1), NA)
+    ) %>% 
   ungroup() %>% 
   as.data.table()
 
 summary(dt_loc)
-unique(dt_loc[mean_interval_mins > 1440]$individual_id) # 
-unique(dt_loc[median_interval_mins > 720]$median_interval_mins) # 
+unique(dt_loc[mean_interval_hrs > 24]$individual_id) # 
+unique(dt_loc[median_interval_hrs > 24]$individual_id) # 
 
 
 
@@ -700,11 +742,12 @@ unique(dt_loc[median_interval_mins > 720]$median_interval_mins) #
 
 
 dt_loc_sub <- dt_loc %>% 
-  filter(duration_days > 365 & median_interval_mins < 780) %>% #720 min = 12 +/- 1 std 
+  filter(duration_days > 365 & median_interval_hrs < 24) %>% #720 min = 12 +/- 1 std 
   filter(!(individual_id == "EF0215" & is.na(sex))) %>% 
   unique()
 
 summary(dt_loc_sub)
+
 n_distinct(dt_loc_sub$individual_id)
 
 ######################### Home Ranges  ########################## 
@@ -720,6 +763,7 @@ track <- make_track(dt_loc_sub %>%
 hr_mcps <- data.frame()
 hr_meta <- data.frame()
 hr_locohs <- data.frame()
+
 for(ind in unique(track$individual_id)){
   
   sub_track <- track %>% 
@@ -768,6 +812,8 @@ for(ind in unique(track$individual_id)){
   
   
   print(paste0(ind, " done. Home range diameter: km ", round(hr_diameter_km, 2)))
+  print(paste0(ind, " MCP size km2: ", round(hr_mcp_area_km2, 2)))
+  
 }
 
 st_write(hr_mcps, "data/spatial_data/elephants/mcp_home_ranges.gpkg", append = FALSE)
@@ -777,7 +823,7 @@ quantile(hr_meta$hr_diameter_km)
 summary(hr_meta)
 mean(hr_meta$hr_diameter_km)
 
-######################### Park Association ########################## 
+######################### Park & Cluster Association ########################## 
 
 
 park_for_id <- data.frame()
@@ -799,15 +845,60 @@ for(ind in unique(hr_locohs$individual_id)){
 summary(park_for_id)
 sum(!is.na(park_for_id$park_id))
 
+#cluster ID
+cluster_for_id <- data.frame()
+i = 0
+for(ind in unique(hr_locohs$individual_id)){
+  
+  pol <- hr_locohs %>% filter(individual_id == ind) %>% 
+    st_transform(crs = "ESRI:54009") %>% 
+    st_make_valid()
+  
+  tmp <- assign_cluster(polygon = pol, pas = sf_clust , ind = ind)  
+  
+  cluster_for_id <- rbind(tmp, cluster_for_id)
+  i = i+1
+  print(paste0(ind, " done. Associated cluster is: ", unique(tmp$cluster_id), 
+               " (", i, " of ", n_distinct(hr_locohs$individual_id), ")"))
+  
+}
+
+
+
 ######################### Combine ########################## 
 
 dt_final <- dt_loc_sub %>% 
   dplyr::select(-park_id) %>% 
   left_join(park_for_id[, !(names(park_for_id) %in% c("is_area_km2", "hr_area_km2"))]) %>% 
+  left_join(cluster_for_id[, c("individual_id", "cluster_id")]) %>% 
   left_join(hr_meta)
 
-
 fwrite(dt_final, "data/processed_data/clean_data/all_location_data.csv")
+
+glimpse(dt_final)
+
+dt_meta <- dt_final %>% 
+  select(individual_id, 
+         sex, 
+         source, 
+         n_obs,
+         start_date, 
+         end_date, 
+         duration_days, 
+         duration_years,
+         mean_interval_mins, 
+         mean_interval_hrs, 
+         median_interval_mins, 
+         median_interval_hrs, 
+         park_id, 
+         wdpa_pid,
+         cluster_id,
+         hr_mcp_area_km2, 
+         hr_locoh_area_km2, 
+         hr_diameter_km) %>% 
+  unique()
+  
+fwrite(dt_meta, "data/processed_data/clean_data/elephant_id_meta_data.csv")
 
 
 # 

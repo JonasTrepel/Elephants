@@ -17,7 +17,7 @@ ee$Initialize(project = "ee-jonastrepel")
 drive_auth(email = "jonas.trepel@bio.au.dk")
 
 
-years <- c(2010:2024)
+years <- c(2001:2024)
 
 for(year in years){
   

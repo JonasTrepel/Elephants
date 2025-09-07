@@ -11,11 +11,11 @@ library(exactextractr)
 ### define if we want to run it for control or PA 
 
 # param <- "grid"
- param = "pa_grid"
+# param = "pa_grid"
 # param = "pa_points"
 # param <- "indiv_grid"
 # param <- "steps_1hr"
-# param <- "steps_3hrs"
+ param <- "steps_3hrs"
 # param <- "steps_12hrs"
 
 if(param == "grid"){
@@ -119,8 +119,8 @@ col_names <- c(
   "human_modification", #Human modification index
   
   "evi_mean", #Average EVI
-  "evi_dry_season", #Average EVI in the dry season
-  "evi_wet_season", #Average EVI in the wet season
+ # "evi_dry_season", #Average EVI in the dry season
+ # "evi_wet_season", #Average EVI in the wet season
 
   "fire_frequency", #average number of fires per year
 
@@ -151,9 +151,9 @@ cov_paths <- c(
   "data/spatial_data/covariates/raster/total_N_dep.tif", ## Nitrogen depo
   "data/spatial_data/covariates/raster/human_land_modification_lulc_kennedy.tif", #Human modification index
   
-  "data/spatial_data/covariates/raster/mean_evi_2001_2024.tif", #Average EVI
-  "data/spatial_data/covariates/raster/dry_season_mean_evi_2001_2024.tif", #Average EVI in the dry season
-  "data/spatial_data/covariates/raster/wet_season_mean_evi_2001_2024.tif", #Average EVI in the wet season
+  "data/spatial_data/covariates/raster/hls_clamped_mean_evi_2013_2025_90m.tif", #Average EVI
+ # "data/spatial_data/covariates/raster/dry_season_mean_evi_2001_2024.tif", #Average EVI in the dry season
+ # "data/spatial_data/covariates/raster/wet_season_mean_evi_2001_2024.tif", #Average EVI in the wet season
   
   "data/spatial_data/covariates/raster/fire_frequency_500m_2001_2024.tif", #average number of fires per year
 
@@ -165,7 +165,7 @@ cov_paths <- c(
 )
 
 
-funcs <- c(rep("mean", 14), rep("mode", 3))
+funcs <- c(rep("mean", 12), rep("mode", 3))
 
 covs <- data.table(
   col_name = col_names, 

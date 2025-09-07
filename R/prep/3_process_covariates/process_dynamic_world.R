@@ -300,7 +300,7 @@ terraOptions(memfrac = 0.5)
 #     grepl("2019_2020", veg_type_files)  | 
 #     grepl("2024_2025", veg_type_files)]
 
-plan(multisession, workers = 5)
+plan(multisession, workers = 3)
 
 future_walk(1:length(veg_type_files),
             .progress = TRUE,

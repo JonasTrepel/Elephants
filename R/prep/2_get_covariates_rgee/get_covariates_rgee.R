@@ -13,7 +13,7 @@ library(exactextractr)
 source("R/functions/monitor_gee_task.R")
 
 #ee_clean_user_credentials()
-#ee$Authenticate(auth_mode='notebook')
+ee$Authenticate(auth_mode='notebook')
 #when on GIS04
 #ee$Initialize(project = "ee-jonastrepel")
 #drive_auth(email = "jonas.trepel@bio.au.dk")
@@ -36,7 +36,136 @@ aoi <- ee$Geometry$Rectangle(
 
 ############################# COVARIATES #############################
 
+###### HLS EVI MEan -----------
 
+start_date <- paste0(2013, "-07-01")
+end_date <- paste0(2025, "-6-30")
+
+
+hls_ic <- ee$ImageCollection("NASA/HLS/HLSL30/v002")$
+  filterDate(start_date, end_date)$
+  filterBounds(aoi)
+
+# Mask out low quality pixels 
+mask_fmask <- function(img) {
+  fmask <- img$select("Fmask")
+  
+  # Bits:
+  # bit 1 = cloud
+  no_cloud <- fmask$bitwiseAnd(2)$eq(0)
+  
+  # bit 2 = adjacent to cloud
+  no_cloud_adj <- fmask$bitwiseAnd(4)$eq(0)
+  
+  # bit 3 = cloud shadow
+  no_shadow <- fmask$bitwiseAnd(8)$eq(0)
+  
+  # bit 4 = snow/ice
+  no_snow <- fmask$bitwiseAnd(16)$eq(0)
+  
+  #bit 5 water
+  no_water <- fmask$bitwiseAnd(32)$eq(0)
+  
+  # Keep only pixels with all these conditions = 1 (good)
+  mask <- no_cloud$And(no_cloud_adj)$And(no_shadow)$And(no_snow)$And(no_water)
+  
+  return(img$updateMask(mask))
+}
+
+hls_masked <- hls_ic$map(mask_fmask)
+
+
+hls_mean_bands <- hls_masked$
+  select(c("B5", "B4", "B2"))$ # NIR, RED, BLUE
+  mean()
+
+# Calculate EVI on the mean bands
+hls_evi_mean_bands <- hls_mean_bands$expression(
+  "2.5 * ((NIR - RED) / (NIR + 6 * RED - 7.5 * BLUE + 1))",
+  list(
+    NIR = hls_mean_bands$select("B5"),
+    RED = hls_mean_bands$select("B4"),
+    BLUE = hls_mean_bands$select("B2")
+  )
+)$rename("EVI")
+
+# Scale to integer if you like
+hls_evi_mean <- hls_evi_mean_bands$multiply(10000)$round()
+
+export_evi <- ee_image_to_drive(
+  image = hls_evi_mean,
+  region = aoi,
+  folder = "rgee_backup_evi_mean",
+  description = "evi_mean",
+  scale = 30,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_evi$start()
+
+
+Sys.sleep(60)
+monitor_gee_task(pattern = "evi_mean", path = "rgee_backup_evi_mean",
+                 last_sleep_time = 600, mail = "jonas.trepel@gmail.com")
+
+Sys.sleep(2400)
+(evi_drive_files <- drive_ls(path = "rgee_backup_evi_mean",
+                             pattern = "evi_mean") %>%
+    dplyr::select(name) %>% 
+    unique())
+
+for(filename in unique(evi_drive_files$name)){
+  
+  path_name = paste0("data/spatial_data/raw_tiles/", filename)
+  drive_download(file = filename, path = path_name, overwrite = TRUE)
+}
+
+
+evi_files <- list.files("data/spatial_data/raw_tiles",
+                        full.names = T, pattern = "evi_mean")
+
+evi_raster_list <- lapply(evi_files, rast)
+
+evi_file_name_merge <- paste0("data/spatial_data/covariates/raster/hls_mean_evi_2013_2025.tif")
+
+data_type_evi <- terra::datatype(evi_raster_list[[1]])
+
+evi_r <- merge(sprc(evi_raster_list),
+               filename = evi_file_name_merge,
+               overwrite = TRUE,
+               datatype = data_type_evi)
+plot(evi_r)
+
+
+file.remove(evi_files)
+googledrive::drive_rm(unique(evi_drive_files$name))
+googledrive::drive_rm("rgee_backup_evi_mean")
+
+print(paste0("HLS mean Evi done. Time: ", Sys.time()))
+
+#clamp
+
+r <- rast("data/spatial_data/covariates/raster/hls_mean_evi_2013_2025.tif")
+plot(r)
+r_clamped <- clamp(r, 
+                  lower = 0, 
+                  upper =  10000,
+                  values = FALSE,
+                  filename = "data/spatial_data/covariates/raster/hls_clamped_mean_evi_2013_2025.tif", 
+                  overwrite = T)
+plot(r_clamped)
+
+
+#aggregate 
+
+r_clamped <- rast("data/spatial_data/covariates/raster/hls_clamped_mean_evi_2013_2025.tif")
+r_agg <- aggregate(r_clamped, 
+                   fact = 3, 
+                   fun = "mean", 
+                   filename = "data/spatial_data/covariates/raster/hls_clamped_mean_evi_2013_2025_90m.tif", 
+                   overwrite = T, 
+                   cores = 20)
+plot(r_agg)
 ##### EVI Mean ------------------------
 
 evi_img <- ee$
