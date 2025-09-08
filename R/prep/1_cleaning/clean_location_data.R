@@ -397,6 +397,16 @@ sf_loc_raw <- dt_loc_raw %>%
 #these are places in built up areas with an accumulation of location points
 #likely that this is where some of the collars were stored. 
 
+#pretoria 
+sf_gaut <- data.frame(
+  lon = c(28.18989, 28.04183), 
+  lat = c(-25.74733, -26.20581), 
+  name = c("pretoria", "joburg")) %>% 
+  st_as_sf(coords = c("lon", "lat"), 
+           crs = 4326) %>% 
+  st_transform(crs = "ESRI:54009") %>% 
+  st_buffer(50000)
+
 sf_fp <- data.frame(
   lon = c(31.9098441051575, 25.8222879691359, 
           25.2242191536082, 23.4576669792581), 
@@ -407,7 +417,8 @@ sf_fp <- data.frame(
   st_as_sf(coords = c("lon", "lat"), 
            crs = 4326) %>% 
   st_transform(crs = "ESRI:54009") %>% 
-  st_buffer(2500)
+  st_buffer(2500) %>% 
+  rbind(sf_gaut)
 
 #remove points in suspicious areas
 africa_moll <- st_transform(africa, crs = "ESRI:54009")
@@ -820,8 +831,30 @@ st_write(hr_mcps, "data/spatial_data/elephants/mcp_home_ranges.gpkg", append = F
 st_write(hr_locohs, "data/spatial_data/elephants/locohs_home_ranges.gpkg", append = FALSE)
 
 quantile(hr_meta$hr_diameter_km)
-summary(hr_meta)
-mean(hr_meta$hr_diameter_km)
+quantile(hr_meta$hr_mcp_area_km2 , seq(0, 1, 0.05))
+library(units)
+hr_mcps$area_km2 <- drop_units(hr_mcps$area)/1000000
+big_boys <- hr_mcps[hr_mcps$area_km2 > 10000, ]
+
+mapview(big_boys)
+
+bb_hr_sizes <- big_boys %>% 
+  as.data.frame() %>% 
+  mutate(geom = NULL, geometry = NULL) %>% 
+  select(area_km2, individual_id) %>% 
+  unique()
+
+dt_loc_sub %>% 
+  filter(individual_id %in% unique(big_boys$individual_id)) %>% 
+  left_join(bb_hr_sizes) %>% 
+  mutate(individual_id = forcats::fct_reorder(individual_id, duration_years, .desc = TRUE)) %>% 
+  ggplot() +
+  geom_point(aes(x=lon,y=lat, color = area_km2), size = 0.1) +
+  scale_color_viridis_c(option = "B") +
+  facet_wrap(~individual_id, scales = "free")
+
+#seem to be mostly fine
+
 
 ######################### Park & Cluster Association ########################## 
 

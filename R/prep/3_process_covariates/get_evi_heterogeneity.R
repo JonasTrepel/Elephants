@@ -56,4 +56,4 @@ future_walk(1:length(evi_files),
                                              overwrite = T)
               #plot(fraction_mode_100m_r)
             })
-plant(sequential)
+plan(sequential)

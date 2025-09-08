@@ -15,8 +15,10 @@ library(exactextractr)
 # param = "pa_points"
 # param <- "indiv_grid"
 # param <- "steps_1hr"
- param <- "steps_3hrs"
-# param <- "steps_12hrs"
+# param <- "steps_3hrs"
+ param <- "steps_12hrs"
+# param <- "steps_24hrs"
+
 
 if(param == "grid"){
   vect <- read_sf("data/spatial_data/grid/empty_grid.gpkg") %>% 
@@ -55,6 +57,14 @@ if(param == "grid"){
   
 } else if(param == "steps_12hrs"){
   vect <- fread("data/processed_data/data_fragments/steps_12hrs_incl_random.csv") %>% 
+    mutate(x = x2_, 
+           y = y2_) %>% 
+    filter(!is.na(x)) %>% 
+    st_as_sf(coords = c("x", "y"), 
+             crs = "ESRI:54009") %>% 
+    st_buffer(dist = 10)
+}  else if(param == "steps_24hrs"){
+  vect <- fread("data/processed_data/data_fragments/steps_24hrs_incl_random.csv") %>% 
     mutate(x = x2_, 
            y = y2_) %>% 
     filter(!is.na(x)) %>% 
@@ -192,7 +202,7 @@ vect <- vect_backup
 
 ################################## LOOOOOOOOOOOOP ############################            
 options(future.globals.maxSize = 10 * 1024^3)  # 10 GB
-plan(multisession, workers = 17)
+plan(multisession, workers = 15)
 tic()
 
 # Add chunk_id column
@@ -327,5 +337,9 @@ if(param == "grid"){
 } else if(param == "steps_12hrs"){
   
   fwrite(dt_vect_covs, "data/processed_data/data_fragments/steps_12hrs_habitat_covariates.csv")
+  
+} else if(param == "steps_24hrs"){
+  
+  fwrite(dt_vect_covs, "data/processed_data/data_fragments/steps_24hrs_habitat_covariates.csv")
   
 } 
