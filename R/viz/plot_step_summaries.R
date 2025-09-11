@@ -6,8 +6,13 @@ dt_1 <- fread("data/processed_data/data_fragments/steps_1hr_incl_random.csv") %>
   group_by(individual_id) %>% filter(sum(case_) > 365) %>% ungroup()
 dt_3 <- fread("data/processed_data/data_fragments/steps_3hrs_incl_random.csv") %>% 
   filter(case_ == TRUE) %>% group_by(individual_id) %>% filter(sum(case_) > 365) %>% ungroup()
+
 dt_12 <- fread("data/processed_data/data_fragments/steps_12hrs_incl_random.csv") %>% 
   filter(case_ == TRUE) %>% group_by(individual_id) %>% filter(sum(case_) > 365) %>% ungroup()
+
+dt_24 <- fread("data/processed_data/data_fragments/steps_24hrs_incl_random.csv") %>% 
+  filter(case_ == TRUE) %>% group_by(individual_id) %>% filter(sum(case_) > 365) %>% ungroup()
+
 
 unique(dt_12$individual_id)
 

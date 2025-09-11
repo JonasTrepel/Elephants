@@ -20,6 +20,7 @@ dt_est_3 <- fread("builds/model_outputs/issf_estimates_3hr_steps.csv") %>%
          term, 
          season, 
          individual_id) %>% unique()
+
 dt_est_12 <- fread("builds/model_outputs/issf_estimates_12hr_steps.csv") %>% 
   dplyr::select(estimate_12 = estimate,
          std_error_12 = std_error, 
@@ -28,19 +29,18 @@ dt_est_12 <- fread("builds/model_outputs/issf_estimates_12hr_steps.csv") %>%
          season, 
          individual_id) %>% unique()
 
-# dt_est_ig <- fread("builds/model_outputs/elephants_individual_grid_estimates_glm_nb.csv") %>% 
-#   dplyr::select(estimate_ig = estimate,
-#          std_error_ig = std_error, 
-#          p_value_ig = p_value,
-#          term, 
-#          season, 
-#          individual_id) %>% unique()
-
+dt_est_24 <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") %>% 
+  dplyr::select(estimate_24 = estimate,
+                std_error_24 = std_error, 
+                p_value_24 = p_value,
+                term, 
+                season, 
+                individual_id) %>% unique()
 
 dt_comp <- dt_est_1 %>% 
   left_join(dt_est_12) %>% 
   left_join(dt_est_3) %>%
- # left_join(dt_est_ig) %>% 
+  left_join(dt_est_24) %>% 
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
@@ -49,7 +49,8 @@ dt_comp <- dt_est_1 %>%
     term == "human_modification" ~ "Human Modification Index",
     term == "slope" ~ "Slope",
   )) %>% 
-  as.data.table()
+  as.data.table() %>% 
+  filter(complete.cases(.))
 
 
 p_est_1 <- dt_comp %>% 
@@ -59,7 +60,13 @@ p_est_1 <- dt_comp %>%
   geom_smooth(aes(x = estimate_12, y = estimate_1), method = "lm", color = "olivedrab") +
   facet_wrap(~clean_term, scales = "free", ncol = 6) +
   labs(x = "Estimate (12 hr steps)", y = "Estimate (1 hr steps)", 
-       subtitle = paste0("corr = ", round(cor(dt_comp$estimate_12, dt_comp$estimate_1), 2)))
+       subtitle = paste0("corr = ", round(cor(dt_comp$estimate_12, dt_comp$estimate_1), 2))) +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_blank(), 
+        panel.background = element_rect(fill = "snow"), 
+        strip.background = element_rect(fill = "linen", color = "linen"))
 p_est_1
 
 p_est_2 <- dt_comp %>% 
@@ -69,61 +76,83 @@ p_est_2 <- dt_comp %>%
   geom_smooth(aes(x = estimate_12, y = estimate_3), method = "lm", color = "olivedrab") +
   facet_wrap(~clean_term, scales = "free", ncol = 6) +
   labs(x = "Estimate (12 hr steps)", y = "Estimate (3 hr steps)", 
-       subtitle = paste0("corr = ", round(cor(dt_comp$estimate_12, dt_comp$estimate_3), 2)))
+       subtitle = paste0("corr = ", round(cor(dt_comp$estimate_12, dt_comp$estimate_3), 2))) +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_blank(), 
+        panel.background = element_rect(fill = "snow"), 
+        strip.background = element_rect(fill = "linen", color = "linen"))
 p_est_2
 
 p_est_3 <- dt_comp %>% 
   ggplot() +
   geom_abline(linetype = "dashed") +
-  geom_point(aes(x = estimate_1, y = estimate_3), alpha = 0.5) +
-  geom_smooth(aes(x = estimate_1, y = estimate_3), method = "lm", color = "olivedrab") +
+  geom_point(aes(x = estimate_12, y = estimate_24), alpha = 0.5) +
+  geom_smooth(aes(x = estimate_12, y = estimate_24), method = "lm", color = "olivedrab") +
   facet_wrap(~clean_term, scales = "free", ncol = 6) +
-  labs(x = "Estimate (1 hr steps)", y = "Estimate (3 hr steps)", 
-       subtitle = paste0("corr = ", round(cor(dt_comp$estimate_1, dt_comp$estimate_3), 2)))
+  labs(x = "Estimate (12 hr steps)", y = "Estimate (24 hr steps)", 
+       subtitle = paste0("corr = ", round(cor(dt_comp$estimate_12, dt_comp$estimate_24), 2))) +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_blank(), 
+        panel.background = element_rect(fill = "snow"), 
+        strip.background = element_rect(fill = "linen", color = "linen"))
 p_est_3
 
-cor.test(dt_comp[season == "whole_year", ]$estimate_3, dt_comp[season == "whole_year", ]$estimate_1)
-cor.test(dt_comp[, ]$estimate_3, dt_comp[, ]$estimate_1)
-cor.test(dt_comp$estimate_3, dt_comp$estimate_12)
-cor.test(dt_comp$estimate_12, dt_comp$estimate_1)
+p_est_4 <- dt_comp %>% 
+  ggplot() +
+  geom_abline(linetype = "dashed") +
+  geom_point(aes(x = estimate_3, y = estimate_1), alpha = 0.5) +
+  geom_smooth(aes(x = estimate_3, y = estimate_1), method = "lm", color = "olivedrab") +
+  facet_wrap(~clean_term, scales = "free", ncol = 6) +
+  labs(x = "Estimate (3 hr steps)", y = "Estimate (1 hr steps)", 
+       subtitle = paste0("corr = ", round(cor(dt_comp$estimate_3, dt_comp$estimate_1), 2))) +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_blank(), 
+        panel.background = element_rect(fill = "snow"), 
+        strip.background = element_rect(fill = "linen", color = "linen"))
+p_est_4
 
-p_comp <- gridExtra::grid.arrange(p_est_1, p_est_2, p_est_3)
-ggsave(plot =p_comp,
-       "builds/plots/supplement/compare_model_results_diff_time_steps.png",
-       dpi = 600, height = 8, width = 12)
+p_est_5 <- dt_comp %>% 
+  ggplot() +
+  geom_abline(linetype = "dashed") +
+  geom_point(aes(x = estimate_3, y = estimate_24), alpha = 0.5) +
+  geom_smooth(aes(x = estimate_3, y = estimate_24), method = "lm", color = "olivedrab") +
+  facet_wrap(~clean_term, scales = "free", ncol = 6) +
+  labs(x = "Estimate (3 hr steps)", y = "Estimate (24 hr steps)", 
+       subtitle = paste0("corr = ", round(cor(dt_comp$estimate_3, dt_comp$estimate_24), 2))) +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_blank(), 
+        panel.background = element_rect(fill = "snow"), 
+        strip.background = element_rect(fill = "linen", color = "linen"))
+p_est_5
 
+p_est_6 <- dt_comp %>% 
+  ggplot() +
+  geom_abline(linetype = "dashed") +
+  geom_point(aes(x = estimate_1, y = estimate_24), alpha = 0.5) +
+  geom_smooth(aes(x = estimate_1, y = estimate_24), method = "lm", color = "olivedrab") +
+  facet_wrap(~clean_term, scales = "free", ncol = 6) +
+  labs(x = "Estimate (1 hr steps)", y = "Estimate (24 hr steps)", 
+       subtitle = paste0("corr = ", round(cor(dt_comp$estimate_1, dt_comp$estimate_24), 2))) +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_blank(), 
+        panel.background = element_rect(fill = "snow"), 
+        strip.background = element_rect(fill = "linen", color = "linen"))
+p_est_6
 
-# p_est_1_ig <- dt_comp %>% 
-#   ggplot() +
-#   geom_abline(linetype = "dashed") +
-#   geom_point(aes(x = estimate_ig, y = estimate_1), alpha = 0.5) +
-#   geom_smooth(aes(x = estimate_ig, y = estimate_1), method = "lm", color = "olivedrab") +
-#   facet_wrap(~clean_term, scales = "free", ncol = 6) +
-#   labs(x = "Estimate (individual grids)", y = "Estimate (1 hr steps)", 
-#        subtitle = paste0("corr = ", round(cor.test(dt_comp$estimate_ig, dt_comp$estimate_1, na.rm = T)$estimate, 2)))
-# p_est_1_ig
-# 
-# p_est_2_ig <- dt_comp %>% 
-#   ggplot() +
-#   geom_abline(linetype = "dashed") +
-#   geom_point(aes(x = estimate_ig, y = estimate_3), alpha = 0.5) +
-#   geom_smooth(aes(x = estimate_ig, y = estimate_3), method = "lm", color = "olivedrab") +
-#   facet_wrap(~clean_term, scales = "free", ncol = 6) +
-#   labs(x = "Estimate (individual grids)", y = "Estimate (3 hr steps)", 
-#        subtitle = paste0("corr = ", round(cor.test(dt_comp$estimate_ig, dt_comp$estimate_3, na.rm = T)$estimate, 2)))
-# p_est_2_ig
-# 
-# p_est_3_ig <- dt_comp %>% 
-#   ggplot() +
-#   geom_abline(linetype = "dashed") +
-#   geom_point(aes(x = estimate_ig, y = estimate_12), alpha = 0.5) +
-#   geom_smooth(aes(x = estimate_ig, y = estimate_12), method = "lm", color = "olivedrab") +
-#   facet_wrap(~clean_term, scales = "free", ncol = 6) +
-#   labs(x = "Estimate (individual grids)", y = "Estimate (12 hr steps)", 
-#        subtitle = paste0("corr = ", round(cor.test(dt_comp$estimate_ig, dt_comp$estimate_12, na.rm = T)$estimate, 2)))
-# p_est_3_ig
-# 
-# p_comp_ig <- gridExtra::grid.arrange(p_est_1_ig, p_est_2_ig, p_est_3_ig)
-# ggsave(plot =p_comp_ig,
-#        "builds/plots/supplement/compare_model_results_ssf_vs_individual_grids.png",
-#        dpi = 600, height = 8, width = 12)
+library(patchwork)
+p_comb <- p_est_1 / p_est_2 / p_est_3 / p_est_4 / p_est_5 / p_est_6
+p_comb
+
+ggsave(plot =p_comb,
+       "builds/plots/supplement/compare_estimates_diff_step_lengths.png",
+       dpi = 600, height = 11, width = 10)
