@@ -16,9 +16,13 @@ library(exactextractr)
 # param <- "indiv_grid"
 # param <- "steps_1hr"
 # param <- "steps_3hrs"
- param <- "steps_12hrs"
+# param <- "steps_12hrs"
 # param <- "steps_24hrs"
 
+params <- c( "steps_3hrs", 
+             "steps_12hrs",
+             "steps_24hrs")
+for(param in unique(params)){ 
 
 if(param == "grid"){
   vect <- read_sf("data/spatial_data/grid/empty_grid.gpkg") %>% 
@@ -343,3 +347,6 @@ if(param == "grid"){
   fwrite(dt_vect_covs, "data/processed_data/data_fragments/steps_24hrs_habitat_covariates.csv")
   
 } 
+
+
+}

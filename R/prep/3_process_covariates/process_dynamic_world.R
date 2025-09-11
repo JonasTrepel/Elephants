@@ -379,6 +379,7 @@ terraOptions(memfrac = 0.5)
 #     grepl("2019_2020", veg_type_files)  | 
 #     grepl("2024_2025", veg_type_files)]
 
+#minimum quality ---------------------
 plan(multisession, workers = 5)
 
 future_walk(1:length(fraction_mode_files),
@@ -426,3 +427,84 @@ writeRaster(r_min_mode_fraction,
 
 r <- rast("data/spatial_data/covariates/raster/dw_min_mode_fraction_100m.tif")
 datatype(r)
+
+
+####### MEDIAN QUALITY ------
+
+### aggregate quality layer -----------
+
+
+fraction_mode_files <- list.files("data/spatial_data/time_series",
+                                  full.names = T, pattern = "dw_fraction_mode_")
+
+terraOptions(memfrac = 0.5)
+
+# veg_type_files <- veg_type_files[
+#   grepl("2018_2019", veg_type_files) |
+#     grepl("2019_2020", veg_type_files)  | 
+#     grepl("2024_2025", veg_type_files)]
+
+#median quality ---------------------
+plan(multisession, workers = 5)
+
+future_walk(1:length(fraction_mode_files),
+            .progress = TRUE,
+            function(i){
+              
+              #for(file in unique(dynamic_world_files)){
+              
+              file <- fraction_mode_files[i]
+              dw_r <- rast(file)
+             # plot(dw_r)
+              
+              data_type_dw <- terra::datatype(dw_r)
+              
+              years <- gsub("data/spatial_data/time_series/dw_fraction_mode_", "", file)
+              years <- gsub("_10m.tif", "", years)
+              
+              #aggregate at 100m 
+              fraction_mode_100m_r <- terra::aggregate(dw_r, 
+                                                       fact = 10, 
+                                                       fun = "median", 
+                                                       filename = paste0(
+                                                         "data/spatial_data/time_series/dw_median_mode_fraction_100m_",
+                                                         years, ".tif"), 
+                                                       cores = 1, 
+                                                       overwrite = T)
+              #plot(fraction_mode_100m_r)
+            })
+plan(sequential)
+
+#### now get the minimum & median...
+
+fraction_median_mode_100m_files <- list.files("data/spatial_data/time_series",
+                                       full.names = T, pattern = "dw_median_mode_fraction_100m_")
+
+
+r_stack_median <- rast(fraction_median_mode_100m_files)
+
+
+#minimum
+r_min_median_mode_fraction <-  min(r_stack_median, na.rm = TRUE)
+plot(r_min_median_mode_fraction)
+datatype(r_min_median_mode_fraction)
+writeRaster(r_min_median_mode_fraction, 
+            filename = "data/spatial_data/covariates/raster/dw_min_median_mode_fraction_100m.tif", 
+            overwrite = T)
+
+r_min_median <- rast("data/spatial_data/covariates/raster/dw_min_median_mode_fraction_100m.tif")
+plot(r_min_median)
+
+
+#### now get the minimum & median...
+
+r_median_median_mode_fraction <-  median(r_stack_median, na.rm = TRUE)
+plot(r_median_median_mode_fraction)
+datatype(r_median_median_mode_fraction)
+writeRaster(r_median_median_mode_fraction, 
+            filename = "data/spatial_data/covariates/raster/dw_median_median_mode_fraction_100m.tif", 
+            overwrite = T)
+
+r_median_median <- rast("data/spatial_data/covariates/raster/dw_median_median_mode_fraction_100m.tif")
+plot(r_median_median)
+plot(r_min_median)

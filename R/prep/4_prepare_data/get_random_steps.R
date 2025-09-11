@@ -7,6 +7,11 @@ library(exactextractr)
 library(terra)
 
 # 1. Load Data ---------------------------------
+sf_sa_unprotected <- st_read("data/spatial_data/protected_areas/south_africa_unprotected.gpkg")  %>% 
+  st_transform(., crs = "ESRI:54009")
+
+
+
 sf_loc <- fread("data/processed_data/clean_data/all_location_data.csv") %>% 
   mutate(month = month(date_time)) %>% 
   st_as_sf(coords = c("lon", "lat"), 
@@ -134,6 +139,11 @@ n_distinct(track_12_random$individual_id)
 n_distinct(track_24_random$individual_id)
 
 
+
+
+
+
+
 ### Save ---------
 library(tidylog)
 names(track_1_random)
@@ -166,6 +176,7 @@ steps_1hr <- track_1_random %>%
   filter(duration_years >= 1 & min_kmh < 25) %>% 
   filter(dt_hour < 2) %>% 
   as.data.table()
+
   
 hist(steps_1hr$dt_hour, breaks = 100)
 hist(as.numeric(track_1_random$dt_), breaks = 100)
@@ -174,8 +185,49 @@ summary(steps_1hr)
 n_distinct(steps_1hr$individual_id)
 quantile(steps_1hr$sl_km)
 
-fwrite(steps_1hr, "data/processed_data/data_fragments/steps_1hr_incl_random.csv")
+### remove areas outside of SA PAs
 
+dt_nono_1hr <- steps_1hr %>% 
+  mutate(x = x2_, 
+         y = y2_) %>% 
+  filter(!is.na(x)) %>% 
+  st_as_sf(coords = c("x", "y"), 
+           crs = "ESRI:54009") %>% 
+  filter(lengths(st_intersects(., sf_sa_unprotected)) > 0)  
+
+table(dt_nono_1hr$case_) 
+
+
+steps_1hr_fin = steps_1hr %>%
+  filter(!unique_id %in% dt_nono_1hr$unique_id) %>% 
+  group_by(individual_id, step_id_) %>% 
+  mutate(n_false_step = sum(case_ == FALSE)) %>% 
+  ungroup() %>%
+  filter(n_false_step > 5) %>% 
+  group_by(individual_id) %>% 
+  mutate(n_total = n(), 
+         n_true = n_total - sum(case_ == FALSE)) %>% 
+  ungroup() %>%
+  filter(n_true > 200)
+
+summary(steps_1hr_fin)
+1 - nrow(steps_1hr_fin)/nrow(steps_1hr) #0.9%
+n_distinct(steps_1hr_fin$individual_id)
+quantile(steps_1hr_fin$n_true)
+
+
+
+steps_1hr_fin %>% 
+  select(individual_id, source) %>% 
+  unique() %>% 
+  pull(source) %>% 
+  table()
+
+
+fwrite(steps_1hr_fin, "data/processed_data/data_fragments/steps_1hr_incl_random.csv")
+
+
+#3 hrs
 steps_3hrs <- track_3_random %>% 
   as.data.table() %>% 
   dplyr::select(individual_id, 
@@ -210,8 +262,48 @@ summary(steps_3hrs)
 n_distinct(steps_3hrs$individual_id)
 quantile(steps_3hrs$sl_km)
 
-fwrite(steps_3hrs, "data/processed_data/data_fragments/steps_3hrs_incl_random.csv")
 
+
+### remove areas outside of SA PAs
+
+dt_nono_3hrs <- steps_3hrs %>% 
+  mutate(x = x2_, 
+         y = y2_) %>% 
+  filter(!is.na(x)) %>% 
+  st_as_sf(coords = c("x", "y"), 
+           crs = "ESRI:54009") %>% 
+  filter(lengths(st_intersects(., sf_sa_unprotected)) > 0)  
+
+table(dt_nono_3hrs$case_) 
+
+
+steps_3hrs_fin = steps_3hrs %>%
+  filter(!unique_id %in% dt_nono_3hrs$unique_id) %>% 
+  group_by(individual_id, step_id_) %>% 
+  mutate(n_false_step = sum(case_ == FALSE)) %>% 
+  ungroup() %>%
+  filter(n_false_step > 5) %>% 
+  group_by(individual_id) %>% 
+  mutate(n_total = n(), 
+         n_true = n_total - sum(case_ == FALSE)) %>% 
+  ungroup() %>%
+  filter(n_true > 200)
+
+summary(steps_3hrs_fin)
+1 - nrow(steps_3hrs_fin)/nrow(steps_3hrs) #1.5 % removed
+n_distinct(steps_3hrs_fin$individual_id)
+quantile(steps_3hrs_fin$n_true)
+
+
+steps_3hrs_fin %>% 
+  select(individual_id, source) %>% 
+  unique() %>% 
+  pull(source) %>% 
+  table()
+
+fwrite(steps_3hrs_fin, "data/processed_data/data_fragments/steps_3hrs_incl_random.csv")
+
+# 12 hrs
 steps_12hrs <- track_12_random %>% 
   as.data.table() %>% 
   dplyr::select(individual_id, 
@@ -242,11 +334,45 @@ steps_12hrs <- track_12_random %>%
   filter(dt_hour < 14) %>% 
   as.data.table()
 
-summary(steps_12hrs)
-n_distinct(steps_12hrs$individual_id)
-quantile(steps_12hrs$sl_km)
+### remove areas outside of SA PAs
 
-fwrite(steps_12hrs, "data/processed_data/data_fragments/steps_12hrs_incl_random.csv")
+dt_nono_12hrs <- steps_12hrs %>% 
+  mutate(x = x2_, 
+         y = y2_) %>% 
+  filter(!is.na(x)) %>% 
+  st_as_sf(coords = c("x", "y"), 
+           crs = "ESRI:54009") %>% 
+  filter(lengths(st_intersects(., sf_sa_unprotected)) > 0)  
+
+table(dt_nono_12hrs$case_) 
+
+
+steps_12hrs_fin = steps_12hrs %>%
+  filter(!unique_id %in% dt_nono_12hrs$unique_id) %>% 
+  group_by(individual_id, step_id_) %>% 
+  mutate(n_false_step = sum(case_ == FALSE)) %>% 
+  ungroup() %>%
+  filter(n_false_step > 5) %>% 
+  group_by(individual_id) %>% 
+  mutate(n_total = n(), 
+         n_true = n_total - sum(case_ == FALSE)) %>% 
+  ungroup() %>%
+  filter(n_true > 200)
+
+summary(steps_12hrs_fin)
+1 - nrow(steps_12hrs_fin)/nrow(steps_12hrs) #3 % removed
+n_distinct(steps_12hrs_fin$individual_id)
+quantile(steps_12hrs_fin$n_true)
+
+
+steps_12hrs_fin %>% 
+  select(individual_id, source) %>% 
+  unique() %>% 
+  pull(source) %>% 
+  table()
+
+
+fwrite(steps_12hrs_fin, "data/processed_data/data_fragments/steps_12hrs_incl_random.csv")
 
 # ## 24 hours 
 steps_24hrs <- track_24_random %>%
@@ -278,8 +404,42 @@ steps_24hrs <- track_24_random %>%
   filter(duration_years >= 1 & min_kmh < 40 & sl_km < 100 & dt_hour < 26) %>%
   as.data.table()
 
-summary(steps_24hrs)
-n_distinct(steps_24hrs$individual_id)
-quantile(steps_24hrs$n_true)
 
-fwrite(steps_24hrs, "data/processed_data/data_fragments/steps_24hrs_incl_random.csv")
+### remove areas outside of SA PAs
+
+dt_nono_24hrs <- steps_24hrs %>% 
+  mutate(x = x2_, 
+         y = y2_) %>% 
+  filter(!is.na(x)) %>% 
+  st_as_sf(coords = c("x", "y"), 
+           crs = "ESRI:54009") %>% 
+  filter(lengths(st_intersects(., sf_sa_unprotected)) > 0)  
+  
+table(dt_nono_24hrs$case_) 
+
+
+steps_24hrs_fin = steps_24hrs %>%
+  filter(!unique_id %in% dt_nono_24hrs$unique_id) %>% 
+  group_by(individual_id, step_id_) %>% 
+  mutate(n_false_step = sum(case_ == FALSE)) %>% 
+  ungroup() %>%
+  filter(n_false_step > 5) %>% 
+  group_by(individual_id) %>% 
+  mutate(n_total = n(), 
+         n_true = n_total - sum(case_ == FALSE)) %>% 
+  ungroup() %>%
+  filter(n_true > 200)
+
+summary(steps_24hrs_fin)
+1 - nrow(steps_24hrs_fin)/nrow(steps_24hrs) #3.3 % removed
+
+n_distinct(steps_24hrs_fin$individual_id)
+quantile(steps_24hrs_fin$n_true)
+
+steps_24hrs_fin %>% 
+  select(individual_id, source) %>% 
+  unique() %>% 
+  pull(source) %>% 
+  table()
+
+fwrite(steps_24hrs_fin, "data/processed_data/data_fragments/steps_24hrs_incl_random.csv")

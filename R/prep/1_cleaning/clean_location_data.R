@@ -283,6 +283,7 @@ dt_hip_raw <- fread("data/raw_data/hip/cnrs_gps_elephant_hip.csv") %>%
     date_time = `Acq. Time [UTC]`, 
   ) %>% 
   mutate(population_id = NA, 
+         date_time = dmy_hm(date_time), 
          park_id = "HiP", 
          source = "SCJ_EKZNW", 
          sex = "F") %>% #All females, in distinct herds. 
@@ -305,7 +306,8 @@ mapview(sf_hip_int, zcol = "individual_id")
 
 dt_hip <- dt_hip_raw %>% 
   filter(point_id %in% unique(sf_hip_int$point_id)) %>% 
-  dplyr::select(-point_id)
+  dplyr::select(-point_id) %>% 
+  mutate(individual_id = paste0("hip_", individual_id))
 
 
 # Ithala --------------------------------------------
@@ -326,7 +328,8 @@ dt_ithala_raw <- fread("data/raw_data/ithala/ithala_elephant_gps_2014_2023.csv")
            sex == "Cow" ~ "F", 
            sex == "Bull" ~ "M")) %>% #All females, in distinct herds. 
   filter(!abs(lat) > 90 & !abs(lon) > 180) %>% 
-  mutate(point_id = 1:nrow(.))
+  mutate(point_id = 1:nrow(.), 
+         date_time = dmy_hm(date_time))
 
 sf_ithala <- st_as_sf(dt_ithala_raw, 
                    coords = c("lon", "lat"), 
@@ -345,8 +348,7 @@ mapview(sf_ithala_bound)
 
 dt_ithala <- dt_ithala_raw %>% 
   filter(point_id %in% unique(sf_ithala_int$point_id)) %>% 
-  dplyr::select(-point_id) %>% 
-  mutate(date_time = parse_date_time(date_time, orders = "dmy HM"))
+  dplyr::select(-point_id) #%>%  mutate(date_time = parse_date_time(date_time, orders = "dmy HM"))
 
 
 ####### CLEAN DATASET ########
@@ -441,7 +443,8 @@ discard_1 <- sf_loc_raw %>%
 sf_loc_2 <- sf_loc_raw %>% 
   filter(!obs_id %in% discard_0) %>% 
   filter(!obs_id %in% discard_1)
-  
+
+
 # Remove spatial outliers ----------------------------------- 
 discard_2 <- c()
 sf_loc_2.5 <- sf_loc_2 %>% 
@@ -450,6 +453,7 @@ i <- 0
 max_speed_kmh = 25 # 25 kmh https://doi.org/10.1242/jeb.02443
 max_dist_km = 50
 
+table(sf_loc_2[sf_loc_2$source == "EKZNW", ]$individual_id)
 #id = "0F08"
 for(id in unique(sf_loc_2$individual_id)){ 
   
@@ -500,11 +504,17 @@ for(id in unique(sf_loc_2$individual_id)){
 }
 
 
+summary(sf_loc_2.5 %>% filter(source == "SCJ_EKZNW"))
+
+
 sf_loc_3 <- sf_loc_2.5 %>% 
   mutate(discard = ifelse(is.na(discard), FALSE, discard)) %>% 
   filter(!discard == TRUE)
 
 nrow(sf_loc_2.5) - nrow(sf_loc_3) #109205 discarded whooping 109000 obs
+
+sf_loc_3 %>% sample_n(500000) %>% ggplot + geom_sf(size = 0.1) +
+  geom_sf(data = sf_gaut, alpha = 0.1, color = "orange")
 
 
 # Identify suspicious elephants ------------------------ 
@@ -908,6 +918,9 @@ dt_final <- dt_loc_sub %>%
 
 fwrite(dt_final, "data/processed_data/clean_data/all_location_data.csv")
 
+n_distinct(dt_final$individual_id)
+dt_final %>% sample_n(500000) %>% ggplot() +geom_point(aes(x = lon, y = lat), size = 0.1, alpha = 0.5)
+
 glimpse(dt_final)
 
 dt_meta <- dt_final %>% 
@@ -930,7 +943,9 @@ dt_meta <- dt_final %>%
          hr_locoh_area_km2, 
          hr_diameter_km) %>% 
   unique()
-  
+table(dt_meta$source)
+n_distinct(dt_meta$individual_id)
+
 fwrite(dt_meta, "data/processed_data/clean_data/elephant_id_meta_data.csv")
 
 

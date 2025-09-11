@@ -11,6 +11,13 @@
   #param = "24hrs"
   
   
+  params <- c(#"1hr", 
+               "3hrs", 
+               "12hrs",
+               "24hrs")
+  
+  for(param in unique(params)){ 
+  
   if(param == "1hr"){
     
   dt <- fread("data/processed_data/data_fragments/steps_1hr_habitat_covariates.csv")
@@ -638,4 +645,6 @@
     
   }
   
-        
+  print(paste0(param, " done at: ", Sys.time()))
+  
+  }
