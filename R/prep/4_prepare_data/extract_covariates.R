@@ -19,8 +19,8 @@ library(exactextractr)
 # param <- "steps_12hrs"
 # param <- "steps_24hrs"
 
-params <- c( "steps_3hrs", 
-             "steps_12hrs",
+params <- c( #"steps_3hrs", 
+             #"steps_12hrs",
              "steps_24hrs")
 for(param in unique(params)){ 
 
@@ -112,6 +112,24 @@ fun_biome_leg <- data.table(
                        "SLB","SMB","SHB","TLB","TMB","THB","SLN","SMN","SHN",
                        "TLN","TMN","THN"))
 
+
+# eco regions legegend 
+
+dt_eco <- st_read("data/spatial_data/covariates/vector/ecoregions/Ecoregions2017.shp")  %>% 
+  as.data.frame() %>% 
+  mutate(geometry = NULL)
+
+
+eco_leg <- dt_eco %>% 
+  dplyr::select(ecoregion_num = ECO_ID, ecoregion = ECO_NAME) %>% 
+  arrange(ecoregion_num) %>%
+  unique()
+
+res_biome_leg = dt_eco %>% 
+  dplyr::select(resolve_biome_num = BIOME_NUM, resolve_biome = BIOME_NAME) %>% 
+  arrange(resolve_biome_num) %>%
+  unique()
+
 #### EXTRACT CONTINUOUS COVS #### ----------------------------------
 col_names <- c(
   
@@ -138,12 +156,18 @@ col_names <- c(
 
   "fire_frequency", #average number of fires per year
 
-  "dw_min_mode_fraction", #minimum fractzio of the mode (dynamic world) 
-  
+  "dw_min_min_mode_fraction", #minimum fractzio of the mode (dynamic world) 
+  "dw_min_median_mode_fraction", #minimum fractzio of the mode (dynamic world) 
+  "dw_median_median_mode_fraction", #minimum fractzio of the mode (dynamic world) 
+
+
   #### categorical ####
   "functional_biome_num", # functional biome 
   "olson_biome_num", # olson biome 
-  "land_cover_num" #esa landcover
+  "land_cover_num", #esa landcover
+  "ecoregion_num",  #resolve eco region
+  "resolve_biome_num"
+
 )
 
 cov_paths <- c(
@@ -172,14 +196,20 @@ cov_paths <- c(
   "data/spatial_data/covariates/raster/fire_frequency_500m_2001_2024.tif", #average number of fires per year
 
   "data/spatial_data/covariates/raster/dw_min_mode_fraction_100m.tif", #min mode fraciton 
+  "data/spatial_data/covariates/raster/dw_min_median_mode_fraction_100m.tif", #min median fraction
+  "data/spatial_data/covariates/raster/dw_median_median_mode_fraction_100m.tif", #median median fraction
+
+
   #### categorical ####
   "data/spatial_data/covariates/raster/higgins_functional_biomes.tif", # functional biome 
   "data/spatial_data/covariates/raster/wwf_olson_biome.tif", # olson biome 
-  "data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif" #esa landcover
+  "data/spatial_data/covariates/raster/esa_world_cover_2021_10m.tif", #esa landcover
+  "data/spatial_data/covariates/raster/resolve_eco_regions_1km.tif", #resolve ecoregions
+  "data/spatial_data/covariates/raster/resolve_biomes_1km.tif"# resolve biomes 
 )
 
 
-funcs <- c(rep("mean", 12), rep("mode", 3))
+funcs <- c(rep("mean", 14), rep("mode", 5))
 
 covs <- data.table(
   col_name = col_names, 
@@ -206,7 +236,7 @@ vect <- vect_backup
 
 ################################## LOOOOOOOOOOOOP ############################            
 options(future.globals.maxSize = 10 * 1024^3)  # 10 GB
-plan(multisession, workers = 15)
+plan(multisession, workers = 19)
 tic()
 
 # Add chunk_id column
@@ -278,10 +308,12 @@ dt_vect_covs <- vect_covs_raw %>%
   left_join(biome_leg) %>%
   left_join(fun_biome_leg) %>% 
   left_join(lc_leg) %>% 
+  left_join(eco_leg) %>% 
+  left_join(res_biome_leg) %>% 
   as.data.table() %>% 
   mutate(x = NULL, 
          geom = NULL) %>% 
-  dplyr::select(-functional_biome_num, -olson_biome_num, -land_cover_num)
+  dplyr::select(-functional_biome_num, -olson_biome_num, -land_cover_num, -ecoregion_num, - resolve_biome_num)
 
 
 summary(dt_vect_covs)
