@@ -268,7 +268,7 @@ for (park in unique(dt_grid_hq$park_id)) {
   # Filter data for the current park
   park_data <- dt_grid_hq %>%
     filter(park_id == park) %>%
-    select(x_mollweide, y_mollweide, habitat_quality_norm, 
+    select(cluster_id, x_mollweide, y_mollweide, habitat_quality_norm, 
            habitat_quality_wet_season_norm, habitat_quality_dry_season_norm, 
            habitat_quality_males_norm, habitat_quality_females_norm, 
            habitat_quality_males_wet_season_norm, habitat_quality_females_wet_season_norm, 
@@ -306,8 +306,8 @@ for (park in unique(dt_grid_hq$park_id)) {
       "Males HQ", 
       "Females HQ", 
       "Males Wet Season HQ", 
-      "Females Wet Season HQ",
       "Males Dry Season HQ", 
+      "Females Wet Season HQ",
       "Females Dry Season HQ",
       "Dist. Water",
       "EVI",
@@ -336,7 +336,7 @@ for (park in unique(dt_grid_hq$park_id)) {
     theme_void() +
     facet_wrap(~ variable, ncol = 5) +
     labs(fill = "Rescaled Value", color = "Rescaled Value") +
-    labs(title = park, subtitle = "HQ = Habitat Quality") +
+    labs(title = park, subtitle = paste0("Cluster: ",  unique(park_data$cluster_id), "; HQ = Habitat Quality")) +
     theme(legend.position = "none", 
           strip.text = element_text(size = 10, face = "bold"), 
           plot.title = element_text(face = "bold", size = 14)) +
