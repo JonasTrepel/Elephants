@@ -21,7 +21,7 @@ library(exactextractr)
 
 params <- c( #"steps_3hrs", 
              #"steps_12hrs",
-             "steps_24hrs")
+             "pa_grid")
 for(param in unique(params)){ 
 
 if(param == "grid"){

@@ -176,12 +176,13 @@ canopy_height_files <- data.table(filepath = list.files("data/spatial_data/time_
                                               pattern = "canopy_height", 
                                               full.names = FALSE)) %>% 
   filter(grepl("30m", filename)) %>% 
+  filter(!grepl("sd", filename)) %>% 
   mutate(filename = gsub(".tif", "", filename),
          colname =  gsub("_30m", "", filename), 
-         years = gsub("canopy_height_", "", colname))
+         years = gsub("canopy_height_", "", colname)) #%>% filter(years %in% c("2002", "2005", "2008", "2013", "2016", "2019", "2022"))
 
 
-plan(multisession, workers = 8)
+plan(multisession, workers = 6)
 
 future_walk(1:nrow(canopy_height_files),
             .progress = TRUE,
@@ -200,7 +201,7 @@ future_walk(1:nrow(canopy_height_files),
               #aggregate at 90m 
               agg_90m_r <- terra::aggregate(og_r,
                                              fact = 3,
-                                             fun = "mean", 
+                                             fun = "median", 
                                              na.rm=TRUE,
                                              filename = paste0(
                                                "data/spatial_data/time_series/canopy_height_", 
@@ -212,12 +213,110 @@ future_walk(1:nrow(canopy_height_files),
               #aggregate at 900m
               agg_900m_r <- terra::aggregate(agg_90m_r,
                                             fact = 10,
-                                            fun = "mean", 
+                                            fun = "median", 
                                             na.rm=TRUE,
                                             filename = paste0(
                                               "data/spatial_data/time_series/canopy_height_", 
                                               year, "_900m.tif"),                                              cores = 1, 
                                             overwrite = T)
               #plot(agg_900m_r)
+            })
+plan(sequential)
+
+
+#8. Canopy height SD 90m ------------------
+
+
+canopy_height_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                        pattern = "canopy_height", 
+                                                        full.names = TRUE), 
+                                  filename = list.files("data/spatial_data/time_series/",
+                                                        pattern = "canopy_height", 
+                                                        full.names = FALSE)) %>% 
+  filter(grepl("30m", filename)) %>% 
+  filter(!grepl("sd", filename)) %>% 
+  mutate(filename = gsub(".tif", "", filename),
+         colname =  gsub("_30m", "", filename), 
+         years = gsub("canopy_height_", "", colname)) #%>% filter(years %in% c("2002", "2005", "2008", "2013", "2016", "2019", "2022"))
+
+
+plan(multisession, workers = 6)
+
+future_walk(1:nrow(canopy_height_files),
+            .progress = TRUE,
+            function(i){
+              
+              #for(file in unique(dynamic_world_files)){
+              
+              file <- canopy_height_files[i, ]$filepath
+              og_r <- rast(file)
+              #plot(og_r)
+              
+              data_type_og_r <- terra::datatype(og_r)
+              
+              year <- canopy_height_files[i, ]$years
+              
+              #aggregate at 90m 
+              agg_90m_r <- terra::aggregate(og_r,
+                                            fact = 3,
+                                            fun = "sd", 
+                                            na.rm=TRUE,
+                                            filename = paste0(
+                                              "data/spatial_data/time_series/canopy_height_sd_", 
+                                              year, "_90m.tif"),  
+                                            cores = 1, 
+                                            overwrite = T)
+              #plot(agg_90m_r)
+              rm(agg_90m_r)
+              
+            })
+plan(sequential)
+
+
+#9. Canopy height SD 900m ------------------
+
+
+canopy_height_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                        pattern = "canopy_height", 
+                                                        full.names = TRUE), 
+                                  filename = list.files("data/spatial_data/time_series/",
+                                                        pattern = "canopy_height", 
+                                                        full.names = FALSE)) %>% 
+  filter(grepl("90m", filename)) %>% 
+  filter(!grepl("sd", filename)) %>% 
+  mutate(filename = gsub(".tif", "", filename),
+         colname =  gsub("_90m", "", filename), 
+         years = gsub("canopy_height_", "", colname)) #%>% filter(years %in% c("2002", "2005", "2008", "2013", "2016", "2019", "2022"))
+
+
+plan(multisession, workers = 6)
+
+future_walk(1:nrow(canopy_height_files),
+            .progress = TRUE,
+            function(i){
+              
+              #for(file in unique(dynamic_world_files)){
+              
+              file <- canopy_height_files[i, ]$filepath
+              og_r <- rast(file)
+              #plot(og_r)
+              
+              data_type_og_r <- terra::datatype(og_r)
+              
+              year <- canopy_height_files[i, ]$years
+              
+              #aggregate at 90m 
+              agg_90m_r <- terra::aggregate(og_r,
+                                            fact = 10,
+                                            fun = "sd", 
+                                            na.rm=TRUE,
+                                            filename = paste0(
+                                              "data/spatial_data/time_series/canopy_height_sd_", 
+                                              year, "_900m.tif"),  
+                                            cores = 1, 
+                                            overwrite = T)
+              #plot(agg_90m_r)
+              rm(agg_90m_r)
+              
             })
 plan(sequential)
