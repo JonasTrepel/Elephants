@@ -1,6 +1,7 @@
 
 data/spatial_data/
 data/raw_data/ceru/Full Telemetry Data.csv
+data/raw_data/elephants_alive/elephants_alive_tracking_data.csv
 data/raw_data/hwange/3.-KAZA-Elephant-Survey-Volume-II.pdf
 data/processed_data/clean_data/all_location_data.csv
 data/clean_data/all_location_data.csv
