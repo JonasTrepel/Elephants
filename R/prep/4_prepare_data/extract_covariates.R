@@ -10,24 +10,25 @@ library(terra)
 library(exactextractr)
 ### define if we want to run it for control or PA 
 
-# param <- "grid"
 # param = "pa_grid"
 # param = "pa_points"
-# param <- "indiv_grid"
 # param <- "steps_1hr"
 # param <- "steps_3hrs"
 # param <- "steps_12hrs"
 # param <- "steps_24hrs"
+param <- "knp_elephants"
 
 params <- c( #"steps_3hrs", 
              #"steps_12hrs",
-             "pa_grid")
+             "pa_points")
 for(param in unique(params)){ 
-
-if(param == "grid"){
-  vect <- read_sf("data/spatial_data/grid/empty_grid.gpkg") %>% 
-    mutate(unique_id = grid_id)
   
+if(param == "knp_elephants"){
+    vect <- read_sf("data/spatial_data/elephants/elephant_count_points.gpkg") %>% 
+      mutate(unique_id = paste0("point_", 1:nrow(.))) %>% 
+      st_transform(crs = "ESRI:54009") %>% 
+      st_buffer(dist = 100)
+      
 } else if(param == "pa_grid"){
     vect <- read_sf("data/spatial_data/grid/empty_grid_pas.gpkg") %>% 
       mutate(
@@ -35,12 +36,8 @@ if(param == "grid"){
     
 } else  if(param == "pa_points"){
     vect <- read_sf("data/spatial_data/grid/empty_points_pas.gpkg") %>% 
-      st_buffer(dist = 50)
+      st_buffer(dist = 56.42)
     
-} else if(param == "indiv_grid"){
-  vect <- read_sf("data/spatial_data/grid/individual_grids_relative_occurance.gpkg") %>% 
-    mutate(unique_id = grid_id)
-  
 } else if(param == "steps_1hr"){
   vect <- fread("data/processed_data/data_fragments/steps_1hr_incl_random.csv") %>% 
     mutate(x = x2_, 
@@ -334,20 +331,11 @@ vect_covs <- dt_vect_covs %>% left_join(vect) %>% st_as_sf
 
 #mapview::mapview(vect_covs %>% sample_n(10000), zcol = "distance_to_water_km")
 
-if(param == "grid"){
-  
-  #dt_occ <- fread("data/processed_data/data_fragments/relative_occurance_and_roads.csv")
-
+if(param == "knp_elephants"){
   
   fwrite(dt_vect_covs %>% 
-          # left_join(dt_occ) %>% 
-           mutate(unique_id = NULL), "data/processed_data/data_fragments/grid_habitat_covariates.csv")
-  
-  
- # fwrite(dt_vect_covs %>% 
- #          left_join(dt_occ) %>% 
- #          mutate(unique_id = NULL), "data/processed_data/data_fragments/grid_with_all_covariates.csv")
-  
+           mutate(unique_id = NULL), "data/processed_data/data_fragments/knp_elephant_counts_habitat_covariates.csv")
+
 } else if(param == "pa_grid"){
   
   fwrite(dt_vect_covs %>% 
@@ -356,11 +344,6 @@ if(param == "grid"){
 } else if(param == "pa_points"){
   
   fwrite(dt_vect_covs, "data/processed_data/data_fragments/pa_points_with_covariates.csv")
-  
-} else if(param == "indiv_grid"){
-  
-  fwrite(dt_vect_covs %>% 
-           mutate(unique_id = NULL), "data/processed_data/data_fragments/individual_grids_with_covariates.csv")
   
 } else if(param == "steps_1hr"){
   

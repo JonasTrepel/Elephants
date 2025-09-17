@@ -24,7 +24,7 @@ if(param == "grid"){
   
 } else  if(param == "pa_points"){
   vect <- read_sf("data/spatial_data/grid/empty_points_pas.gpkg") %>% 
-    st_buffer(dist = 50)
+    st_buffer(dist = 56.42)
   
   #dt_covs <- fread("data/processed_data/data_fragments/pa_points_with_covariates.csv")
 }
@@ -34,66 +34,127 @@ if(param == "grid"){
 ## get file paths sorted 
 
 #Grass cover
-grass_cover_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+grass_cover_files_100m <- data.table(filepath = list.files("data/spatial_data/time_series/",
                                               pattern = "grass_cover", 
                                               full.names = TRUE), 
                         filename = list.files("data/spatial_data/time_series/",
                                               pattern = "grass_cover", 
                                               full.names = FALSE)
 ) %>% 
+  filter(grepl("100m", filename)) %>% 
   mutate(filename = gsub("_100m.tif", "", filename), 
-         colname = filename)
+         colname =  gsub("grass_cover_", "grass_cover_100m_", filename))
+
+grass_cover_files_1000m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                           pattern = "grass_cover", 
+                                                           full.names = TRUE), 
+                                     filename = list.files("data/spatial_data/time_series/",
+                                                           pattern = "grass_cover", 
+                                                           full.names = FALSE)
+) %>% 
+  filter(grepl("1000m", filename)) %>% 
+  mutate(filename = gsub("_1000m.tif", "", filename), 
+         colname =  gsub("grass_cover_", "grass_cover_1000m_", filename))
 
 
 #Grass and Crop cover
-gr_n_cr_cover_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+gr_n_cr_cover_files_100m <- data.table(filepath = list.files("data/spatial_data/time_series/",
                                                       pattern = "gr_n_cr_cover", 
                                                       full.names = TRUE), 
                                 filename = list.files("data/spatial_data/time_series/",
                                                       pattern = "gr_n_cr_cover", 
                                                       full.names = FALSE)
 ) %>% 
+  filter(grepl("100m", filename)) %>% 
   mutate(filename = gsub("_100m.tif", "", filename), 
-         colname = filename)
+         colname =  gsub("gr_n_cr_cover_", "gr_n_cr_cover_100m_", filename))
+
+
+gr_n_cr_cover_files_1000m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                             pattern = "gr_n_cr_cover", 
+                                                             full.names = TRUE), 
+                                       filename = list.files("data/spatial_data/time_series/",
+                                                             pattern = "gr_n_cr_cover", 
+                                                             full.names = FALSE)
+) %>% 
+  filter(grepl("1000m", filename)) %>% 
+  mutate(filename = gsub("_1000m.tif", "", filename), 
+         colname =  gsub("gr_n_cr_cover_", "gr_n_cr_cover_1000m_", filename))
 
 #Shrub cover
-shrub_cover_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+shrub_cover_files_100m <- data.table(filepath = list.files("data/spatial_data/time_series/",
                                                       pattern = "shrub_cover", 
                                                       full.names = TRUE), 
                                 filename = list.files("data/spatial_data/time_series/",
                                                       pattern = "shrub_cover", 
                                                       full.names = FALSE)
 ) %>% 
+  filter(grepl("100m", filename)) %>% 
   mutate(filename = gsub("_100m.tif", "", filename), 
-         colname = filename)
+         colname =  gsub("shrub_cover_", "shrub_cover_100m_", filename))
 
+
+shrub_cover_files_1000m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                           pattern = "shrub_cover", 
+                                                           full.names = TRUE), 
+                                     filename = list.files("data/spatial_data/time_series/",
+                                                           pattern = "shrub_cover", 
+                                                           full.names = FALSE)
+) %>% 
+  filter(grepl("1000m", filename)) %>% 
+  mutate(filename = gsub("_1000m.tif", "", filename), 
+         colname =  gsub("shrub_cover_", "shrub_cover_1000m_", filename))
 
 #Tree cover
-tree_cover_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+tree_cover_files_100m <- data.table(filepath = list.files("data/spatial_data/time_series/",
                                                       pattern = "tree_cover", 
                                                       full.names = TRUE), 
                                 filename = list.files("data/spatial_data/time_series/",
                                                       pattern = "tree_cover", 
                                                       full.names = FALSE)
 ) %>% 
+  filter(grepl("100m", filename)) %>% 
   mutate(filename = gsub("_100m.tif", "", filename), 
-         colname = filename)
+         colname =  gsub("tree_cover_", "tree_cover_100m_", filename))
+
+tree_cover_files_1000m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                          pattern = "tree_cover", 
+                                                          full.names = TRUE), 
+                                    filename = list.files("data/spatial_data/time_series/",
+                                                          pattern = "tree_cover", 
+                                                          full.names = FALSE)
+) %>% 
+  filter(grepl("1000m", filename)) %>% 
+  mutate(filename = gsub("_1000m.tif", "", filename), 
+         colname =  gsub("tree_cover_", "tree_cover_1000m_", filename))
 
 
 #Bare Ground
-bare_cover_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+bare_cover_files_100m <- data.table(filepath = list.files("data/spatial_data/time_series/",
                                                      pattern = "bare_cover", 
                                                      full.names = TRUE), 
                                filename = list.files("data/spatial_data/time_series/",
                                                      pattern = "bare_cover", 
                                                      full.names = FALSE)
 ) %>% 
+  filter(grepl("100m", filename)) %>% 
   mutate(filename = gsub("_100m.tif", "", filename), 
-         colname = filename)
+         colname =  gsub("bare_cover_", "bare_cover_100m_", filename))
+
+bare_cover_files_1000m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                          pattern = "bare_cover", 
+                                                          full.names = TRUE), 
+                                    filename = list.files("data/spatial_data/time_series/",
+                                                          pattern = "bare_cover", 
+                                                          full.names = FALSE)
+) %>% 
+  filter(grepl("1000m", filename)) %>% 
+  mutate(filename = gsub("_1000m.tif", "", filename), 
+         colname =  gsub("bare_cover_", "bare_cover_1000m_", filename))
 
 
-#Shannon 100m
-shannon_100m_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+#Shannon diversity
+shannon_files_100m <- data.table(filepath = list.files("data/spatial_data/time_series/",
                                                      pattern = "shannon_diversity",
                                                      full.names = TRUE),
                                filename = list.files("data/spatial_data/time_series/",
@@ -104,8 +165,8 @@ shannon_100m_files <- data.table(filepath = list.files("data/spatial_data/time_s
   mutate(filename = gsub(".tif", "", filename),
          colname = gsub("shannon_diversity_habitat_vegetation_types_", "habitat_diversity_", filename))
 
-#Shannon 1000m
-shannon_1000m_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+
+shannon_files_1000m <- data.table(filepath = list.files("data/spatial_data/time_series/",
                                                        pattern = "shannon_diversity",
                                                        full.names = TRUE),
                                  filename = list.files("data/spatial_data/time_series/",
@@ -116,16 +177,102 @@ shannon_1000m_files <- data.table(filepath = list.files("data/spatial_data/time_
   mutate(filename = gsub(".tif", "", filename),
          colname = gsub("shannon_diversity_habitat_vegetation_types_", "habitat_diversity_", filename))
 
-# EVI 90m
-evi_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+# EVI 
+evi_files_90m <- data.table(filepath = list.files("data/spatial_data/time_series/",
                                                    pattern = "hsl_clamped_evi_", 
                                                    full.names = TRUE), 
                              filename = list.files("data/spatial_data/time_series/",
                                                    pattern = "hsl_clamped_evi_", 
                                                    full.names = FALSE)) %>% 
   filter(grepl("90m", filename)) %>% 
-  mutate(filename = gsub(".tif", "", filename),
-         colname =  gsub("hsl_clamped_evi_", "evi_", filename))
+  filter(!grepl("sd", filename)) %>% 
+  mutate(filename = gsub("_90m.tif", "", filename),
+         colname =  gsub("hsl_clamped_evi_", "evi_90m_", filename))
+
+evi_files_900m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                  pattern = "hls_clamped_evi_", 
+                                                  full.names = TRUE), 
+                            filename = list.files("data/spatial_data/time_series/",
+                                                  pattern = "hls_clamped_evi_", 
+                                                  full.names = FALSE)) %>% 
+  filter(grepl("900m", filename)) %>% 
+  filter(!grepl("sd", filename)) %>% 
+  mutate(filename = gsub("_900m.tif", "", filename),
+         colname =  gsub("hls_clamped_evi_", "evi_900m_", filename))
+
+
+# EVI SD
+evi_sd_files_90m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                  pattern = "hsl_sd_clamped_evi", 
+                                                  full.names = TRUE), 
+                            filename = list.files("data/spatial_data/time_series/",
+                                                  pattern = "hsl_sd_clamped_evi", 
+                                                  full.names = FALSE)) %>% 
+  filter(grepl("90m", filename)) %>% 
+  filter(grepl("sd", filename)) %>% 
+  mutate(filename = gsub("_90m.tif", "", filename),
+         colname =  gsub("hsl_sd_clamped_evi_", "evi_sd_90m_", filename))
+
+evi_sd_files_900m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                     pattern = "hsl_sd_clamped_evi", 
+                                                     full.names = TRUE), 
+                               filename = list.files("data/spatial_data/time_series/",
+                                                     pattern = "hsl_sd_clamped_evi", 
+                                                     full.names = FALSE)) %>% 
+  filter(grepl("900m", filename)) %>% 
+  filter(grepl("sd", filename)) %>% 
+  mutate(filename = gsub("_900m.tif", "", filename),
+         colname =  gsub("hsl_sd_clamped_evi_", "evi_sd_900m_", filename))
+
+
+### Canopy Height 
+
+canopy_height_files_90m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                        pattern = "canopy_height", 
+                                                        full.names = TRUE), 
+                                  filename = list.files("data/spatial_data/time_series/",
+                                                        pattern = "canopy_height", 
+                                                        full.names = FALSE)) %>% 
+  filter(grepl("_90m", filename)) %>% 
+  filter(!grepl("sd", filename)) %>% 
+  mutate(filename = gsub("_90m.tif", "", filename),
+         colname =  gsub("canopy_height", "canopy_height_90m", filename))
+
+canopy_height_files_900m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                            pattern = "canopy_height", 
+                                                            full.names = TRUE), 
+                                      filename = list.files("data/spatial_data/time_series/",
+                                                            pattern = "canopy_height", 
+                                                            full.names = FALSE)) %>% 
+  filter(grepl("_900m", filename)) %>% 
+  filter(!grepl("sd", filename)) %>% 
+  mutate(filename = gsub("_900m.tif", "", filename),
+         colname =  gsub("canopy_height", "canopy_height_900m", filename))
+
+### Canopy Height SD
+
+canopy_height_sd_files_90m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                            pattern = "canopy_height", 
+                                                            full.names = TRUE), 
+                                      filename = list.files("data/spatial_data/time_series/",
+                                                            pattern = "canopy_height", 
+                                                            full.names = FALSE)) %>% 
+  filter(grepl("_90m", filename)) %>% 
+  filter(grepl("sd", filename)) %>% 
+  mutate(filename = gsub("_90m.tif", "", filename),
+         colname =  gsub("canopy_height_sd", "canopy_height_sd_90m", filename))
+
+canopy_height_sd_files_900m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                             pattern = "canopy_height", 
+                                                             full.names = TRUE), 
+                                       filename = list.files("data/spatial_data/time_series/",
+                                                             pattern = "canopy_height", 
+                                                             full.names = FALSE)) %>% 
+  filter(grepl("_900m", filename)) %>% 
+  filter(grepl("sd", filename)) %>% 
+  mutate(filename = gsub("_900m.tif", "", filename),
+         colname =  gsub("canopy_height_sd", "canopy_height_sd_900m", filename))
+
 
 ### MAT
 
@@ -161,56 +308,39 @@ burned_area_files <- data.table(filepath = list.files("data/spatial_data/time_se
          colname =  gsub("burned_area_5000m_", "burned_area_", filename))
 
 
-### EVI SD 90m
-
-evi_sd_90_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
-                                                      pattern = "hsl_sd_clamped", 
-                                                      full.names = TRUE), 
-                                filename = list.files("data/spatial_data/time_series/",
-                                                      pattern = "hsl_sd_clamped", 
-                                                      full.names = FALSE)) %>% 
-  filter(grepl("90m", filename)) %>% 
-  mutate(filename = gsub(".tif", "", filename),
-         colname =  gsub("_90m", "", filename), 
-         colname =  gsub("hsl_sd_clamped_evi_", "evi_sd_90m_", colname))
-
-### EVI SD 900m
-
-evi_sd_900_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
-                                                    pattern = "hsl_sd_clamped", 
-                                                    full.names = TRUE), 
-                              filename = list.files("data/spatial_data/time_series/",
-                                                    pattern = "hsl_sd_clamped", 
-                                                    full.names = FALSE)) %>% 
-  filter(grepl("900m", filename)) %>% 
-  mutate(filename = gsub(".tif", "", filename),
-         colname =  gsub("_900m", "", filename), 
-         colname =  gsub("hsl_sd_clamped_evi_", "evi_sd_900m_", colname))
-
-
-### Canopy Height #30m
-
-canopy_height_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
-                                                     pattern = "canopy_height", 
-                                                     full.names = TRUE), 
-                               filename = list.files("data/spatial_data/time_series/",
-                                                     pattern = "canopy_height", 
-                                                     full.names = FALSE)) %>% 
-  filter(grepl("_30m", filename)) %>% 
-  mutate(filename = gsub(".tif", "", filename),
-         colname =  gsub("_30m", "", filename), 
-         colname =  gsub("canopy_height", "canopy_height_30m", colname))
 
 
 
-covs <- rbind(grass_cover_files, 
-              gr_n_cr_cover_files, 
-              tree_cover_files,
-              shrub_cover_files,
-              bare_cover_files,
-              shannon_100m_files, 
-              shannon_1000m_files, 
-              mean_evi_files, 
+covs <- rbind(grass_cover_files_100m, 
+              grass_cover_files_1000m,
+              
+              gr_n_cr_cover_files_100m, 
+              gr_n_cr_cover_files_1000m,
+              
+              tree_cover_files_100m,
+              tree_cover_files_1000m,
+              
+              shrub_cover_files_100m,
+              shrub_cover_files_1000m,
+          
+              bare_cover_files_100m,
+              bare_cover_files_1000m,
+              
+              shannon_files_100m, 
+              shannon_files_1000m, 
+              
+              evi_files_90m, 
+              evi_files_900m, 
+              
+              evi_sd_files_90m, 
+              evi_sd_files_900m, 
+              
+              canopy_height_files_90m,
+              canopy_height_files_900m,
+              
+              canopy_height_sd_files_90m,
+              canopy_height_sd_files_900m,
+              
               mat_files,
               prec_files,
               burned_area_files
@@ -290,14 +420,36 @@ vect_covs <- vect %>%
   mutate(x = NULL, 
          geom = NULL,
          geometry = NULL) %>% 
-  mutate(mean_grass_cover = rowMeans(select(., contains("grass_cover")), na.rm = TRUE), 
-         mean_gr_n_cr_cover = rowMeans(select(., contains("gr_n_cr_cover")), na.rm = TRUE), 
-         mean_tree_cover = rowMeans(select(., contains("tree_cover")), na.rm = TRUE), 
-         mean_shrub_cover = rowMeans(select(., contains("shrub_cover")), na.rm = TRUE), 
-         mean_bare_cover = rowMeans(select(., contains("bare_cover")), na.rm = TRUE), 
+  mutate(mean_grass_cover_100m = rowMeans(select(., contains("grass_cover_100m")), na.rm = TRUE), 
+         mean_grass_cover_1000m = rowMeans(select(., contains("grass_cover_1000m")), na.rm = TRUE),
+         
+         mean_gr_n_cr_cover_100m = rowMeans(select(., contains("gr_n_cr_cover_100m")), na.rm = TRUE), 
+         mean_gr_n_cr_cover_1000m = rowMeans(select(., contains("gr_n_cr_cover_1000m")), na.rm = TRUE), 
+         
+         mean_tree_cover_100m = rowMeans(select(., contains("tree_cover_100m")), na.rm = TRUE), 
+         mean_tree_cover_1000m = rowMeans(select(., contains("tree_cover_1000m")), na.rm = TRUE), 
+         
+         mean_shrub_cover_100m = rowMeans(select(., contains("shrub_cover_100m")), na.rm = TRUE), 
+         mean_shrub_cover_1000m = rowMeans(select(., contains("shrub_cover_1000m")), na.rm = TRUE), 
+         
+         mean_bare_cover_100m = rowMeans(select(., contains("bare_cover_100m")), na.rm = TRUE), 
+         mean_bare_cover_1000m = rowMeans(select(., contains("bare_cover_1000m")), na.rm = TRUE), 
+         
          mean_habitat_diversity_100m = rowMeans(select(., matches("habitat_diversity.*_100m")), na.rm = TRUE), 
          mean_habitat_diversity_1000m = rowMeans(select(., matches("habitat_diversity.*_1000m")), na.rm = TRUE), 
-         mean_evi = rowMeans(select(., contains("mean_evi")), na.rm = TRUE), 
+        
+         mean_evi_90m = rowMeans(select(., contains("evi_90m")), na.rm = TRUE),
+         mean_evi_900m = rowMeans(select(., contains("evi_900m")), na.rm = TRUE), 
+         
+         mean_evi_sd_90m = rowMeans(select(., contains("evi_sd_90m")), na.rm = TRUE),
+         mean_evi_sd_900m = rowMeans(select(., contains("evi_sd_900m")), na.rm = TRUE), 
+         
+         mean_canopy_height_90m = rowMeans(select(., contains("canopy_height_90m")), na.rm = TRUE),
+         mean_canopy_height_900m = rowMeans(select(., contains("canopy_height_900m")), na.rm = TRUE), 
+         
+         mean_canopy_height_sd_90m = rowMeans(select(., contains("canopy_height_sd_90m")), na.rm = TRUE),
+         mean_canopy_height_sd_900m = rowMeans(select(., contains("canopy_height_sd_900m")), na.rm = TRUE), 
+         
          mean_mat = rowMeans(select(., contains("mat")), na.rm = TRUE),
          mean_prec = rowMeans(select(., contains("prec")), na.rm = TRUE),
          mean_burned_area = rowMeans(select(., contains("burned_area")), na.rm = TRUE)) 

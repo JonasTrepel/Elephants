@@ -50,23 +50,33 @@ process_trend <- function(cols_pattern, trend_name, dt) {
 
 # List of trends
 trend_configs <- data.frame(
-  pattern = c("grass_cover_", "gr_n_cr_cover_",
-              "tree_cover_", "shrub_cover_", "bare_cover_",
-              "habitat_diversity_100m_", "habitat_diversity_1000m_", 
-              "mean_evi_", 
+  pattern = c("grass_cover_100m", "gr_n_cr_cover_100m",
+              "tree_cover_100m", "shrub_cover_100m", "bare_cover_100m",
+              "evi_90m", "canopy_height_90m", 
+              "habitat_diversity_100m_", "canopy_height_sd_90m_",
+              "evi_sd_90m_", 
+              "grass_cover_1000m", "gr_n_cr_cover_1000m",
+              "tree_cover_1000m", "shrub_cover_1000m", "bare_cover_1000m",
+              "evi_900m", "canopy_height_900m", 
+              "habitat_diversity_1000m_", "canopy_height_sd_900m_",
+              "evi_sd_900m_", 
               "mat_", "prec_", 
               "burned_area_"),
-  name = c("grass_cover", "gr_n_cr_cover",
-           "tree_cover", "shrub_cover", "bare_cover",
-            "habitat_diversity_100m", "habitat_diversity_1000m", 
+  name = c("grass_cover_100m", "gr_n_cr_cover_100m",
+           "tree_cover_100m", "shrub_cover_100m", "bare_cover_100m",
+           "evi_90m", "canopy_height_90m", 
+           "habitat_diversity_100m", "canopy_height_sd_90m",
+           "evi_sd_90m", 
+           "grass_cover_1000m", "gr_n_cr_cover_1000m",
+           "tree_cover_1000m", "shrub_cover_1000m", "bare_cover_1000m",
+           "evi_900m", "canopy_height_900m", 
+           "habitat_diversity_1000m", "canopy_height_sd_900m",
+           "evi_sd_900m", 
            "mean_evi", 
            "mat", "prec", 
            "burned_area"),
   stringsAsFactors = FALSE
 )
-
-
-
 
 
 
@@ -127,9 +137,18 @@ dt_trend_from_list <- rbindlist(all_trends_list)
 
 
 ctk <- dt %>% dplyr::select(unique_id,
-                            mean_grass_cover, mean_gr_n_cr_cover, 
-                            mean_shrub_cover, mean_tree_cover, mean_bare_cover,
-                            mean_habitat_diversity_100m, mean_habitat_diversity_1000m,
+                            mean_grass_cover_100m, mean_gr_n_cr_cover_100m, 
+                            mean_shrub_cover_100m, mean_tree_cover_100m,
+                            mean_bare_cover_100m, mean_evi_90m,
+                            mean_canopy_height_90m, 
+                            mean_habitat_diversity_100m, mean_evi_sd_90m, 
+                            mean_canopy_height_sd_90m, 
+                            mean_grass_cover_1000m, mean_gr_n_cr_cover_1000m, 
+                            mean_shrub_cover_1000m, mean_tree_cover_1000m,
+                            mean_bare_cover_1000m, mean_evi_900m,
+                            mean_canopy_height_900m, 
+                            mean_habitat_diversity_1000m, mean_evi_sd_900m, 
+                            mean_canopy_height_sd_900m, 
                             mean_evi, 
                             mean_mat, mean_prec, 
                             mean_burned_area)
@@ -143,7 +162,8 @@ dt_res <- dt %>%
                 -all_of(grep("tree_cover_", names(dt), value = T)),
                 -all_of(grep("bare_cover_", names(dt), value = T)),
                 -all_of(grep("habitat_diversity_", names(dt), value = T)),
-                -all_of(grep("mean_evi_", names(dt), value = T)),
+                -all_of(grep("evi_", names(dt), value = T)),
+                -all_of(grep("canopy_height_", names(dt), value = T)),
                 -all_of(grep("mat_", names(dt), value = T)),
                 -all_of(grep("prec_", names(dt), value = T)),
                 -all_of(grep("burned_area_", names(dt), value = T))) %>% 

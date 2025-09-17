@@ -216,10 +216,6 @@ sf_peanuts <- st_as_sf(dt_peanuts,
                        crs = 4326)
 
 
-# SANParks ---------------------------------------
-
-#.....
-
 # Lapalala ---------------------------------------
 
 lapalala_files <- list.files(path = "data/raw_data/lapalala/AWT Elephant collar data", 
@@ -351,6 +347,55 @@ dt_ithala <- dt_ithala_raw %>%
   dplyr::select(-point_id) #%>%  mutate(date_time = parse_date_time(date_time, orders = "dmy HM"))
 
 
+# Elephants alive --------------------------------------------
+
+dt_ea_raw <- fread("data/raw_data/elephants_alive/elephants_alive_tracking_data.csv") %>% 
+  dplyr::select(
+    individual_id = name, 
+    date_time = fixtime , 
+    sex = sex, 
+    geometry,
+  ) %>% 
+  mutate(population_id = NA, 
+         park_id = NA, 
+         source = "EA", 
+         sex = case_when(
+           .default = "U",
+           sex == "female" ~ "F", 
+           sex == "male" ~ "M"),
+         date_time = as_datetime(date_time))
+
+sf_ea_raw <- st_as_sf(
+  dt_ea_raw,
+  wkt = "geometry",  
+  crs = 4326          
+)
+
+dt_ea <- sf_ea_raw %>% 
+  mutate(lon = st_coordinates(sf_ea_raw)[, 1], 
+         lat = st_coordinates(sf_ea_raw)[, 2]) %>% 
+  filter(!lat < -35 & !lat > 0 & !lon > 45 & !lon < 0) %>% 
+  as.data.frame() %>% 
+  mutate(geometry = NULL) %>% 
+  clean_coordinates(., 
+                    lon = "lon", 
+                    lat = "lat", 
+                    species = "individual_id", 
+                    tests = c("capitals", "centroids",
+                              "equal", "zeros"),
+                    capitals_rad = 10000) %>%
+  filter(.summary == TRUE) %>% #select only clean coords
+  dplyr::select(-c(".summary", ".val", ".equ", ".zer", ".cap", ".cen")) 
+  
+summary(dt_ea)
+
+dt_ea %>% 
+  ggplot() +
+  geom_point(aes(x = lon, y = lat), size = 0.1, alpha = 0.2) +
+  facet_wrap(~individual_id, scales = "free") +
+  theme_bw()
+
+
 ####### CLEAN DATASET ########
 
 
@@ -363,7 +408,8 @@ dt_loc_raw <- rbind(
   dt_peanuts , 
   dt_lapalala, 
   dt_hip, 
-  dt_ithala
+  dt_ithala, 
+  dt_ea
 ) %>% 
   mutate(obs_id = paste0("point_", 1:nrow(.))) %>% 
   filter(!is.na(date_time)) %>% 
@@ -376,15 +422,14 @@ dt_loc_raw <- rbind(
     start_year = year(start_date),
     end_year = year(end_date),
     duration_days = as.numeric(difftime(end_date, start_date, units = "days")),
-    duration_years = duration_days / 365.25,
-    mean_interval_mins = ifelse(n() > 1, mean(diff(date_time), na.rm = TRUE) / dminutes(1), NA), 
-    median_interval_mins = ifelse(n() > 1, median(diff(date_time), na.rm = TRUE) / dminutes(1), NA)) %>% 
+    duration_years = duration_days / 365.25)
   ungroup() %>% 
   as.data.table() %>% 
-  filter(n_obs > 365 & duration_years > 1 & median_interval_mins < 1440)
+  filter(n_obs > 365 & duration_years > 1)
   
 n_distinct(dt_loc_raw$individual_id)
 summary(dt_loc_raw)
+
 # Remove points in unrealistic areas --------
 
 sf_loc_raw <- dt_loc_raw %>% 

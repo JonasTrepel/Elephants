@@ -224,6 +224,12 @@ glimpse(dt_grid_hq[dt_grid_hq$park_id == "Kafue", ])
 
 
 fwrite(dt_grid_hq, "data/processed_data/data_fragments/pa_grid_with_habitat_quality.csv")
+dt_grid_hq <- fread("data/processed_data/data_fragments/pa_grid_with_habitat_quality.csv")
+
+fwrite(dt_grid_hq %>% 
+         filter(park_id == "Kruger National Park"), "data/processed_data/data_fragments/knp_grid_with_habitat_quality.csv")
+
+
 
 dt_corr <- dt_grid_hq %>% 
   dplyr::select(habitat_quality_norm,
@@ -292,7 +298,7 @@ for (park in unique(dt_grid_hq$park_id)) {
       `Slope` = slope_scaled
     ) %>%
     pivot_longer(
-      cols = -c(x_mollweide, y_mollweide),
+      cols = -c(cluster_id, x_mollweide, y_mollweide),
       names_to = "variable",
       values_to = "value"
     ) %>%

@@ -211,8 +211,8 @@ future_walk(1:nrow(canopy_height_files),
               #plot(agg_90m_r)
               
               #aggregate at 900m
-              agg_900m_r <- terra::aggregate(agg_90m_r,
-                                            fact = 10,
+              agg_900m_r <- terra::aggregate(og_r,
+                                            fact = 30,
                                             fun = "median", 
                                             na.rm=TRUE,
                                             filename = paste0(
