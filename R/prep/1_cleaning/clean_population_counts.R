@@ -21,10 +21,6 @@ dt_kaingo <- fread("data/raw_data/kaingo/kaingo_elephant_counts.csv")
 
 #included in CERU dataset 
 
-# SANParks ---------------------------------------
-
-#
-
 # Lapalala ---------------------------------------
 
 dt_lapalala <- fread("data/raw_data/lapalala/lapalala_population_counts.csv") 
@@ -42,6 +38,11 @@ dt_hip <- fread("data/raw_data/hip/hip_elephant_counts.csv") %>%
 
 dt_ithala <- fread("data/raw_data/ithala/ithala_elephant_counts.csv") 
 
+# Elephants alive ---------------------------------------
+
+dt_ea <- fread("data/raw_data/elephants_alive/apnr_census_data_2008-2021.csv") %>% 
+  pivot_longer(cols = -Year, names_to = "park_id", values_to = "population_count") %>% 
+  rename(year = Year)
 
 
 #### Combine
@@ -52,8 +53,7 @@ dt_comb <- dt_ceru %>%
   rbind(dt_lapalala) %>%
   rbind(dt_ithala) %>% 
   rbind(dt_hip) %>% 
-# left_join(dt_sanparks) %>% 
-# left_join(dt_hip) %>% 
+  rbind(dt_ea) %>% 
   filter(year > 2000) %>% 
   group_by(park_id) %>% 
   mutate(mean_population_count = mean(population_count, na.rm = TRUE)) %>% 
@@ -127,12 +127,25 @@ dt_fin <- dt_comb %>%
     orig_name == "North Luangwa" ~ "North Luangwa", 
     
     orig_name == "Kaingo"  ~ "Kaingo Private Game Reserve", 
-    orig_name == "Lapalala"  ~ "Lapalala Nature Reserve"
+    orig_name == "Lapalala"  ~ "Lapalala Nature Reserve", 
+    orig_name == "Thornybush" ~ "Thornybush Nature Reserve"
   )) %>% 
   left_join(dt_pn)
 
+
+dt_fin <- dt_fin %>% 
+  group_by(park_id, year) %>% 
+  mutate(population_count = mean(population_count, na.rm = T)) %>%
+  ungroup() %>% 
+  unique() %>% 
+  filter(!is.na(population_count)) %>% 
+  fiter(park_id != "Total APNR")
+
 fwrite(dt_fin, "data/processed_data/clean_data/all_population_counts.csv")
 # on average 139706 Elephants 
+setDT(dt_fin)
+unique(dt_ea$park_id)
+dt_fin[grepl("Thornybush", dt_fin$park_id), ]
 
 # Plot population counts 
 

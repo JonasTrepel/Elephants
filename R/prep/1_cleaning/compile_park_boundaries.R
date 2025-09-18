@@ -85,7 +85,7 @@ for(i in 1:length(files)){
   
 }
 
-mapview(pas_all[grepl("Zambezi", pas_all$NAME), ])
+mapview::mapview(pas_all[grepl("Thornybush", pas_all$NAME), ])
 
 names_v_count <- c("North Luangwa",
                    "South Luangwa",
@@ -130,7 +130,9 @@ names_v_count <- c("North Luangwa",
                    "Luengue-Luiana National Park",
                    "Mavinga National Park", #CERU END
                    "Kaingo Private Game Reserve", 
-                   "Lapalala Nature Reserve"
+                   "Lapalala Nature Reserve",
+                   "Thornybush Nature Reserve"
+                  
                    
                    )
 
@@ -146,10 +148,10 @@ pas_all[grepl("Mavinga", pas_all$NAME), ]
 sf_lapalala <- st_read("data/raw_data/lapalala/lapalala_boundary.gpkg") %>% 
   st_zm(., drop = TRUE, what = "ZM") %>% 
   st_make_valid()
-mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
+mapview::mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
 
 pas_all[grepl("Lapalala", pas_all$NAME), ]$geometry <- sf_lapalala$geom
-mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
+mapview::mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
 
 
 
