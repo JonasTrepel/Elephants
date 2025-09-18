@@ -12,9 +12,10 @@
   
   
   params <- c(#"1hr", 
-               "3hrs", 
+               #"3hrs", 
                "12hrs",
-               "24hrs")
+               "24hrs"
+               )
   
   for(param in unique(params)){ 
   

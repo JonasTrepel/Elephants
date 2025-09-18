@@ -386,7 +386,8 @@ dt_ea <- sf_ea_raw %>%
                     capitals_rad = 10000) %>%
   filter(.summary == TRUE) %>% #select only clean coords
   dplyr::select(-c(".summary", ".val", ".equ", ".zer", ".cap", ".cen")) 
-  
+
+setDT(dt_ea)
 summary(dt_ea)
 
 dt_ea %>% 
@@ -422,7 +423,7 @@ dt_loc_raw <- rbind(
     start_year = year(start_date),
     end_year = year(end_date),
     duration_days = as.numeric(difftime(end_date, start_date, units = "days")),
-    duration_years = duration_days / 365.25)
+    duration_years = duration_days / 365.25) %>% 
   ungroup() %>% 
   as.data.table() %>% 
   filter(n_obs > 365 & duration_years > 1)
@@ -498,7 +499,7 @@ i <- 0
 max_speed_kmh = 25 # 25 kmh https://doi.org/10.1242/jeb.02443
 max_dist_km = 50
 
-table(sf_loc_2[sf_loc_2$source == "EKZNW", ]$individual_id)
+table(sf_loc_2[sf_loc_2$source == "EA", ]$individual_id)
 #id = "0F08"
 for(id in unique(sf_loc_2$individual_id)){ 
   
@@ -549,14 +550,14 @@ for(id in unique(sf_loc_2$individual_id)){
 }
 
 
-summary(sf_loc_2.5 %>% filter(source == "SCJ_EKZNW"))
+summary(sf_loc_2.5 %>% filter(source == "EA"))
 
 
 sf_loc_3 <- sf_loc_2.5 %>% 
   mutate(discard = ifelse(is.na(discard), FALSE, discard)) %>% 
   filter(!discard == TRUE)
 
-nrow(sf_loc_2.5) - nrow(sf_loc_3) #109205 discarded whooping 109000 obs
+nrow(sf_loc_2.5) - nrow(sf_loc_3) #12521 
 
 sf_loc_3 %>% sample_n(500000) %>% ggplot + geom_sf(size = 0.1) +
   geom_sf(data = sf_gaut, alpha = 0.1, color = "orange")
@@ -624,13 +625,15 @@ for (id in unique(sf_loc_3$individual_id)) {
 dev.off()
 
 
-ids_to_discard <- c("1434252", #> 60% of all obs in one cell 
-                    "3438", #very unrealistic and high concentration in one cell (> 80 %)
+ids_to_discard <- c("3438", #very unrealistic and high concentration in one cell (> 80 %)
                     "3439", #very unrealistic and high concentration in one cell (> 80 %)
                     "3440", #very unrealistic and high concentration in one cell (> 50 %)
-                    "5433", #60% in one cell, only 4 cells otherwise 
-                    "5434" #all in one
+                    "5433", #dude was hanging out in some weird enclosuree 
+                    "5434" #dude was hanging out in some weird enclosure
 )
+
+#t <- sf_loc_3 %>% filter(individual_id == "1434252")
+#mapview(t)
 
 discard_3 <- sf_loc_3 %>% 
   filter((individual_id == "1434261" & lon > 25)) %>% 
@@ -665,7 +668,7 @@ discard_7 <- sf_loc_3 %>%
 
 discard_8 <- sf_loc_3 %>% 
   filter((individual_id %in% c("3959", "3961", 
-                               "3962", "3964", 
+                               "3962", "3963", "3964",
                                "3965", "3966", 
                                "3967", "3968", 
                                "3969", "3970", 
@@ -744,11 +747,70 @@ discard_17 <- sf_loc_3 %>%
 
 
 discard_18 <- sf_loc_3 %>% 
-  filter((individual_id %in% c("EM0212") & lat > -21 )) %>% 
+  filter((individual_id %in% c("EM216") & lat > -21.3 )) %>% 
   as.data.frame() %>% 
   mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
   dplyr::select(obs_id) %>% 
   pull()
+
+discard_19 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("EM0159") & lat > -17.6 )) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_20 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("1434252") & between(lat, -19.5, -19))) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_21 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("EM0251") & lat < -24.6 )) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+
+discard_22 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("1434239") & lat < -19 )) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_23 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("1434200") & lat < -19.2 )) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+discard_24 <- sf_loc_3 %>% 
+  filter((individual_id %in% c("1401602") & lon < 25 )) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+
+rename_1434252_A <- sf_loc_3 %>% 
+  filter((individual_id %in% c("1434252") &  lat > -19)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
+rename_1434252_B <- sf_loc_3 %>% 
+  filter((individual_id %in% c("1434252") &  lat < -19.5)) %>% 
+  as.data.frame() %>% 
+  mutate(x = NULL, geom = NULL, geometry = NULL) %>% 
+  dplyr::select(obs_id) %>% 
+  pull()
+
 
 
 sf_loc_4 <- sf_loc_3 %>% 
@@ -769,10 +831,17 @@ sf_loc_4 <- sf_loc_3 %>%
     discard_15, 
     discard_16, 
     discard_17, 
-    discard_18))
+    discard_18, 
+    discard_19, 
+    discard_20, 
+    discard_21, 
+    discard_22, 
+    discard_23,
+    discard_24)) %>% 
+  mutate(individual_id = ifelse(obs_id %in% rename_1434252_A, paste0(individual_id, "_A"), individual_id), 
+         individual_id = ifelse(obs_id %in% rename_1434252_B, paste0(individual_id, "_B"), individual_id))
 
 nrow(sf_loc_3) - nrow(sf_loc_4)
-
 ################## Get Duration, Start and End of Tracking and mean relocation interval ###################
 
 dt_loc <- dt_loc_raw %>%
@@ -796,9 +865,12 @@ dt_loc <- dt_loc_raw %>%
     #median_interval_mins = ifelse(n() > 1, median(diff(date_time), na.rm = TRUE) / dminutes(1), NA)
     ) %>% 
   ungroup() %>% 
+  mutate(individual_id = ifelse(obs_id %in% rename_1434252_A, paste0(individual_id, "_A"), individual_id), 
+         individual_id = ifelse(obs_id %in% rename_1434252_B, paste0(individual_id, "_B"), individual_id)) %>% 
   as.data.table()
 
 summary(dt_loc)
+unique(dt_loc$individual_id); n_distinct(dt_loc$individual_id)
 unique(dt_loc[mean_interval_hrs > 24]$individual_id) # 
 unique(dt_loc[median_interval_hrs > 24]$individual_id) # 
 
@@ -959,7 +1031,8 @@ dt_final <- dt_loc_sub %>%
   dplyr::select(-park_id) %>% 
   left_join(park_for_id[, !(names(park_for_id) %in% c("is_area_km2", "hr_area_km2"))]) %>% 
   left_join(cluster_for_id[, c("individual_id", "cluster_id")]) %>% 
-  left_join(hr_meta)
+  left_join(hr_meta) %>% 
+  unique()
 
 fwrite(dt_final, "data/processed_data/clean_data/all_location_data.csv")
 
@@ -977,9 +1050,7 @@ dt_meta <- dt_final %>%
          end_date, 
          duration_days, 
          duration_years,
-         mean_interval_mins, 
          mean_interval_hrs, 
-         median_interval_mins, 
          median_interval_hrs, 
          park_id, 
          wdpa_pid,

@@ -72,7 +72,6 @@ trend_configs <- data.frame(
            "evi_900m", "canopy_height_900m", 
            "habitat_diversity_1000m", "canopy_height_sd_900m",
            "evi_sd_900m", 
-           "mean_evi", 
            "mat", "prec", 
            "burned_area"),
   stringsAsFactors = FALSE

@@ -256,8 +256,8 @@ dt_est %>%
   pull(cluster_id) %>% 
   table()
 
-# Chobe     KZN Limpopo Luangwa Zambezi 
-#117      28      54      42       2 
+#Chobe     KZN Limpopo Luangwa Zambezi 
+#118      28      87      42       2 
 
 p_est_cluster <- dt_me_cluster %>% 
   filter(season == "whole_year" & !is.na(cluster_id)) %>% 

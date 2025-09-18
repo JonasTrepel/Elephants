@@ -139,7 +139,7 @@ dt_fin <- dt_fin %>%
   ungroup() %>% 
   unique() %>% 
   filter(!is.na(population_count)) %>% 
-  fiter(park_id != "Total APNR")
+  filter(park_id != "Total APNR")
 
 fwrite(dt_fin, "data/processed_data/clean_data/all_population_counts.csv")
 # on average 139706 Elephants 

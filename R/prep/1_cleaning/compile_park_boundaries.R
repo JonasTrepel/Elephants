@@ -30,7 +30,7 @@ for(i in 1:length(files)){
 sf_lapalala <- st_read("data/raw_data/lapalala/lapalala_boundary.gpkg") %>% 
   st_zm(., drop = TRUE, what = "ZM") %>% 
   st_make_valid()
-mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
+#mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
 
 pas_all[grepl("Lapalala", pas_all$NAME), ]$geometry <- sf_lapalala$geom
 
@@ -85,7 +85,7 @@ for(i in 1:length(files)){
   
 }
 
-mapview::mapview(pas_all[grepl("Thornybush", pas_all$NAME), ])
+#mapview::mapview(pas_all[grepl("Thornybush", pas_all$NAME), ])
 
 names_v_count <- c("North Luangwa",
                    "South Luangwa",
@@ -148,10 +148,10 @@ pas_all[grepl("Mavinga", pas_all$NAME), ]
 sf_lapalala <- st_read("data/raw_data/lapalala/lapalala_boundary.gpkg") %>% 
   st_zm(., drop = TRUE, what = "ZM") %>% 
   st_make_valid()
-mapview::mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
+#mapview::mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
 
 pas_all[grepl("Lapalala", pas_all$NAME), ]$geometry <- sf_lapalala$geom
-mapview::mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
+#mapview::mapview(pas_all[grepl("Lapalala", pas_all$NAME), ])
 
 
 

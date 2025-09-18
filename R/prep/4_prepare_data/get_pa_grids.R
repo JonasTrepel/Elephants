@@ -100,13 +100,14 @@ st_write(sf_grid_raw, "data/spatial_data/grid/empty_grid_pas.gpkg", append = FAL
 sf_grid_raw <- st_read("data/spatial_data/grid/empty_grid_pas.gpkg")
 
 
+
 #save Kruger grid separately 
 
 
 sf_knp <- sf_grid_raw %>% filter(park_id %in% ("Kruger National Park"))
 st_write(sf_knp, "data/spatial_data/grid/empty_grid_knp.gpkg", append = FALSE)
 
-ggplot()+geom_sf(data = sf_knp)
+#ggplot() + geom_sf(data = sf_knp)
 
 # #3. Split relocation points --------------------
 # 
