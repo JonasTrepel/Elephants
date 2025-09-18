@@ -18,9 +18,8 @@ library(exactextractr)
 # param <- "steps_24hrs"
 param <- "knp_elephants"
 
-params <- c("steps_3hrs", 
-             "steps_12hrs",
-             "steps_24hrs")
+params <- c("pa_grid", 
+            "steps_1hr")
 for(param in unique(params)){ 
   
 if(param == "knp_elephants"){

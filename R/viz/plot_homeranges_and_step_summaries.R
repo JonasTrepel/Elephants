@@ -3,6 +3,7 @@ library(tidyverse)
 library(rnaturalearth)
 library(scico) 
 library(patchwork)
+library(sf)
 
 ##Homeranges ---------
 
