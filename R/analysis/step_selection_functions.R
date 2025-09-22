@@ -11,8 +11,8 @@
   #param = "24hrs"
   
   
-  params <- c(#"1hr", 
-               #"3hrs", 
+  params <- c("1hr", 
+               "3hrs", 
                "12hrs",
                "24hrs"
                )

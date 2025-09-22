@@ -36,6 +36,197 @@ aoi <- ee$Geometry$Rectangle(
 
 ############################# COVARIATES #############################
 
+### Drought ------
+
+start_date <- paste0(2015, "-01-01")
+end_date <- paste0(2022, "-12-31")
+
+spei_mean <- ee$ImageCollection("CSIC/SPEI/2_10")$
+  filterDate(start_date, end_date)$
+  filterBounds(aoi)$ 
+  select("SPEI_12_month")$
+  mean() 
+
+Map$centerObject(aoi)
+Map$addLayer(
+  spei_mean,
+  list(min = -2.5, max = 2.5, palette = c("red", "white", "blue")),
+  "Mean SPEI"
+)
+
+export_mean_spei <- ee_image_to_drive(
+  image = spei_mean,
+  region = aoi,
+  folder = "rgee_backup_mean_spei",
+  description = "mean_spei",
+  scale = 55660,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_mean_spei$start()
+
+Sys.sleep(60)
+monitor_gee_task(pattern = "mean_spei", path = "rgee_backup_mean_spei",
+                 mail = mail, last_sleep_time = 10)
+
+drive_files_mean_spei <- drive_ls(path = "rgee_backup_mean_spei", pattern = "mean_spei") %>%
+  dplyr::select(name) %>% 
+  unique()
+
+# since it's only one tile we can save it directly 
+filename_mean_spei <- unique(drive_files_mean_spei$name)
+drive_download(file = filename_mean_spei, path = "data/spatial_data/covariates/raster/mean_spei_2000_2023.tif", overwrite = TRUE)
+googledrive::drive_rm(unique(drive_files_mean_spei$name))
+googledrive::drive_rm("rgee_backup_spei_mean")
+
+mean_spei_r <- rast("data/spatial_data/covariates/raster/mean_spei_2000_2023.tif")
+plot(mean_spei_r)
+
+#Numer of months with severe drought 
+
+spei_ic <- ee$ImageCollection("CSIC/SPEI/2_10")$
+  filterDate(start_date, end_date)$
+  filterBounds(aoi)$ 
+  select("SPEI_12_month") 
+
+spei_binary_severe <- spei_ic$map(function(img) {
+  img$lte(-1.6)$rename("binary")$copyProperties(img, img$propertyNames()) #values lower than 1.6 indicate severe droughts 
+})
+
+spei_sum_severe2 <- spei_binary_severe$sum()$toDouble()
+
+Map$centerObject(aoi)
+Map$addLayer(
+  spei_sum_severe,
+  list(min = 0, max = 100, palette = c("white", "yellow", "orange", "red")),
+  "N droughts SPEI"
+)
+
+export_spei_severe <- ee_image_to_drive(
+  image = spei_sum_severe,
+  region = aoi,
+  folder = "rgee_backup_spei_severe",
+  description = "spei_severe",
+  scale = 55660,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_spei_severe$start()
+
+Sys.sleep(60)
+monitor_gee_task(pattern = "spei_severe", path = "rgee_backup_spei_severe",
+                 mail = mail, last_sleep_time = 10)
+
+drive_files_spei_severe <- drive_ls(path = "rgee_backup_spei_severe", pattern = "spei_severe") %>%
+  dplyr::select(name) %>% 
+  unique()
+
+# since it's only one tile we can save it directly 
+filename_spei_severe <- unique(drive_files_spei_severe$name)
+drive_download(file = filename_spei_severe, path = "data/spatial_data/covariates/raster/spei_months_severe_drought_2000_2023.tif", overwrite = TRUE)
+googledrive::drive_rm(unique(drive_files_spei_severe$name))
+googledrive::drive_rm("rgee_backup_spei_severe")
+
+spei_severe_r <- rast("data/spatial_data/covariates/raster/spei_months_severe_drought_2000_2023.tif")
+plot(spei_severe_r)
+
+
+#Numer of months with extreme drought 
+
+spei_ic <- ee$ImageCollection("CSIC/SPEI/2_10")$
+  filterDate(start_date, end_date)$
+  filterBounds(aoi)$ 
+  select("SPEI_12_month") 
+
+spei_binary_extreme <- spei_ic$map(function(img) {
+  img$lte(-2)$rename("binary")$copyProperties(img, img$propertyNames()) #values lower than 1.6 indicate extreme droughts 
+})
+
+spei_sum_extreme <- spei_binary_extreme$sum()$toDouble()
+
+Map$centerObject(aoi)
+Map$addLayer(
+  spei_sum_extreme,
+  list(min = 0, max = 100, palette = c("white", "yellow", "orange", "red")),
+  "N droughts SPEI"
+)
+
+export_spei_extreme <- ee_image_to_drive(
+  image = spei_sum_extreme,
+  region = aoi,
+  folder = "rgee_backup_spei_extreme",
+  description = "spei_extreme",
+  scale = 55660,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_spei_extreme$start()
+
+Sys.sleep(60)
+monitor_gee_task(pattern = "spei_extreme", path = "rgee_backup_spei_extreme",
+                 mail = mail, last_sleep_time = 10)
+
+drive_files_spei_extreme <- drive_ls(path = "rgee_backup_spei_extreme", pattern = "spei_extreme") %>%
+  dplyr::select(name) %>% 
+  unique()
+
+# since it's only one tile we can save it directly 
+filename_spei_extreme <- unique(drive_files_spei_extreme$name)
+drive_download(file = filename_spei_extreme, path = "data/spatial_data/covariates/raster/spei_months_extreme_drought_2000_2023.tif", overwrite = TRUE)
+googledrive::drive_rm(unique(drive_files_spei_extreme$name))
+googledrive::drive_rm("rgee_backup_spei_extreme")
+
+spei_extreme_r <- rast("data/spatial_data/covariates/raster/spei_months_extreme_drought_2000_2023.tif")
+plot(spei_extreme_r)
+
+### PDSI 
+start_date <- paste0(2000, "-07-01")
+end_date <- paste0(2025, "-6-30")
+
+pdsi_mean <- ee$ImageCollection("IDAHO_EPSCOR/TERRACLIMATE")$
+  filterDate(start_date, end_date)$
+  filterBounds(aoi)$ 
+  select("pdsi")$
+  mean()$
+  divide(1000)$
+  multiply(-1) #flippin it so that higher values, more severe drought
+
+Map$centerObject(aoi)
+Map$addLayer(
+  pdsi_mean,
+  list(min = -5, max = 5, palette = c("blue", "white", "red")),
+  "Mean PDSI"
+)
+
+
+export_pdsi <- ee_image_to_drive(
+  image = pdsi_mean,
+  region = aoi,
+  folder = "rgee_backup_pdsi",
+  description = "pdsi",
+  scale = 500,
+  timePrefix = FALSE,
+  maxPixels = 1e13
+)
+export_pdsi$start()
+
+Sys.sleep(60)
+monitor_gee_task(pattern = "pdsi", path = "rgee_backup_pdsi",
+                 mail = mail, last_sleep_time = 10)
+
+drive_files_pdsi <- drive_ls(path = "rgee_backup_pdsi", pattern = "pdsi") %>%
+  dplyr::select(name) %>% 
+  unique()
+
+# since it's only one tile we can save it directly 
+filename_pdsi <- unique(drive_files_pdsi$name)
+drive_download(file = filename_pdsi, path = "data/spatial_data/covariates/raster/mean_flipped_pdsi_2000_2025.tif", overwrite = TRUE)
+googledrive::drive_rm(unique(drive_files_pdsi$name))
+googledrive::drive_rm("rgee_backup_pdsi_mean")
+
+pdsi_r <- rast("data/spatial_data/covariates/raster/mean_flipped_pdsi_2000_2025.tif")
+plot(pdsi_r)
+
 ###### HLS EVI MEan -----------
 
 start_date <- paste0(2013, "-07-01")

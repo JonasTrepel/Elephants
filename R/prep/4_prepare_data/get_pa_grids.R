@@ -46,9 +46,9 @@ sf_pa <- sf_pa_raw %>%
   left_join(cluster_for_id %>% dplyr::select(cluster_id, WDPA_PID = individual_id))
 
 
-# 2. Make Grid ---------------------------------
+# 2. Make Grid 1000m ---------------------------------
 
-sf_grid_raw <- NULL
+sf_grid_raw_1000m <- NULL
 for(pa in unique(sf_pa$NAME)){
 
   print(paste0("starting with ", pa))
@@ -56,7 +56,7 @@ for(pa in unique(sf_pa$NAME)){
 
 sf_pa_sub <- sf_pa %>% filter(NAME == pa)
   
-sf_grid_sub <- st_make_grid(sf_pa_sub, cellsize = 100, square = TRUE) %>% #500m for now, but should be 100m for final analysis
+sf_grid_sub <- st_make_grid(sf_pa_sub, cellsize = 1000, square = TRUE) %>% #500m for now, but should be 100m for final analysis
   st_as_sf() %>% 
   filter(lengths(st_intersects(., sf_pa_sub)) > 0) %>% 
   mutate(park_id = unique(sf_pa_sub$NAME), 
@@ -67,13 +67,19 @@ sf_grid_sub <- st_make_grid(sf_pa_sub, cellsize = 100, square = TRUE) %>% #500m 
          cluster_id = unique(sf_pa_sub$cluster_id)
          )
 
-if(is.null(sf_grid_raw)){
+
+sf_grid_sub <- st_intersection(sf_grid_sub, sf_pa_sub[, "geom"]) %>% 
+  mutate(cell_area_km2 = as.numeric(st_area(.)/1000000)) %>% 
+  filter(cell_area_km2 >= 1)
+
+
+if(is.null(sf_grid_raw_1000m)){
   
-  sf_grid_raw <- sf_grid_sub
+  sf_grid_raw_1000m <- sf_grid_sub
   
 }else{
   
-  sf_grid_raw <- rbind(sf_grid_raw, sf_grid_sub)
+  sf_grid_raw_1000m <- rbind(sf_grid_raw_1000m, sf_grid_sub)
   
 }
 
@@ -82,30 +88,96 @@ print(paste0(pa, " done"))
 }
 
 
-sf_grid_raw <- sf_grid_raw %>% 
+sf_grid_raw_1000m <- sf_grid_raw_1000m %>% 
   mutate(grid_id = paste0("grid_", 1:nrow(.)))
 
-coords_moll <- sf_grid_raw %>% st_centroid() %>% st_coordinates()
+coords_moll <- sf_grid_raw_1000m %>% st_centroid() %>% st_coordinates()
 
-coords_lat_lon <- sf_grid_raw %>% st_transform(4326) %>% st_centroid() %>% st_coordinates()
+coords_lat_lon <- sf_grid_raw_1000m %>% st_transform(4326) %>% st_centroid() %>% st_coordinates()
 
 
-sf_grid_raw$x_mollweide <- coords_moll[,1]
-sf_grid_raw$y_mollweide <- coords_moll[,2]
+sf_grid_raw_1000m$x_mollweide <- coords_moll[,1]
+sf_grid_raw_1000m$y_mollweide <- coords_moll[,2]
 
-sf_grid_raw$lon <- coords_lat_lon[,1]
-sf_grid_raw$lat <- coords_lat_lon[,2]
+sf_grid_raw_1000m$lon <- coords_lat_lon[,1]
+sf_grid_raw_1000m$lat <- coords_lat_lon[,2]
 
-st_write(sf_grid_raw, "data/spatial_data/grid/empty_grid_pas.gpkg", append = FALSE)
-sf_grid_raw <- st_read("data/spatial_data/grid/empty_grid_pas.gpkg")
+st_write(sf_grid_raw_1000m, "data/spatial_data/grid/empty_grid_pas_1000m.gpkg", append = FALSE)
+sf_grid_raw_1000m <- st_read("data/spatial_data/grid/empty_grid_pas_1000m.gpkg")
 
 
 
 #save Kruger grid separately 
 
 
-sf_knp <- sf_grid_raw %>% filter(park_id %in% ("Kruger National Park"))
-st_write(sf_knp, "data/spatial_data/grid/empty_grid_knp.gpkg", append = FALSE)
+sf_knp_1000m <- sf_grid_raw_1000m %>% filter(park_id %in% ("Kruger National Park"))
+st_write(sf_knp_1000m, "data/spatial_data/grid/empty_grid_knp_1000m.gpkg", append = FALSE)
+
+
+# 3. Make Grid 100m ---------------------------------
+
+sf_grid_raw_100m <- NULL
+for(pa in unique(sf_pa$NAME)){
+  
+  print(paste0("starting with ", pa))
+
+  sf_pa_sub <- sf_pa %>% filter(NAME == pa)
+  
+  sf_pa_sub_buff <- st_buffer(sf_pa_sub, dist = -141.4) %>% #141.4 is the diagonal of one ha grid cell
+    st_make_valid()
+  
+  #mapview(sf_pa_sub) + mapview(shp_buffered, col.regions = "red")
+  
+  sf_grid_sub <- st_make_grid(sf_pa_sub, cellsize = 100, square = TRUE) %>% #500m for now, but should be 100m for final analysis
+    st_as_sf() %>% 
+    filter(lengths(st_intersects(., sf_pa_sub_buff)) > 0) %>% 
+    mutate(park_id = unique(sf_pa_sub$NAME), 
+           country_code_iso3 = unique(sf_pa_sub$ISO3),
+           designation = unique(sf_pa_sub$DESIG_ENG),
+           wdpa_pid = unique(sf_pa_sub$WDPA_PID),
+           iucn_cat = unique(sf_pa_sub$IUCN_CAT),
+           cluster_id = unique(sf_pa_sub$cluster_id)
+    )
+  
+  #mapview(sf_pa_sub) + mapview(sf_grid_sub, col.regions = "red")
+  
+  if(is.null(sf_grid_raw_100m)){
+    
+    sf_grid_raw_100m <- sf_grid_sub
+    
+  }else{
+    
+    sf_grid_raw_100m <- rbind(sf_grid_raw_100m, sf_grid_sub)
+    
+  }
+  
+  print(paste0(pa, " done"))
+  
+}
+
+
+sf_grid_raw_100m <- sf_grid_raw_100m %>% 
+  mutate(grid_id = paste0("grid_", 1:nrow(.)))
+
+coords_moll <- sf_grid_raw_100m %>% st_centroid() %>% st_coordinates()
+
+coords_lat_lon <- sf_grid_raw_100m %>% st_transform(4326) %>% st_centroid() %>% st_coordinates()
+
+
+sf_grid_raw_100m$x_mollweide <- coords_moll[,1]
+sf_grid_raw_100m$y_mollweide <- coords_moll[,2]
+
+sf_grid_raw_100m$lon <- coords_lat_lon[,1]
+sf_grid_raw_100m$lat <- coords_lat_lon[,2]
+
+st_write(sf_grid_raw_100m, "data/spatial_data/grid/empty_grid_pas_100m.gpkg", append = FALSE)
+sf_grid_raw_100m <- st_read("data/spatial_data/grid/empty_grid_pas_100m.gpkg")
+
+#save Kruger grid separately 
+
+sf_knp_100m <- sf_grid_raw_100m %>% filter(park_id %in% ("Kruger National Park"))
+st_write(sf_knp_100m, "data/spatial_data/grid/empty_grid_knp_100m.gpkg", append = FALSE)
+
 
 #ggplot() + geom_sf(data = sf_knp)
 

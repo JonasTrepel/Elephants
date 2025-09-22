@@ -1,4 +1,3 @@
-
 library(remotePARTS)
 library(tidyverse)
 library(data.table)
@@ -8,14 +7,19 @@ library(tictoc)
 
 #param = "pas"
 #param = "grid"
-#param = "pa_grid"
-param = "pa_points"
+#param = "pa_points"
+param = "pa_grid_100m"
+#param = "pa_grid_1000m"
+
 
 if(param == "pa_points"){
   dt <- fread("data/processed_data/data_fragments/pa_points_with_timeseries.csv") %>% 
     as.data.frame() 
-} else if(param == "pa_grid"){
-  dt <- fread("data/processed_data/data_fragments/pa_grid_with_timeseries.csv") %>% 
+} else if(param == "pa_grid_100m"){
+  dt <- fread("data/processed_data/data_fragments/pa_grid_100m_with_timeseries.csv") %>% 
+    as.data.frame()
+} else if(param == "pa_grid_1000m"){
+  dt <- fread("data/processed_data/data_fragments/pa_grid_1000m_with_timeseries.csv") %>% 
     as.data.frame()
 }
 
@@ -81,7 +85,7 @@ trend_configs <- data.frame(
 
 ################################## LOOOOOOOOOOOOP ############################            
 options(future.globals.maxSize = 10 * 1024^3)  # 10 GB
-plan(multisession, workers = 11)
+plan(multisession, workers = 23)
 tic()
 
 # Add chunk_id column
@@ -134,21 +138,28 @@ plan(sequential)
 Sys.time()
 dt_trend_from_list <- rbindlist(all_trends_list)
 
-
+#gotta keep also the starting conditions
 ctk <- dt %>% dplyr::select(unique_id,
-                            mean_grass_cover_100m, mean_gr_n_cr_cover_100m, 
-                            mean_shrub_cover_100m, mean_tree_cover_100m,
-                            mean_bare_cover_100m, mean_evi_90m,
-                            mean_canopy_height_90m, 
-                            mean_habitat_diversity_100m, mean_evi_sd_90m, 
-                            mean_canopy_height_sd_90m, 
-                            mean_grass_cover_1000m, mean_gr_n_cr_cover_1000m, 
-                            mean_shrub_cover_1000m, mean_tree_cover_1000m,
-                            mean_bare_cover_1000m, mean_evi_900m,
-                            mean_canopy_height_900m, 
-                            mean_habitat_diversity_1000m, mean_evi_sd_900m, 
-                            mean_canopy_height_sd_900m, 
-                            mean_evi, 
+                            mean_grass_cover_100m, grass_cover_100m_2015_2016,
+                            mean_gr_n_cr_cover_100m, gr_n_cr_cover_100m_2015_2016,
+                            mean_shrub_cover_100m, shrub_cover_100m_2015_2016,
+                            mean_tree_cover_100m, tree_cover_100m_2015_2016,
+                            mean_bare_cover_100m, bare_cover_100m_2015_2016,
+                            mean_evi_90m, evi_90m_2013_2014,
+                            mean_canopy_height_90m,  canopy_height_90m_2000,
+                            mean_habitat_diversity_100m, habitat_diversity_100m_2015_2016,
+                            mean_evi_sd_90m, evi_sd_90m_2013_2014,
+                            mean_canopy_height_sd_90m, canopy_height_sd_90m_2000,
+                            mean_grass_cover_1000m, grass_cover_1000m_2015_2016,
+                            mean_gr_n_cr_cover_1000m, gr_n_cr_cover_1000m_2015_2016,
+                            mean_shrub_cover_1000m, shrub_cover_1000m_2015_2016,
+                            mean_tree_cover_1000m, tree_cover_1000m_2015_2016,
+                            mean_bare_cover_1000m, bare_cover_1000m_2015_2016,
+                            mean_evi_900m, evi_900m_2013_2014,
+                            mean_canopy_height_900m, canopy_height_900m_2000,
+                            mean_habitat_diversity_1000m, habitat_diversity_1000m_2015_2016,
+                            mean_evi_sd_900m, evi_sd_900m_2013_2014,
+                            mean_canopy_height_sd_900m, canopy_height_sd_900m_2001,
                             mean_mat, mean_prec, 
                             mean_burned_area)
 
@@ -173,6 +184,8 @@ summary(dt_res)
 
 if(param == "pa_points"){
   fwrite(dt_res, "data/processed_data/data_fragments/pa_points_with_trends.csv")
-} else if(param == "pa_grid"){
-  fwrite(dt_res, "data/processed_data/data_fragments/pa_grid_with_trends.csv")
+} else if(param == "pa_grid_100m"){
+  fwrite(dt_res, "data/processed_data/data_fragments/pa_grid_100m_with_trends.csv")
+} else if(param == "pa_grid_1000m"){
+  fwrite(dt_res, "data/processed_data/data_fragments/pa_grid_1000m_with_trends.csv")
 } 

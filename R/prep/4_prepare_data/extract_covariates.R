@@ -8,18 +8,17 @@ library(tictoc)
 library(furrr)
 library(terra)
 library(exactextractr)
-### define if we want to run it for control or PA 
 
-# param = "pa_grid"
+# param = "pa_grid_100m"
+# param = "pa_grid_1000m"
 # param = "pa_points"
 # param <- "steps_1hr"
 # param <- "steps_3hrs"
 # param <- "steps_12hrs"
 # param <- "steps_24hrs"
-param <- "knp_elephants"
+#param <- "knp_elephants
 
-params <- c("pa_grid", 
-            "steps_1hr")
+params <- c("pa_grid_100m")
 for(param in unique(params)){ 
   
 if(param == "knp_elephants"){
@@ -28,12 +27,17 @@ if(param == "knp_elephants"){
       st_transform(crs = "ESRI:54009") %>% 
       st_buffer(dist = 100)
       
-} else if(param == "pa_grid"){
-    vect <- read_sf("data/spatial_data/grid/empty_grid_pas.gpkg") %>% 
+} else if(param == "pa_grid_100m"){
+    vect <- read_sf("data/spatial_data/grid/empty_grid_pas_100m.gpkg") %>% 
       mutate(
         unique_id = grid_id)
     
-} else  if(param == "pa_points"){
+} else if(param == "pa_grid_1000m"){
+  vect <- read_sf("data/spatial_data/grid/empty_grid_pas_1000m.gpkg") %>% 
+    mutate(
+      unique_id = grid_id)
+  
+} else if(param == "pa_points"){
     vect <- read_sf("data/spatial_data/grid/empty_points_pas.gpkg") %>% 
       st_buffer(dist = 56.42)
     
@@ -133,6 +137,9 @@ col_names <- c(
   "elevation", ## Elevation
   "map", ## MAP
   "mat", ## MAT
+  "mean_spei", #average standardized precipitation evapotranspiration index
+  "months_severe_drought", #n months with SPEI <-1.6 between 2000 and 2023
+  "months_extreme_drought", #n months with SPEI <-2 between 2000 and 2023
   
   "slope", #Slope
   "enerscape", #Energy landscape 
@@ -173,6 +180,10 @@ cov_paths <- c(
   "data/spatial_data/covariates/raster/CHELSA_bio12_1981-2010_V.2.1.tif", ## MAP
   "data/spatial_data/covariates/raster/CHELSA_bio1_1981-2010_V.2.1.tif", ## MAT
   
+  "data/spatial_data/covariates/raster/mean_spei_2000_2023.tif", #average standardized precipitation evapotranspiration index
+  "data/spatial_data/covariates/raster/spei_months_severe_drought_2000_2023.tif", #n months with SPEI <-1.6 between 2000 and 2023
+  "data/spatial_data/covariates/raster/spei_months_extreme_drought_2000_2023.tif", #n months with SPEI <-2 between 2000 and 2023
+  
   "data/spatial_data/covariates/raster/slope_degree.tif", #Slope
   "data/spatial_data/covariates/raster/energyscape_kcal.tif", #Energy landscape 
   
@@ -205,7 +216,7 @@ cov_paths <- c(
 )
 
 
-funcs <- c(rep("mean", 14), rep("mode", 5))
+funcs <- c(rep("mean", 17), rep("mode", 5))
 
 covs <- data.table(
   col_name = col_names, 
@@ -232,7 +243,7 @@ vect <- vect_backup
 
 ################################## LOOOOOOOOOOOOP ############################            
 options(future.globals.maxSize = 10 * 1024^3)  # 10 GB
-plan(multisession, workers = 19)
+plan(multisession, workers = 22)
 tic()
 
 # Add chunk_id column
@@ -283,6 +294,7 @@ all_dt_covs_list <- list()
                     print(paste0(covs[i, ]$col_name,"; i = ", i))
                     
                     return(dt_extr)
+                    gc()
                     
   }
 )
@@ -291,6 +303,8 @@ all_dt_covs_list <- list()
     reduce(~ left_join(.x, .y, by = "unique_id"))
   
   all_dt_covs_list[[as.character(chunk)]] <- chunk_dt
+  
+  gc()
 }
 toc()
 
@@ -335,10 +349,15 @@ if(param == "knp_elephants"){
   fwrite(dt_vect_covs %>% 
            mutate(unique_id = NULL), "data/processed_data/data_fragments/knp_elephant_counts_habitat_covariates.csv")
 
-} else if(param == "pa_grid"){
+} else if(param == "pa_grid_100m"){
   
   fwrite(dt_vect_covs %>% 
-           mutate(unique_id = NULL), "data/processed_data/data_fragments/pa_grids_with_covariates.csv")
+           mutate(unique_id = NULL), "data/processed_data/data_fragments/pa_grids_100m_with_covariates.csv")
+  
+} else if(param == "pa_grid_1000m"){
+  
+  fwrite(dt_vect_covs %>% 
+           mutate(unique_id = NULL), "data/processed_data/data_fragments/pa_grids_1000m_with_covariates.csv")
   
 } else if(param == "pa_points"){
   

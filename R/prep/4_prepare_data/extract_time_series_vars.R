@@ -11,18 +11,23 @@ library(exactextractr)
 ### define if we want to run it for control or PA 
 
 # param <- "grid"
-# param = "pa_grid"
- param = "pa_points"
+ param = "pa_grid_100m"
+# param = "pa_grid_1000m"
+# param = "pa_points"
 
 if(param == "grid"){
   vect <- read_sf("data/spatial_data/grid/empty_grid.gpkg") %>% 
     mutate(unique_id = grid_id)
   
-} else if(param == "pa_grid"){
-  vect <- read_sf("data/spatial_data/grid/empty_grid_pas.gpkg") %>% 
+} else if(param == "pa_grid_100m"){
+  vect <- read_sf("data/spatial_data/grid/empty_grid_pas_100m.gpkg") %>% 
     mutate(unique_id = grid_id)
   
-} else  if(param == "pa_points"){
+} else if(param == "pa_grid_1000m"){
+  vect <- read_sf("data/spatial_data/grid/empty_grid_pas_1000m.gpkg") %>% 
+    mutate(unique_id = grid_id)
+  
+} else if(param == "pa_points"){
   vect <- read_sf("data/spatial_data/grid/empty_points_pas.gpkg") %>% 
     st_buffer(dist = 56.42)
   
@@ -350,7 +355,7 @@ covs <- rbind(grass_cover_files_100m,
 
 ################################## LOOOOOOOOOOOOP ############################            
 options(future.globals.maxSize = 10 * 1024^3)  # 10 GB
-plan(multisession, workers = 15)
+plan(multisession, workers = 21)
 tic()
 
 # Add chunk_id column
@@ -465,16 +470,27 @@ if(param == "grid"){
            mutate(unique_id = NULL), "data/processed_data/data_fragments/grid_with_timeseries.csv")
   
 
-} else if(param == "pa_grid"){
+} else if(param == "pa_grid_100m"){
   
 
-  dt_habitat_vars <- fread("data/processed_data/data_fragments/pa_grids_with_covariates.csv") %>% 
+  dt_habitat_vars <- fread("data/processed_data/data_fragments/pa_grids_100m_with_covariates.csv") %>% 
     mutate(wdpa_pid = as.character(wdpa_pid))
   
   
   fwrite(vect_covs %>% 
            left_join(dt_habitat_vars[, -c("x_mollweide", "y_mollweide", "lon", "lat")]),
-         "data/processed_data/data_fragments/pa_grid_with_timeseries.csv")
+         "data/processed_data/data_fragments/pa_grid_100m_with_timeseries.csv")
+  
+} else if(param == "pa_grid_1000m"){
+  
+  
+  dt_habitat_vars <- fread("data/processed_data/data_fragments/pa_grids_1000m_with_covariates.csv") %>% 
+    mutate(wdpa_pid = as.character(wdpa_pid))
+  
+  
+  fwrite(vect_covs %>% 
+           left_join(dt_habitat_vars[, -c("x_mollweide", "y_mollweide", "lon", "lat")]),
+         "data/processed_data/data_fragments/pa_grid_1000m_with_timeseries.csv")
   
 } else if(param == "pa_points"){
   
@@ -487,3 +503,5 @@ if(param == "grid"){
          "data/processed_data/data_fragments/pa_points_with_timeseries.csv")
   
 }
+
+gc()
