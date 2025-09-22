@@ -16,7 +16,7 @@ library(rnaturalearth)
 #first sfuture#first stab at sdmTMB
 
 
-#1 HOUSEKEEPING -------------------------------------
+#1 1000m -------------------------------------
 
 #load data 
 sf_parks <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") 
