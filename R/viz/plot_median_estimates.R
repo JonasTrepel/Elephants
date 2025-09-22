@@ -365,8 +365,10 @@ ggsave(p_wy, filename = "builds/plots/cluster_var_means_and_ranges.png",
        dpi = 600, height = 6, width = 10)
 
 ###### combine estimate figure
+p_empty <- ggplot() + theme_void()
+p_med_est_2 <- p_est | p_est_ridges  | p_empty
 
-p_est_comb <- p_med_est / p_est_tr / p_est_cluster
+p_est_comb <- p_med_est_2 / p_est_tr / p_est_cluster
 p_est_comb  
 
 ggsave(p_est_comb, filename = "builds/plots/main_estimate_figure.png",
@@ -574,6 +576,7 @@ p_est_ridges_sex_season_cluster
 #combine 
 p_rid_cluster <- (p_est_ridges_sex | p_est_ridges_season | p_est_ridges_sex_season) / p_est_ridges_sex_cluster / p_est_ridges_season_cluster / p_est_ridges_sex_season_cluster
 p_rid_cluster
+
 
 ggsave(p_rid_cluster, filename = "builds/plots/all_sex_season_estimates_figure.png",
        dpi = 600, height = 10, width = 11)
