@@ -23,6 +23,9 @@ data/processed_data/data_fragments/pa_grid_with_habitat_quality.csv
 data/processed_data/data_fragments/
 data/processed_data/clean_data/final_point_data.csv
 data/processed_data/clean_data/final_grid_data.csv
+data/processed_data/clean_data/final_grid_data.csv
+data/processed_data/clean_data/analysis_ready_grid_1000m.csv
+data/processed_data/clean_data/analysis_ready_grid_100m.csv
 
 # History files
 .Rhistory
