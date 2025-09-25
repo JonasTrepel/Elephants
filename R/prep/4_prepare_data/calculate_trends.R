@@ -50,6 +50,8 @@ process_trend <- function(cols_pattern, trend_name, dt) {
                   unique_id)
   
   return(dt_subset)
+  rm(dt_subset)
+  gc()
 }
 
 # List of trends
@@ -85,11 +87,11 @@ trend_configs <- data.frame(
 
 ################################## LOOOOOOOOOOOOP ############################            
 options(future.globals.maxSize = 10 * 1024^3)  # 10 GB
-plan(multisession, workers = 23)
+plan(multisession, workers = 12)
 tic()
 
 # Add chunk_id column
-chunk_size <- 500000
+chunk_size <- 250000
 dt$chunk_id <- ceiling(seq_len(nrow(dt)) / chunk_size)
 table(dt$chunk_id)
 
@@ -130,6 +132,9 @@ for (chunk in unique(dt$chunk_id)) {
   
   
   print(paste0(chunk, " done! ", Sys.time()))
+  
+  rm(dt_trend_chunk)
+  gc()
 
 }
 
@@ -159,7 +164,7 @@ ctk <- dt %>% dplyr::select(unique_id,
                             mean_canopy_height_900m, canopy_height_900m_2000,
                             mean_habitat_diversity_1000m, habitat_diversity_1000m_2015_2016,
                             mean_evi_sd_900m, evi_sd_900m_2013_2014,
-                            mean_canopy_height_sd_900m, canopy_height_sd_900m_2001,
+                            mean_canopy_height_sd_900m, canopy_height_sd_900m_2000,
                             mean_mat, mean_prec, 
                             mean_burned_area)
 

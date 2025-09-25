@@ -161,7 +161,7 @@ pas_sub <- pas_all[pas_all$NAME %in% c(names_v_count), ] %>%
   st_transform(crs = "ESRI:54009") %>% 
   mutate(area_km2 = as.numeric(st_area(.)/1000000))
 table(pas_sub$NAME)
-unique(pas_sub[pas_sub$NAME == "Kruger National Park" , c("NAME", "area_km2")])
+unique(pas_sub[pas_sub$NAME == "Thornybush Nature Reserve" , c("NAME", "area_km2")])
 
 st_write(pas_sub, "data/spatial_data/protected_areas/park_boundaries.gpkg", append = FALSE)
 mapview(pas_sub)
