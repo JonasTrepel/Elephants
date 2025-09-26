@@ -140,14 +140,14 @@ hist(dt_mod$habitat_diversity_1000m_coef)
 
 dt_corr2 <- dt_mod %>% 
   select(local_density_km2, percent_population_growth, 
-         months_severe_drought, months_extreme_drought, 
+         months_severe_drought, months_severe_drought, 
          mat_coef, prec_coef, n_deposition,
          fire_frequency, burned_area_coef) %>% 
   filter(complete.cases(.))
 ggcorrplot(round(cor(dt_corr2), 2), hc.order = TRUE, type = "lower",
            lab = TRUE)
 
-hist(dt_mod$months_extreme_drought)
+hist(dt_mod$months_severe_drought)
 hist(dt_mod$months_severe_drought)
 
 library(performance)
@@ -247,6 +247,7 @@ mesh_res_list <- future_map(unique(responses),
       )
       
 
+      gen_r2 <- performance::r2(fit) #1-sum((y-y_hat)^2)/sum((y-y_bar)^2)
       # sanity(fit)
       # summary(fit)
 
@@ -254,8 +255,6 @@ mesh_res_list <- future_map(unique(responses),
 
       # AIC(fit) #-232056
 
-      
-      
       tmp_tidy <- broom::tidy(fit, conf.int = TRUE) %>%
         #dplyr::filter(!grepl("(Intercept)", term)) %>%
         dplyr::mutate(sig = case_when(
@@ -270,6 +269,9 @@ mesh_res_list <- future_map(unique(responses),
           aic = AIC(fit),
           sanity_checks = all(san == TRUE),
           response = resp, 
+          sum_loglik = fit_cv$sum_loglik, 
+          n = nrow(dt_mod), 
+          generic_r2 = gen_r2, 
           log_cpo_approx = fit_cv$sum_loglik / nrow(dt_mod)
         )
 
@@ -347,7 +349,7 @@ p_est <- dt_mesh_res %>%
   ggplot() +
   geom_vline(xintercept = 0,linetype = "dashed") +
   geom_pointrange(aes(y = clean_term, x = estimate, xmin = conf.low, xmax = conf.high, color = sig), 
-                  linewidth = 1.1, size = 1.1) +
+                  linewidth = 1.1, size = 1.1, alpha = 0.75, shape = 18) +
   geom_hline(yintercept = 0) +
   scale_color_manual(values = c("non-significant" = "grey75", 
                                 positive = "#5F903D", 
@@ -361,7 +363,7 @@ p_est <- dt_mesh_res %>%
         panel.background = element_rect(fill = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_est
-ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh_1000m.png", dpi = 600, height = 6, width = 9)
+ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh_1000m.png", dpi = 600, height = 6.5, width = 10)
 
 p_cpo <- dt_mesh_res %>% 
   mutate(clean_response = factor(clean_response, levels = c(

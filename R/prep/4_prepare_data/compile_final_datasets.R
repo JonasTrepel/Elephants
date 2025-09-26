@@ -214,6 +214,55 @@ corr <- round(cor(dt_corr_1000m), 2)
 ggcorrplot::ggcorrplot(corr, hc.order = FALSE, type = "lower",
                        lab = TRUE)
 
+
+#### 100m grid with habitat quality -----------
+dt_grid_hq_100m_raw <- fread("data/processed_data/data_fragments/pa_grid_100m_with_habitat_quality.csv") %>% 
+  mutate(wdpa_pid = as.character(wdpa_pid))
+unique(dt_grid_hq_100m_raw$park_id)
+
+glimpse(dt_grid_hq_100m_raw)
+
+dt_grid_trends_100m <- fread("data/processed_data/data_fragments/pa_grid_100m_with_trends.csv") %>% 
+  mutate(wdpa_pid = as.character(wdpa_pid))
+unique(dt_grid_trends_100m$park_id)
+names(dt_grid_trends_100m)
+
+dt_grid_hq_100m <- dt_grid_hq_100m_raw %>%
+  #filter(park_id == "Kruger National Park") %>% 
+  #select(contains("_norm"), park_id) %>% 
+  left_join(dt_pc) %>% 
+  mutate(cell_area_ha = 1) %>% 
+  group_by(park_id) %>% 
+  mutate(total_hq = sum(habitat_quality_norm, na.rm = T), 
+         rel_hq = habitat_quality_norm/total_hq, 
+         rel_pc = mean_population_count*rel_hq, 
+         local_density_ha = rel_pc/cell_area_ha) %>% 
+  ungroup() %>% 
+  dplyr::select(park_id, grid_id, habitat_quality_norm, local_density_ha, 
+                mean_population_count, area_km2, mean_density_km2, 
+                lm_population_trend_estimate, lm_population_trend_p_val, 
+                population_trend_n, 
+                percent_population_growth, glm_population_trend_estimate,
+                glm_population_trend_p_val, glm_population_trend_r2, 
+                evi_mean) %>% 
+  left_join(dt_grid_trends_100m) %>% 
+  mutate(local_density_km2 = local_density_ha*100)
+
+summary(dt_grid_hq_100m)
+
+sum(dt_grid_hq_100m[dt_grid_hq_100m$park_id == "Kruger National Park", ]$local_density_ha, na.rm = T)
+sum(dt_grid_hq_100m[dt_grid_hq_100m$park_id == "Kruger National Park", ]$local_density_km2, na.rm = T)/100
+
+
+unique(dt_grid_hq_100m[dt_grid_hq_100m$park_id == "Kruger National Park", ]$mean_population_count)
+
+
+fwrite(dt_grid_hq_100m %>% 
+         filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
+         filter(!park_id %in% c("Zambezi", "iSimangaliso Wetland Park")), 
+       "data/processed_data/clean_data/analysis_ready_grid_100m.csv")
+
+
 #100m grid -------------
 
 # #Deprecated--------------------
