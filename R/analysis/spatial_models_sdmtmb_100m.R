@@ -35,6 +35,8 @@ quantile(dt$dw_min_median_mode_fraction, na.rm = T)
 
 names(dt)
 
+acceptable_numbers = seq(1, 10000000, 5)
+
 dt_mod <- dt %>% 
   filter(dw_min_median_mode_fraction >= 50) %>% 
   select(
@@ -44,7 +46,7 @@ dt_mod <- dt %>%
     
     #starting conditions
     tree_cover_100m_2015_2016, evi_90m_2013_2014, canopy_height_90m_2000,
-    habitat_diversity_100m_2015_2016, evi_sd_90m_2013_2014, canopy_height_sd_90m_2001,
+    habitat_diversity_100m_2015_2016, evi_sd_90m_2013_2014, canopy_height_sd_90m_2000,
     
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
@@ -65,10 +67,12 @@ dt_mod <- dt %>%
   ) %>% 
   filter(complete.cases(.)) %>% 
   mutate(
-    x_moll_km = x_mollweide/100, 
-    y_moll_km = y_mollweide/100,
+    x_moll_km = x_mollweide/1000, 
+    y_moll_km = y_mollweide/1000,
   ) %>%
   group_by(park_id) %>% 
+  mutate(park_row_nr = 1:n()) %>% 
+  filter(park_row_nr %in% acceptable_numbers) %>% 
   filter(n() >= 10) %>% 
   ungroup() %>% 
   as.data.table() %>% 
@@ -90,9 +94,7 @@ dt_mod <- dt %>%
   )
 
 
-park_counts <- dt_mod[, .N, by = park_id] %>% arrange(N)
-print(park_counts)
-
+(park_counts <- dt_mod[, .N, by = park_id] %>% arrange(N))
 
 hist(dt_mod$local_density_km2)
 range(dt_mod$mean_density_km2)
@@ -105,27 +107,6 @@ n_distinct(dt_mod$park_id)
 glimpse(dt_mod)
 
 ### plot final dataset -----
-# World 
-sf_world <- ne_countries(scale = "medium", returnclass = "sf")
-
-# Africa 
-sf_africa <- sf_world %>% filter(region_un == "Africa") %>% 
-  filter(!name == "Madagascar") %>% 
-  st_transform(., crs = 4326)
-
-
-p_loc_fin <- dt_mod %>% ggplot() +
-  ylim(-35, -7.5) +
-  xlim(9, 40) +
-  geom_sf(data = sf_africa, fill = "grey99") +
-  geom_point(aes(x = lon, y = lat), size = 0.1, alpha = 0.5) + 
-  geom_sf(data = sf_parks %>% filter(NAME %in% unique(dt_mod$park_id)) %>% 
-            st_transform(crs = 4326), fill = "orange", alpha = 0.5) +
-  theme_void() +
-  theme(legend.position = "none")
-p_loc_fin 
-
-ggsave(plot = p_loc_fin, "builds/plots/pas_included_in_analysis.png", dpi = 600)
 
 
 #Check correlations 
@@ -186,7 +167,7 @@ responses <- c("tree_cover_100m_coef", "evi_90m_coef", "canopy_height_90m_coef",
                "habitat_diversity_100m_coef", "evi_sd_90m_coef", "canopy_height_sd_90m_coef")
 
 plan(multisession, workers = 6)
-options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
+options(future.globals.maxSize = 30 * 1024^3)  # 15 GiB
 start_time <- Sys.time()
 
 mesh_res_list <- future_map(unique(responses),
@@ -233,20 +214,41 @@ mesh_res_list <- future_map(unique(responses),
                                 
                                 
                                 
-                                fit_cv <- sdmTMB::sdmTMB_cv(formula,
-                                                            data = dt_mod,
-                                                            mesh = mesh,
-                                                            spatial = "on", 
-                                                            fold_ids = "fold_id" # created above, folds are stratified to ensure each park is present in each fold 
+                                fit_cv <- tryCatch(
+                                  {
+                                    sdmTMB::sdmTMB_cv(
+                                      formula,
+                                      data = dt_mod,
+                                      mesh = mesh,
+                                      spatial = "on",
+                                      fold_ids = "fold_id" # created above, folds are stratified
+                                    )
+                                  },
+                                  error = function(e) {
+                                    message("Error in sdmTMB_cv: ", e$message)
+                                    return(NULL)
+                                  }
                                 )
                                 
-                                fit <- sdmTMB::sdmTMB(formula,
-                                                      data = dt_mod,
-                                                      mesh = mesh,
-                                                      spatial = "on"
+                                if(is.null(fit_cv)){next}
+                                
+                                fit <- tryCatch(
+                                  {
+                                    sdmTMB::sdmTMB(
+                                      formula,
+                                      data = dt_mod,
+                                      mesh = mesh,
+                                      spatial = "on"
+                                    )
+                                  },
+                                  error = function(e) {
+                                    message("Error in sdmTMB: ", e$message)
+                                    return(NULL)
+                                  }
                                 )
                                 
-                                
+                                if(is.null(fit)){next}
+
                                 gen_r2 <- performance::r2(fit) #1-sum((y-y_hat)^2)/sum((y-y_bar)^2)
                                 # sanity(fit)
                                 # summary(fit)
@@ -274,6 +276,11 @@ mesh_res_list <- future_map(unique(responses),
                                     generic_r2 = gen_r2, 
                                     log_cpo_approx = fit_cv$sum_loglik / nrow(dt_mod)
                                   )
+                                
+                                rm(fit_cv)
+                                rm(fit)
+                                rm(mesh)
+                                gc()
                                 
                                 
                                 dt_mesh_res_sub <- rbind(tmp_tidy, dt_mesh_res_sub)

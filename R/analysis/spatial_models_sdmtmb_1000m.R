@@ -44,7 +44,7 @@ dt_mod <- dt %>%
     
     #starting conditions
     tree_cover_1000m_2015_2016, evi_900m_2013_2014, canopy_height_900m_2000,
-    habitat_diversity_1000m_2015_2016, evi_sd_900m_2013_2014, canopy_height_sd_900m_2001,
+    habitat_diversity_1000m_2015_2016, evi_sd_900m_2013_2014, canopy_height_sd_900m_2000,
     
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
