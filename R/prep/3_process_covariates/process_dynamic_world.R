@@ -210,6 +210,80 @@ print(paste0("All done. Time: ", Sys.time()))
 
 plan(sequential)
 
+
+#### Tree cover SD ---------------------
+
+tc_files <- list.files("data/spatial_data/time_series", pattern = "tree_2", full.names = T)
+
+terraOptions(memfrac = 0.5)
+
+
+plan(multisession, workers = 5)
+
+future_walk(1:length(tc_files),
+            .progress = TRUE,
+            function(i){
+              
+              file <- tc_files[i]
+              dw_r <- rast(file)
+              plot(dw_r)
+              
+              years <- gsub("data/spatial_data/time_series/tree_", "", file)
+              years <- gsub("_10m.tif", "", years)
+
+tree_cover_sd <- aggregate(
+  dw_r,
+  fact = 10,
+  fun = "sd",
+  cores = 1,
+  filename = paste0("data/spatial_data/time_series/tree_cover_sd_", years, "_100m.tif"),
+  overwrite = TRUE
+)
+
+})
+
+print(paste0("all done ", Sys.time()))
+plan(sequential)
+
+#Tree cover SD 1000m
+
+tc_files <- list.files("data/spatial_data/time_series", pattern = "tree_cover_2", full.names = T)
+tc_files <- tc_files[grepl("100m", tc_files)]
+
+terraOptions(memfrac = 0.5)
+
+
+plan(multisession, workers = 5)
+
+future_walk(1:length(tc_files),
+            .progress = TRUE,
+            function(i){
+              
+              file <- tc_files[i]
+              dw_r <- rast(file)
+              plot(dw_r)
+              
+              years <- gsub("data/spatial_data/time_series/tree_cover_", "", file)
+              years <- gsub("_100m.tif", "", years)
+              
+              tree_cover_sd <- aggregate(
+                dw_r,
+                fact = 10,
+                fun = "sd",
+                cores = 1,
+                filename = paste0("data/spatial_data/time_series/tree_cover_sd_", years, "_1000m.tif"),
+                overwrite = TRUE
+              )
+              
+              #plot(tree_cover_sd)
+              
+            })
+
+print(paste0("all done ", Sys.time()))
+plan(sequential)
+
+
+
 #### Habitat diversity -------------------------
 
 vegetation_type_files <- list.files("data/spatial_data/time_series",
@@ -408,7 +482,7 @@ future_walk(1:length(fraction_mode_files),
                                       overwrite = T)
               #plot(fraction_mode_100m_r)
 })
-plant(sequential)
+plan(sequential)
 
 #### now get the minimum...
 

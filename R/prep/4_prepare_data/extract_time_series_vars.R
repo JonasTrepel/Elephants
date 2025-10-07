@@ -11,7 +11,7 @@ library(exactextractr)
 ### define if we want to run it for control or PA 
 
 # param <- "grid"
- param = "pa_grid_100m"
+param = "pa_grid_100m"
 # param = "pa_grid_1000m"
 # param = "pa_points"
 
@@ -119,6 +119,7 @@ tree_cover_files_100m <- data.table(filepath = list.files("data/spatial_data/tim
                                                       full.names = FALSE)
 ) %>% 
   filter(grepl("100m", filename)) %>% 
+  filter(!grepl("sd", filename)) %>% 
   mutate(filename = gsub("_100m.tif", "", filename), 
          colname =  gsub("tree_cover_", "tree_cover_100m_", filename))
 
@@ -130,8 +131,33 @@ tree_cover_files_1000m <- data.table(filepath = list.files("data/spatial_data/ti
                                                           full.names = FALSE)
 ) %>% 
   filter(grepl("1000m", filename)) %>% 
+  filter(!grepl("sd", filename)) %>% 
   mutate(filename = gsub("_1000m.tif", "", filename), 
          colname =  gsub("tree_cover_", "tree_cover_1000m_", filename))
+
+#Tree cover SD
+tree_cover_sd_files_100m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                          pattern = "tree_cover_sd", 
+                                                          full.names = TRUE), 
+                                    filename = list.files("data/spatial_data/time_series/",
+                                                          pattern = "tree_cover_sd", 
+                                                          full.names = FALSE)
+) %>% 
+  filter(grepl("100m", filename)) %>% 
+  mutate(filename = gsub("_100m.tif", "", filename), 
+         colname =  gsub("tree_cover_sd_", "tree_cover_sd_100m_", filename))
+
+tree_cover_sd_files_1000m <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                           pattern = "tree_cover_sd", 
+                                                           full.names = TRUE), 
+                                     filename = list.files("data/spatial_data/time_series/",
+                                                           pattern = "tree_cover_sd", 
+                                                           full.names = FALSE)
+) %>% 
+  filter(grepl("1000m", filename)) %>% 
+  mutate(filename = gsub("_1000m.tif", "", filename), 
+         colname =  gsub("tree_cover_sd_", "tree_cover_sd_1000m_", filename))
+
 
 
 #Bare Ground
@@ -325,6 +351,9 @@ covs <- rbind(grass_cover_files_100m,
               tree_cover_files_100m,
               tree_cover_files_1000m,
               
+              tree_cover_sd_files_100m,
+              tree_cover_sd_files_1000m,
+              
               shrub_cover_files_100m,
               shrub_cover_files_1000m,
           
@@ -433,6 +462,9 @@ vect_covs <- vect %>%
          
          mean_tree_cover_100m = rowMeans(select(., contains("tree_cover_100m")), na.rm = TRUE), 
          mean_tree_cover_1000m = rowMeans(select(., contains("tree_cover_1000m")), na.rm = TRUE), 
+         
+         mean_tree_cover_sd_100m = rowMeans(select(., contains("tree_cover_sd_100m")), na.rm = TRUE), 
+         mean_tree_cover_sd_1000m = rowMeans(select(., contains("tree_cover_sd_1000m")), na.rm = TRUE), 
          
          mean_shrub_cover_100m = rowMeans(select(., contains("shrub_cover_100m")), na.rm = TRUE), 
          mean_shrub_cover_1000m = rowMeans(select(., contains("shrub_cover_1000m")), na.rm = TRUE), 

@@ -362,7 +362,7 @@ p_est <- dt_mesh_res %>%
                                 positive = "#5F903D", 
                                 negative = "#B5549C")) +
   facet_wrap(~clean_response, scales = "free_x", ncol = 3) +
-  labs(y = "", title = "km² Scale") +
+  labs(y = "", title = "Ha Scale") +
   theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -379,7 +379,7 @@ p_cpo <- dt_mesh_res %>%
   ggplot() +
   geom_point(aes(x = cutoff, y = log_cpo_approx, color = max_inner_edge)) +
   scale_color_viridis_c(option = "B") +
-  labs(y = "Log CPO (Approx)", x = "Cutoff (km)", color = "Max\nInner\nEdge\n(km)", title = "Km² scale") +
+  labs(y = "Log CPO (Approx)", x = "Cutoff (km)", color = "Max\nInner\nEdge\n(km)", title = "Ha scale") +
   facet_wrap(~clean_response, scales = "free") +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 

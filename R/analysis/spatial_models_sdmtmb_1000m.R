@@ -160,7 +160,7 @@ m_test <- glmmTMB::glmmTMB(tree_cover_1000m_coef ~
                              local_density_km2_scaled * percent_population_growth_scaled +
                              local_density_km2_scaled * months_severe_drought_scaled +
                              local_density_km2_scaled * fire_frequency_scaled +
-                             mat_coef_scaled * prec_coef_scaled +
+                             mat_coef_scaled +#* prec_coef_scaled +
                              n_deposition_scaled +
                            ( 1 | park_id), 
                            data = dt_mod)
@@ -228,7 +228,7 @@ mesh_res_list <- future_map(unique(responses),
       formula <- as.formula(paste0(resp, " ~ local_density_km2_scaled * percent_population_growth_scaled +
                              local_density_km2_scaled * months_severe_drought_scaled +
                              local_density_km2_scaled * fire_frequency_scaled +
-                             mat_coef_scaled * prec_coef_scaled +
+                             mat_coef_scaled + 
                              n_deposition_scaled"))
       
 

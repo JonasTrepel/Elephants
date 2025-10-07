@@ -8,8 +8,8 @@ library(tictoc)
 #param = "pas"
 #param = "grid"
 #param = "pa_points"
-param = "pa_grid_100m"
-#param = "pa_grid_1000m"
+#param = "pa_grid_100m"
+param = "pa_grid_1000m"
 
 
 if(param == "pa_points"){
@@ -57,24 +57,24 @@ process_trend <- function(cols_pattern, trend_name, dt) {
 # List of trends
 trend_configs <- data.frame(
   pattern = c("grass_cover_100m", "gr_n_cr_cover_100m",
-              "tree_cover_100m", "shrub_cover_100m", "bare_cover_100m",
+              "tree_cover_100m", "tree_cover_sd_100m", "shrub_cover_100m", "bare_cover_100m",
               "evi_90m", "canopy_height_90m", 
               "habitat_diversity_100m_", "canopy_height_sd_90m_",
               "evi_sd_90m_", 
               "grass_cover_1000m", "gr_n_cr_cover_1000m",
-              "tree_cover_1000m", "shrub_cover_1000m", "bare_cover_1000m",
+              "tree_cover_1000m", "tree_cover_sd_1000m", "shrub_cover_1000m", "bare_cover_1000m",
               "evi_900m", "canopy_height_900m", 
               "habitat_diversity_1000m_", "canopy_height_sd_900m_",
               "evi_sd_900m_", 
               "mat_", "prec_", 
               "burned_area_"),
   name = c("grass_cover_100m", "gr_n_cr_cover_100m",
-           "tree_cover_100m", "shrub_cover_100m", "bare_cover_100m",
+           "tree_cover_100m", "tree_cover_sd_100m", "shrub_cover_100m", "bare_cover_100m",
            "evi_90m", "canopy_height_90m", 
            "habitat_diversity_100m", "canopy_height_sd_90m",
            "evi_sd_90m", 
            "grass_cover_1000m", "gr_n_cr_cover_1000m",
-           "tree_cover_1000m", "shrub_cover_1000m", "bare_cover_1000m",
+           "tree_cover_1000m", "tree_cover_sd_1000m", "shrub_cover_1000m", "bare_cover_1000m",
            "evi_900m", "canopy_height_900m", 
            "habitat_diversity_1000m", "canopy_height_sd_900m",
            "evi_sd_900m", 
@@ -149,6 +149,7 @@ ctk <- dt %>% dplyr::select(unique_id,
                             mean_gr_n_cr_cover_100m, gr_n_cr_cover_100m_2015_2016,
                             mean_shrub_cover_100m, shrub_cover_100m_2015_2016,
                             mean_tree_cover_100m, tree_cover_100m_2015_2016,
+                            mean_tree_cover_sd_100m, tree_cover_sd_100m_2015_2016,
                             mean_bare_cover_100m, bare_cover_100m_2015_2016,
                             mean_evi_90m, evi_90m_2013_2014,
                             mean_canopy_height_90m,  canopy_height_90m_2000,
@@ -159,6 +160,7 @@ ctk <- dt %>% dplyr::select(unique_id,
                             mean_gr_n_cr_cover_1000m, gr_n_cr_cover_1000m_2015_2016,
                             mean_shrub_cover_1000m, shrub_cover_1000m_2015_2016,
                             mean_tree_cover_1000m, tree_cover_1000m_2015_2016,
+                            mean_tree_cover_sd_1000m, tree_cover_sd_1000m_2015_2016,
                             mean_bare_cover_1000m, bare_cover_1000m_2015_2016,
                             mean_evi_900m, evi_900m_2013_2014,
                             mean_canopy_height_900m, canopy_height_900m_2000,
