@@ -24,8 +24,8 @@ library(glmmTMB)
 sf_parks <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") 
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
-  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100, 
-         evi_900m_coef = evi_900m_coef/100
+  mutate(tree_cover_1000m_change = tree_cover_1000m_change*100, 
+         evi_900m_change = evi_900m_change/100
   ) %>% 
   filter(park_id != "Thornybush Nature Reserve")
 
@@ -50,14 +50,14 @@ dt_mod <- dt %>%
     
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-    fire_frequency, months_severe_drought, months_extreme_drought, mat_coef, prec_coef, burned_area_coef,
+    fire_frequency, months_severe_drought, months_extreme_drought, mat_change, prec_change,
     
     #Elephant predictors 
     mean_density_km2, local_density_km2, percent_population_growth,
     
     #Trends - Responses 
-    tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
-    habitat_diversity_1000m_coef, tree_cover_sd_1000m_coef, evi_sd_900m_coef, canopy_height_sd_900m_coef, 
+    tree_cover_1000m_change, evi_900m_change, canopy_height_900m_change, 
+    habitat_diversity_1000m_change, tree_cover_sd_1000m_change, evi_sd_900m_change, canopy_height_sd_900m_change, 
     
     #Coords 
     x_mollweide, y_mollweide, lon, lat, 
@@ -86,9 +86,10 @@ dt_mod <- dt %>%
     mean_density_km2_scaled       = as.numeric(scale(mean_density_km2)),
     percent_population_growth_scaled = as.numeric(scale(percent_population_growth)),
     months_severe_drought_scaled   = as.numeric(scale(months_severe_drought)),
+    months_extreme_drought_scaled = as.numeric(scale(months_extreme_drought)),
     fire_frequency_scaled          = as.numeric(scale(fire_frequency)),
-    mat_coef_scaled                = as.numeric(scale(mat_coef)),
-    prec_coef_scaled               = as.numeric(scale(prec_coef)),
+    mat_change_scaled                = as.numeric(scale(mat_change)),
+    prec_change_scaled               = as.numeric(scale(prec_change)),
     n_deposition_scaled            = as.numeric(scale(n_deposition)), 
     mat_scaled = as.numeric(scale(mat)), 
     map_scaled = as.numeric(scale(map))
@@ -115,42 +116,43 @@ glimpse(dt_mod)
 
 ###### get the responses together
 dt_corr_res <- dt_mod %>% 
-  dplyr::select(tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef,
-                habitat_diversity_1000m_coef, tree_cover_sd_1000m_coef,
-                evi_sd_900m_coef, canopy_height_sd_900m_coef)
+  group_by(park_id) %>% 
+  slice_sample(prop = .25) %>% 
+  ungroup() %>% 
+  dplyr::select(tree_cover_1000m_change, evi_900m_change, canopy_height_900m_change,
+                habitat_diversity_1000m_change, tree_cover_sd_1000m_change,
+                evi_sd_900m_change, canopy_height_sd_900m_change)
 
 ggpairs(dt_corr_res) # looks like habitat diversity and tree cover SD are kinda redundant
   
 dt_corr_pred <- dt_mod %>% 
   dplyr::select(elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-                fire_frequency, months_severe_drought, months_extreme_drought, mat_coef, prec_coef, 
+                fire_frequency, months_severe_drought, months_extreme_drought, mat_change, prec_change, 
                 mean_density_km2, local_density_km2, percent_population_growth)
 
 corr <- round(cor(dt_corr_pred), 2)
 ggcorrplot(corr, hc.order = FALSE, type = "lower",
-           lab = TRUE) #prec and mat coef don't go well together...
+           lab = TRUE) #prec and mat change don't go well together...
 
 
 
-#### Decide whether to include prec_coef*map or mat_coef*mat...
+#### Decide whether to include prec_change*map or mat_change*mat...
 # Test covariate model improvement -------------------------------------
 
-responses <- c("tree_cover_1000m_coef", "evi_900m_coef", "canopy_height_900m_coef",
-               "tree_cover_sd_1000m_coef", "evi_sd_900m_coef", "canopy_height_sd_900m_coef")
+responses <- c("tree_cover_1000m_change", "evi_900m_change", "canopy_height_900m_change",
+               "tree_cover_sd_1000m_change", "evi_sd_900m_change", "canopy_height_sd_900m_change")
 
 vars <- c("local_density_km2_scaled",
           "percent_population_growth_scaled",
           "months_severe_drought_scaled",
           "fire_frequency_scaled", 
-          "mat_coef_scaled", 
-          "prec_coef_scaled", 
+          "mat_change_scaled", 
+          "prec_change_scaled", 
           "n_deposition_scaled", 
           "mean_density_km2_scaled",
           
-          "local_density_km2_scaled*months_severe_drought_scaled",
           "local_density_km2_scaled*percent_population_growth_scaled",
-          "local_density_km2_scaled*fire_frequency_scaled",
-          "mat_coef_scaled*mat_scaled")
+          "mean_density_km2_scaled*percent_population_growth_scaled")
 
 plan(multisession, workers = 6)
 options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
@@ -227,30 +229,32 @@ unique(responses)
 dt_var_res <- rbindlist(var_res_list) %>% 
   mutate(clean_response = case_when(
     .default = resp,
-    resp == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    resp == "evi_900m_coef" ~  "EVI Trend",
-    resp == "canopy_height_900m_coef" ~  "Canopy Height Trend",
-    resp == "tree_cover_sd_1000m_coef" ~ "Tree Cover SD Trend",
-    resp == "evi_sd_900m_coef" ~ "EVI SD Trend", 
-    resp == "canopy_height_sd_900m_coef" ~ "Canopy Height SD Trend"
+    resp == "tree_cover_1000m_change" ~ "Woody Cover Trend",
+    resp == "evi_900m_change" ~  "EVI Trend",
+    resp == "canopy_height_900m_change" ~  "Canopy Height Trend",
+    resp == "tree_cover_sd_1000m_change" ~ "Tree Cover SD Trend",
+    resp == "evi_sd_900m_change" ~ "EVI SD Trend", 
+    resp == "canopy_height_sd_900m_change" ~ "Canopy Height SD Trend"
   ), 
   clean_term = case_when(
     .default = var,
     var == "local_density_km2_scaled" ~ "Local Elephant Density",
     var == "mean_density_km2_scaled" ~ "Mean Elephant Density",
     var == "percent_population_growth_scaled" ~ "Elephant Population Growth",
-    var == "mat_coef_scaled" ~ "MAT Trend",
-    var == "prec_coef_scaled" ~ "Precipitation Trend",
+    var == "mat_change_scaled" ~ "MAT Trend",
+    var == "prec_change_scaled" ~ "Precipitation Trend",
     var == "n_deposition_scaled" ~ "Nitrogen deposition",
     var == "fire_frequency_scaled" ~ "Fire frequency",
     var == "months_severe_drought_scaled" ~ "N Drought Months", 
     var == "mat_scaled" ~ "MAT", 
     var == "map_scaled" ~ "MAP", 
     var == "local_density_km2_scaled*percent_population_growth_scaled" ~ "Local Ele. Density:Ele. Pop. Growth",
+    var == "mean_density_km2_scaled*percent_population_growth_scaled" ~ "Mean Ele. Density:Ele. Pop. Growth",
+    
     var == "local_density_km2_scaled*months_severe_drought_scaled" ~ "Local Ele. Density:Drought Months",
     var == "local_density_km2_scaled*fire_frequency_scaled" ~ "Local Ele. Density:Fire Frequency",
-    var == "mat_coef_scaled*mat_scaled" ~ "MAT Trend:MAT", 
-    var == "prec_coef_scaled*map_scaled" ~ "MAP Trend:MAP"), 
+    var == "mat_change_scaled*mat_scaled" ~ "MAT Trend:MAT", 
+    var == "prec_change_scaled*map_scaled" ~ "MAP Trend:MAP"), 
   point_col = case_when(
     abs(delta_aic) <= 2 ~ "no difference",
     delta_aic > 2 ~ "improved model", 
@@ -290,8 +294,8 @@ ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_
 mesh_grid <- expand.grid(max_inner_edge = seq(50, 150, by = 50), cutoff = seq(2, 20, by = 2), loc_cpo = NA) %>% 
                            mutate(mesh_id = paste0("mesh_", 1:nrow(.)))
 
-responses <- c("tree_cover_1000m_coef", "evi_900m_coef", "canopy_height_900m_coef",
-               "tree_cover_sd_1000m_coef", "evi_sd_900m_coef", "canopy_height_sd_900m_coef")
+responses <- c("tree_cover_1000m_change", "evi_900m_change", "canopy_height_900m_change",
+               "tree_cover_sd_1000m_change", "evi_sd_900m_change", "canopy_height_sd_900m_change")
 
 plan(multisession, workers = 6)
 options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
@@ -337,10 +341,10 @@ mesh_res_list <- future_map(unique(responses),
    
    #plot(mesh)
    
-   formula <- as.formula(paste0(resp, " ~ local_density_km2_scaled*percent_population_growth_scaled +
-                             local_density_km2_scaled*months_severe_drought_scaled +
-                             local_density_km2_scaled*fire_frequency_scaled +
-                             mat_coef_scaled*mat_scaled + 
+   formula <- as.formula(paste0(resp, " ~ percent_population_growth_scaled*local_density_km2_scaled +
+                             months_severe_drought_scaled +
+                             fire_frequency_scaled +
+                             mat_change_scaled + 
                              n_deposition_scaled"))
    
    
@@ -348,13 +352,15 @@ mesh_res_list <- future_map(unique(responses),
                                data = dt_mod,
                                mesh = mesh,
                                spatial = "on",
-                               fold_ids = "fold_id" # created above, folds are stratified to ensure each park is present in each fold 
+                               fold_ids = "fold_id", # created above, folds are stratified to ensure each park is present in each fold 
+                               family = sdmTMB::student()
                               )
    
    fit <- sdmTMB::sdmTMB(formula,
                          data = dt_mod,
                          mesh = mesh,
-                         spatial = "on"
+                         spatial = "on",
+                         family = sdmTMB::student()
                          )
    
    
@@ -362,7 +368,7 @@ mesh_res_list <- future_map(unique(responses),
 
    san <- sdmTMB::sanity(fit)
    
-   model_id = paste0(resp, "_", mesh_id, "_1000m")
+   model_id = paste0(resp, "_", mesh_id, "_1000m_local_density")
    
    tmp_tidy <- broom::tidy(fit, conf.int = TRUE) %>%
      #dplyr::filter(!grepl("(Intercept)", term)) %>%
@@ -382,7 +388,8 @@ mesh_res_list <- future_map(unique(responses),
        sum_loglik = fit_cv$sum_loglik,
        n = nrow(dt_mod), 
        log_cpo_approx = fit_cv$sum_loglik / nrow(dt_mod), 
-       model_id
+       model_id = model_id, 
+       model_path = paste0("builds/models/", model_id, ".Rds")
        )
                                 
    saveRDS(fit, file = paste0("builds/models/", model_id, ".Rds"))
@@ -404,20 +411,20 @@ unique(responses)
 dt_mesh_res <- rbindlist(mesh_res_list) %>% 
   mutate(clean_response = case_when(
     .default = response,
-    response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "evi_900m_coef" ~  "EVI Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend",
-    response == "tree_cover_sd_1000m_coef" ~ "Tree Cover SD Trend",
-    response == "evi_sd_900m_coef" ~ "EVI SD Trend", 
-    response == "canopy_height_sd_900m_coef" ~ "Canopy Height SD Trend"
+    response == "tree_cover_1000m_change" ~ "Woody Cover Trend",
+    response == "evi_900m_change" ~  "EVI Trend",
+    response == "canopy_height_900m_change" ~  "Canopy Height Trend",
+    response == "tree_cover_sd_1000m_change" ~ "Tree Cover SD Trend",
+    response == "evi_sd_900m_change" ~ "EVI SD Trend", 
+    response == "canopy_height_sd_900m_change" ~ "Canopy Height SD Trend"
   ), 
   clean_term = case_when(
     .default = term,
     term == "local_density_km2_scaled" ~ "Local Elephant Density",
     term == "mean_density_km2_scaled" ~ "Mean Elephant Density",
     term == "percent_population_growth_scaled" ~ "Elephant Population Growth",
-    term == "mat_coef_scaled" ~ "MAT Trend",
-    term == "prec_coef_scaled" ~ "Precipitation Trend",
+    term == "mat_change_scaled" ~ "MAT Trend",
+    term == "prec_change_scaled" ~ "Precipitation Trend",
     term == "n_deposition_scaled" ~ "Nitrogen deposition",
     term == "fire_frequency_scaled" ~ "Fire frequency",
     term == "months_severe_drought_scaled" ~ "N Drought Months", 
@@ -426,7 +433,7 @@ dt_mesh_res <- rbindlist(mesh_res_list) %>%
     term == "local_density_km2_scaled:percent_population_growth_scaled" ~ "Local Ele. Density:Ele. Pop. Growth",
     term == "local_density_km2_scaled:months_severe_drought_scaled" ~ "Local Ele. Density:Drought Months",
     term == "local_density_km2_scaled:fire_frequency_scaled" ~ "Local Ele. Density:Fire Frequency",
-    term == "mat_coef_scaled:mat_scaled" ~ "MAT Trend:MAT"))
+    term == "mat_change_scaled:mat_scaled" ~ "MAT Trend:MAT"))
 unique(dt_mesh_res$clean_term)
 summary(dt_mesh_res)
 fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results_1000m_local_density.csv")

@@ -14,6 +14,7 @@ dt_pc_raw <- fread("data/processed_data/clean_data/all_population_counts.csv") %
 
 
 dt_pc_trend <- data.frame()
+
 for(park in unique(dt_pc_raw$park_id)){
   
   dt_p <- dt_pc_raw %>% filter(park_id == park) %>% 
@@ -105,7 +106,21 @@ dt_grid_hq_1000m <- dt_grid_hq_1000m_raw %>%
                percent_population_growth, glm_population_trend_estimate,
                glm_population_trend_p_val, glm_population_trend_r2, 
                evi_mean) %>% 
-  left_join(dt_grid_trends_1000m)
+  left_join(dt_grid_trends_1000m) %>% 
+  mutate(mat_change = (mat_coef/mean_mat)*100, #get percent changes which is more interpretable 
+         prec_change = (prec_coef/mean_prec)*100,
+         tree_cover_1000m_change = (tree_cover_1000m_coef/mean_tree_cover_1000m)*100,
+         canopy_height_900m_change = (canopy_height_900m_coef/mean_canopy_height_900m)*100,
+         evi_900m_change = (evi_900m_coef/mean_evi_900m)*100,
+         tree_cover_sd_1000m_change = (tree_cover_sd_1000m_coef/mean_tree_cover_sd_1000m)*100,
+         canopy_height_sd_900m_change = (canopy_height_sd_900m_coef/mean_canopy_height_sd_900m)*100,
+         evi_sd_900m_change = (evi_sd_900m_coef/mean_evi_sd_900m)*100,
+         habitat_diversity_1000m_change = (habitat_diversity_1000m_coef/mean_habitat_diversity_1000m)/100
+         )
+
+hist(dt_grid_hq_1000m$tree_cover_sd_1000m_change)
+hist(dt_grid_hq_1000m$canopy_height_sd_900m_change)
+hist(dt_grid_hq_1000m$habitat_diversity_1000m_change)
 
 sum(dt_grid_hq_1000m[dt_grid_hq_1000m$park_id == "Kruger National Park", ]$local_density_km2, na.rm = T)
 sum(dt_grid_hq_1000m[dt_grid_hq_1000m$park_id == "Kruger National Park", ]$mean_density_km2, na.rm = T)
@@ -246,7 +261,21 @@ dt_grid_hq_100m <- dt_grid_hq_100m_raw %>%
                 glm_population_trend_p_val, glm_population_trend_r2, 
                 evi_mean) %>% 
   left_join(dt_grid_trends_100m) %>% 
-  mutate(local_density_km2 = local_density_ha*100)
+  mutate(local_density_km2 = local_density_ha*100) %>% 
+  mutate(mat_change = (mat_coef/mean_mat)*100, #get percent changes which is more interpretable 
+         prec_change = (prec_coef/mean_prec)*100,
+         tree_cover_100m_change = (tree_cover_100m_coef/mean_tree_cover_100m)*100,
+         canopy_height_90m_change = (canopy_height_90m_coef/mean_canopy_height_90m)*100,
+         evi_90m_change = (evi_90m_coef/mean_evi_90m)*100,
+         tree_cover_sd_100m_change = (tree_cover_sd_100m_coef/mean_tree_cover_sd_100m)*100,
+         canopy_height_sd_90m_change = (canopy_height_sd_90m_coef/mean_canopy_height_sd_90m)*100,
+         evi_sd_90m_change = (evi_sd_90m_coef/mean_evi_sd_90m)*100, 
+         habitat_diversity_100m_change = (habitat_diversity_100m_coef/mean_habitat_diversity_100m)/100
+  )
+
+hist(dt_grid_hq_100m$tree_cover_sd_100m_change)
+hist(dt_grid_hq_100m$canopy_height_sd_90m_change)
+hist(dt_grid_hq_100m$evi_sd_90m_change)
 
 summary(dt_grid_hq_100m)
 

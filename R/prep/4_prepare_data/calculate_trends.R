@@ -8,8 +8,8 @@ library(tictoc)
 #param = "pas"
 #param = "grid"
 #param = "pa_points"
-#param = "pa_grid_100m"
-param = "pa_grid_1000m"
+param = "pa_grid_100m"
+#param = "pa_grid_1000m"
 
 
 if(param == "pa_points"){
@@ -87,7 +87,7 @@ trend_configs <- data.frame(
 
 ################################## LOOOOOOOOOOOOP ############################            
 options(future.globals.maxSize = 10 * 1024^3)  # 10 GB
-plan(multisession, workers = 12)
+plan(multisession, workers = 13)
 tic()
 
 # Add chunk_id column
