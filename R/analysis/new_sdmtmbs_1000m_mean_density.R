@@ -249,6 +249,7 @@ dt_var_res <- rbindlist(var_res_list) %>%
     var == "mat_scaled" ~ "MAT", 
     var == "map_scaled" ~ "MAP", 
     var == "mean_density_km2_scaled*percent_population_growth_scaled" ~ "Mean Ele. Density:Ele. Pop. Growth",
+    var == "local_density_km2_scaled*percent_population_growth_scaled" ~ "Local Ele. Density:Ele. Pop. Growth",
     var == "mean_density_km2_scaled*months_severe_drought_scaled" ~ "Mean Ele. Density:Drought Months",
     var == "mean_density_km2_scaled*fire_frequency_scaled" ~ "Mean Ele. Density:Fire Frequency",
     var == "mat_change_scaled*mat_scaled" ~ "MAT Trend:MAT", 
@@ -428,7 +429,7 @@ dt_mesh_res <- rbindlist(mesh_res_list) %>%
     term == "months_severe_drought_scaled" ~ "N Drought Months", 
     term == "mat_scaled" ~ "MAT", 
     term == "map_scaled" ~ "MAP", 
-    term == "mean_density_km2_scaled:percent_population_growth_scaled" ~ "Mean Ele. Density:Ele. Pop. Growth",
+    term == "percent_population_growth_scaled:mean_density_km2_scaled" ~ "Mean Ele. Density:Ele. Pop. Growth",
     term == "mean_density_km2_scaled:months_severe_drought_scaled" ~ "Mean Ele. Density:Drought Months",
     term == "mean_density_km2_scaled:fire_frequency_scaled" ~ "Mean Ele. Density:Fire Frequency",
     term == "mat_change_scaled:mat_scaled" ~ "MAT Trend:MAT"))
