@@ -95,7 +95,7 @@ dt_mod <- dt %>%
     map_scaled = as.numeric(scale(map))
   )
 
-
+n_distinct(dt_mod$park_id)
 park_counts <- dt_mod[, .N, by = park_id] %>% arrange(N)
 print(park_counts)
 
