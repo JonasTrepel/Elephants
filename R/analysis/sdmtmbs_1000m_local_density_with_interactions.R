@@ -143,7 +143,12 @@ vars <- c("local_density_km2_scaled",
           "mat_change_scaled", 
           "prec_change_scaled", 
           "n_deposition_scaled", 
-          "mean_density_km2_scaled")
+          "density_trend_estimate_scaled*local_density_km2_scaled",
+          "months_severe_drought_scaled*local_density_km2_scaled",
+          "fire_frequency_scaled*local_density_km2_scaled", 
+          "mat_change_scaled*local_density_km2_scaled", 
+          "prec_change_scaled*local_density_km2_scaled", 
+          "n_deposition_scaled*local_density_km2_scaled")
 
 plan(multisession, workers = 6)
 options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
@@ -233,14 +238,24 @@ dt_var_res <- rbindlist(var_res_list) %>%
     .default = var,
     var == "local_density_km2_scaled" ~ "Local Elephant Density",
     var == "mean_density_km2_scaled" ~ "Mean Elephant Density",
-    var == "density_trend_estimate_scaled" ~ "Elephant Density Trend",
+    var == "density_trend_estimate_scaled" ~ "Elephant Population Growth",
     var == "mat_change_scaled" ~ "MAT Trend",
     var == "prec_change_scaled" ~ "Precipitation Trend",
     var == "n_deposition_scaled" ~ "Nitrogen deposition",
     var == "fire_frequency_scaled" ~ "Fire frequency",
     var == "months_severe_drought_scaled" ~ "N Drought Months", 
-    var == "mat_scaled" ~ "MAT", 
-    var == "map_scaled" ~ "MAP"), 
+    var == "density_trend_estimate_scaled*local_density_km2_scaled" ~ "Elephant Population Growth:Local Elephant Density",
+    var == "mat_change_scaled*local_density_km2_scaled" ~ "MAT Trend:Local Elephant Density",
+    var == "prec_change_scaled*local_density_km2_scaled" ~ "Precipitation Trend:Local Elephant Density",
+    var == "n_deposition_scaled*local_density_km2_scaled" ~ "Nitrogen deposition:Local Elephant Density",
+    var == "fire_frequency_scaled*local_density_km2_scaled" ~ "Fire frequency:Local Elephant Density",
+    var == "months_severe_drought_scaled*local_density_km2_scaled" ~ "N Drought Months:Local Elephant Density", 
+    var == "density_trend_estimate_scaled*mean_density_km2_scaled" ~ "Elephant Population Growth:Mean Elephant Density",
+    var == "mat_change_scaled*mean_density_km2_scaled" ~ "MAT Trend:Mean Elephant Density",
+    var == "prec_change_scaled*mean_density_km2_scaled" ~ "Precipitation Trend:Mean Elephant Density",
+    var == "n_deposition_scaled*mean_density_km2_scaled" ~ "Nitrogen deposition:Mean Elephant Density",
+    var == "fire_frequency_scaled*mean_density_km2_scaled" ~ "Fire frequency:Mean Elephant Density",
+    var == "months_severe_drought_scaled*mean_density_km2_scaled" ~ "N Drought Months:Mean Elephant Density"), 
   point_col = case_when(
     abs(delta_aic) <= 2 ~ "no difference",
     delta_aic > 2 ~ "improved model", 
@@ -268,7 +283,7 @@ p_aic <- dt_var_res %>%
         strip.background = element_rect(fill = "linen", color = "linen"))
 
 p_aic
-ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_density.png", dpi = 600, height = 5, width = 9)
+ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_density.png", dpi = 600, height = 6, width = 9)
 # 
 
 ### 2 - Choose Mesh ------------------
@@ -327,12 +342,12 @@ mesh_res_list <- future_map(unique(responses),
                                 
                                 #plot(mesh)
                                 
-                                formula <- as.formula(paste0(resp, " ~ local_density_km2_scaled +
-                                density_trend_estimate_scaled +
-                             months_severe_drought_scaled +
-                             fire_frequency_scaled +
-                             mat_change_scaled + 
-                             n_deposition_scaled"))
+                                formula <- as.formula(paste0(resp, " ~ density_trend_estimate_scaled*local_density_km2_scaled +
+          months_severe_drought_scaled*local_density_km2_scaled +,
+          fire_frequency_scaled*local_density_km2_scaled + 
+          mat_change_scaled*local_density_km2_scaled + 
+          prec_change_scaled*local_density_km2_scaled + 
+          n_deposition_scaled*local_density_km2_scaled"))
                                 
                                 
                                 fit_cv <- sdmTMB::sdmTMB_cv(formula,
@@ -356,7 +371,7 @@ mesh_res_list <- future_map(unique(responses),
                                 
                                 san <- sdmTMB::sanity(fit)
                                 
-                                model_id = paste0(resp, "_", mesh_id, "_1000m_local_density")
+                                model_id = paste0(resp, "_", mesh_id, "_1000m_local_density_with_interactions")
                                 
                                 tmp_tidy <- broom::tidy(fit, conf.int = TRUE) %>%
                                   #dplyr::filter(!grepl("(Intercept)", term)) %>%
@@ -410,17 +425,29 @@ dt_mesh_res <- rbindlist(mesh_res_list) %>%
   ), 
   clean_term = case_when(
     .default = term,
-    term == "local_density_km2_scaled" ~ "Local Elephant Density",
-    term == "mean_density_km2_scaled" ~ "Mean Elephant Density",
-    term == "density_trend_estimate_scaled" ~ "Elephant Density Trend",
-    term == "mat_change_scaled" ~ "MAT Trend",
-    term == "prec_change_scaled" ~ "Precipitation Trend",
-    term == "n_deposition_scaled" ~ "Nitrogen deposition",
-    term == "fire_frequency_scaled" ~ "Fire frequency",
-    term == "months_severe_drought_scaled" ~ "N Drought Months"))
+    var == "local_density_km2_scaled" ~ "Local Elephant Density",
+    var == "mean_density_km2_scaled" ~ "Mean Elephant Density",
+    var == "density_trend_estimate_scaled" ~ "Elephant Population Growth",
+    var == "mat_change_scaled" ~ "MAT Trend",
+    var == "prec_change_scaled" ~ "Precipitation Trend",
+    var == "n_deposition_scaled" ~ "Nitrogen deposition",
+    var == "fire_frequency_scaled" ~ "Fire frequency",
+    var == "months_severe_drought_scaled" ~ "N Drought Months", 
+    var == "density_trend_estimate_scaled:local_density_km2_scaled" ~ "Elephant Population Growth:Local Elephant Density",
+    var == "mat_change_scaled:local_density_km2_scaled" ~ "MAT Trend:Local Elephant Density",
+    var == "prec_change_scaled:local_density_km2_scaled" ~ "Precipitation Trend:Local Elephant Density",
+    var == "n_deposition_scaled:local_density_km2_scaled" ~ "Nitrogen deposition:Local Elephant Density",
+    var == "fire_frequency_scaled:local_density_km2_scaled" ~ "Fire frequency:Local Elephant Density",
+    var == "months_severe_drought_scaled:local_density_km2_scaled" ~ "N Drought Months:Local Elephant Density", 
+    var == "density_trend_estimate_scaled:mean_density_km2_scaled" ~ "Elephant Population Growth:Mean Elephant Density",
+    var == "mat_change_scaled:mean_density_km2_scaled" ~ "MAT Trend:Mean Elephant Density",
+    var == "prec_change_scaled:mean_density_km2_scaled" ~ "Precipitation Trend:Mean Elephant Density",
+    var == "n_deposition_scaled:mean_density_km2_scaled" ~ "Nitrogen deposition:Mean Elephant Density",
+    var == "fire_frequency_scaled:mean_density_km2_scaled" ~ "Fire frequency:Mean Elephant Density",
+    var == "months_severe_drought_scaled:mean_density_km2_scaled" ~ "N Drought Months:Mean Elephant Density"))
 unique(dt_mesh_res$clean_term)
 summary(dt_mesh_res)
-fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results_1000m_local_density.csv")
+fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results_1000m_local_density_with_interactions.csv")
 
 p_covs <- dt_mesh_res %>% 
   filter(!grepl("Intercept", term)) %>% 
@@ -439,7 +466,7 @@ p_covs <- dt_mesh_res %>%
         panel.background = element_rect(fill = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_covs
-ggsave(plot = p_covs, "builds/plots/supplement/cov_estimates_different_meshs_1000m_local_density.png", dpi = 600, height = 12, width = 12)
+ggsave(plot = p_covs, "builds/plots/supplement/cov_estimates_different_meshs_1000m_local_density_with_interactions.png", dpi = 600, height = 12, width = 12)
 
 p_est <- dt_mesh_res %>% 
   mutate(clean_response = factor(clean_response, levels = c(
@@ -467,7 +494,7 @@ p_est <- dt_mesh_res %>%
         panel.background = element_rect(fill = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_est
-ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh_1000m_local_density.png", dpi = 600, height = 6.5, width = 10)
+ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh_1000m_local_density_with_interactions.png.png", dpi = 600, height = 6.5, width = 10)
 
 p_cpo <- dt_mesh_res %>% 
   mutate(clean_response = factor(clean_response, levels = c(
@@ -485,5 +512,5 @@ p_cpo <- dt_mesh_res %>%
         panel.background = element_rect(fill = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_cpo
-ggsave(plot = p_cpo, "builds/plots/supplement/log_cpo_approx_different_meshs_1000m_local_density.png", dpi = 600, height = 8, width = 8)
+ggsave(plot = p_cpo, "builds/plots/supplement/log_cpo_approx_different_meshs_1000m_local_density_with_interactions.png.png", dpi = 600, height = 8, width = 8)
 

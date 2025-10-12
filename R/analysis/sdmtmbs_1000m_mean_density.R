@@ -268,7 +268,7 @@ p_aic <- dt_var_res %>%
         strip.background = element_rect(fill = "linen", color = "linen"))
 
 p_aic
-ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_density.png", dpi = 600, height = 5, width = 9)
+ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_mean_density.png", dpi = 600, height = 5, width = 9)
 # 
 
 ### 2 - Choose Mesh ------------------
@@ -327,7 +327,7 @@ mesh_res_list <- future_map(unique(responses),
                                 
                                 #plot(mesh)
                                 
-                                formula <- as.formula(paste0(resp, " ~ local_density_km2_scaled +
+                                formula <- as.formula(paste0(resp, " ~ mean_density_km2_scaled +
                                 density_trend_estimate_scaled +
                              months_severe_drought_scaled +
                              fire_frequency_scaled +
@@ -356,7 +356,7 @@ mesh_res_list <- future_map(unique(responses),
                                 
                                 san <- sdmTMB::sanity(fit)
                                 
-                                model_id = paste0(resp, "_", mesh_id, "_1000m_local_density")
+                                model_id = paste0(resp, "_", mesh_id, "_1000m_mean_density")
                                 
                                 tmp_tidy <- broom::tidy(fit, conf.int = TRUE) %>%
                                   #dplyr::filter(!grepl("(Intercept)", term)) %>%
@@ -387,6 +387,7 @@ mesh_res_list <- future_map(unique(responses),
                                 rm(fit)
                                 rm(fit_cv)
                                 gc()
+                                
                               }
                               
                               return(dt_mesh_res_sub)
@@ -420,7 +421,7 @@ dt_mesh_res <- rbindlist(mesh_res_list) %>%
     term == "months_severe_drought_scaled" ~ "N Drought Months"))
 unique(dt_mesh_res$clean_term)
 summary(dt_mesh_res)
-fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results_1000m_local_density.csv")
+fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results_1000m_mean_density.csv")
 
 p_covs <- dt_mesh_res %>% 
   filter(!grepl("Intercept", term)) %>% 
@@ -439,7 +440,7 @@ p_covs <- dt_mesh_res %>%
         panel.background = element_rect(fill = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_covs
-ggsave(plot = p_covs, "builds/plots/supplement/cov_estimates_different_meshs_1000m_local_density.png", dpi = 600, height = 12, width = 12)
+ggsave(plot = p_covs, "builds/plots/supplement/cov_estimates_different_meshs_1000m_mean_density.png", dpi = 600, height = 12, width = 12)
 
 p_est <- dt_mesh_res %>% 
   mutate(clean_response = factor(clean_response, levels = c(
@@ -467,7 +468,7 @@ p_est <- dt_mesh_res %>%
         panel.background = element_rect(fill = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_est
-ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh_1000m_local_density.png", dpi = 600, height = 6.5, width = 10)
+ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh_1000m_mean_density.png", dpi = 600, height = 6.5, width = 10)
 
 p_cpo <- dt_mesh_res %>% 
   mutate(clean_response = factor(clean_response, levels = c(
@@ -485,5 +486,5 @@ p_cpo <- dt_mesh_res %>%
         panel.background = element_rect(fill = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_cpo
-ggsave(plot = p_cpo, "builds/plots/supplement/log_cpo_approx_different_meshs_1000m_local_density.png", dpi = 600, height = 8, width = 8)
+ggsave(plot = p_cpo, "builds/plots/supplement/log_cpo_approx_different_meshs_1000m_mean_density.png", dpi = 600, height = 8, width = 8)
 

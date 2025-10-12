@@ -6,7 +6,9 @@ library(ggrepel)
 library(performance)
 library(sjPlot)
 library(tidylog)
-
+library(MASS)
+library(robust)
+library("robustbase")
 
 #### Population counts 
 dt_pc_raw <- fread("data/processed_data/clean_data/all_population_counts.csv") %>% 
@@ -18,7 +20,7 @@ dt_pc_trend <- data.frame()
 for(park in unique(dt_pc_raw$park_id)){
   
   dt_p <- dt_pc_raw %>% filter(park_id == park) %>% 
-    mutate(year_1 = year - min(year), 
+    mutate(year_1 = year - min(year-1), 
            population_count_scaled = as.numeric(scale(population_count)),
            density_km2 = population_count/area_km2)
            
@@ -34,11 +36,25 @@ for(park in unique(dt_pc_raw$park_id)){
   
   m_tidy_lm <- tidy(m_lm) %>% 
     filter(!grepl("Intercept", term)) %>%
-    select(lm_population_trend_p_val = p.value, 
+    dplyr::select(lm_population_trend_p_val = p.value, 
            lm_population_trend_estimate = estimate) %>% 
     mutate(park_id = park,
            population_trend_n = nrow(dt_p), 
-           lm_population_trend_r2 =  r2_m_lm$R2_adjusted)
+           lm_population_trend_r2 = r2_m_lm$R2_adjusted)
+  
+  #density trend
+  m_dens <- lmrob(density_km2 ~ year_1, data = dt_p) 
+
+  r2_m_dens <- r2(m_dens)
+  r2_m_dens$R2_adjusted
+  
+  m_tidy_dens <- tidy(m_dens) %>% 
+    filter(grepl("year_1", term)) %>%
+    dplyr::select(density_trend_p_val = p.value, 
+           density_trend_estimate = estimate) %>% 
+    mutate(park_id = park,
+           density_trend_n = nrow(dt_p), 
+           density_trend_r2 = r2_m_dens$R2_adjusted)
   
   # exponential trend / percentage growth 
   m_glm <- glm(population_count ~ year_1, 
@@ -54,7 +70,7 @@ for(park in unique(dt_pc_raw$park_id)){
   
   m_tidy_glm <- tidy(m_glm) %>% 
     filter(!grepl("Intercept", term)) %>%
-    select(glm_population_trend_p_val = p.value, 
+    dplyr::select(glm_population_trend_p_val = p.value, 
            glm_population_trend_estimate = estimate) %>% 
     mutate(park_id = park,
            population_trend_n = nrow(dt_p), 
@@ -63,7 +79,8 @@ for(park in unique(dt_pc_raw$park_id)){
   
   #combine
   m_tidy_comb <- m_tidy_lm %>%
-    left_join(m_tidy_glm) 
+    left_join(m_tidy_glm) %>% 
+    left_join(m_tidy_dens)
   
   
   dt_pc_trend <- rbind(m_tidy_comb, dt_pc_trend)
@@ -71,13 +88,12 @@ for(park in unique(dt_pc_raw$park_id)){
 }
 summary(dt_pc_trend)
 
-plot(dt_pc_trend$lm_population_trend_estimate   , dt_pc_trend$percent_population_growth)
 hist(dt_pc_trend$glm_population_trend_r2)
-
 dt_pc <- dt_pc_raw %>% 
-  select(park_id, mean_population_count, area_km2, mean_density_km2) %>% 
+  dplyr::select(park_id, mean_population_count, area_km2, mean_density_km2) %>% 
   unique() %>% 
   left_join(dt_pc_trend)
+  
 
 
 #### 1000m grid with habitat quality -----------
@@ -101,6 +117,7 @@ dt_grid_hq_1000m <- dt_grid_hq_1000m_raw %>%
   ungroup() %>% 
   dplyr::select(park_id, grid_id, habitat_quality_norm, local_density_km2, 
                mean_population_count, area_km2, mean_density_km2, 
+               density_trend_estimate, density_trend_p_val, density_trend_r2,
                lm_population_trend_estimate, lm_population_trend_p_val, 
                population_trend_n, 
                percent_population_growth, glm_population_trend_estimate,
@@ -214,10 +231,13 @@ dt_grid_hq_1000m %>%
   arrange(-mean_density_km2) %>% 
   as.data.table()
 
+n_distinct(dt_grid_hq_1000m[!is.na(dt_grid_hq_1000m$local_density_km2),]$park_id)
+n_distinct(dt_grid_hq_1000m[!is.na(dt_grid_hq_1000m$density_trend_estimate),]$park_id)
+
 dt_corr_1000m <- dt_grid_hq_1000m %>% 
   filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
   filter(!park_id %in% c("Zambezi", "iSimangaliso Wetland Park")) %>% #one vary high, the other strange (very unclear where in the park eephabts can go etc)
-  select(evi_900m_coef, tree_cover_1000m_coef, canopy_height_900m_coef, 
+  dplyr::select(evi_900m_coef, tree_cover_1000m_coef, canopy_height_900m_coef, 
          evi_sd_900m_coef, habitat_diversity_1000m_coef, canopy_height_sd_900m_coef, 
          
          local_density_km2, mean_density_km2, percent_population_growth, 
@@ -256,6 +276,7 @@ dt_grid_hq_100m <- dt_grid_hq_100m_raw %>%
   dplyr::select(park_id, grid_id, habitat_quality_norm, local_density_ha, 
                 mean_population_count, area_km2, mean_density_km2, 
                 lm_population_trend_estimate, lm_population_trend_p_val, 
+                density_trend_estimate, density_trend_p_val, density_trend_r2,
                 population_trend_n, 
                 percent_population_growth, glm_population_trend_estimate,
                 glm_population_trend_p_val, glm_population_trend_r2, 
@@ -312,7 +333,7 @@ fwrite(dt_grid_hq_100m %>%
 # sf_grid_hq %>%
 #   as.data.table() %>% 
 #   mutate(geom = NULL) %>% 
-#   select(park_id, population_trend_estimate, density_km2_estimate) %>% 
+#   dplyr::select(park_id, population_trend_estimate, density_km2_estimate) %>% 
 #   unique()
 # 
 # sf_points_ellies <- st_join(sf_points, sf_grid_hq %>% rename(park_id_grid = park_id))
@@ -322,14 +343,14 @@ fwrite(dt_grid_hq_100m %>%
 #   as.data.frame() %>% 
 #   mutate(geom = NULL, geometry = NULL, x = NULL) %>% 
 #   filter(!park_id == park_id_grid) %>% 
-#   select(unique_id) %>% pull()
+#   dplyr::select(unique_id) %>% pull()
 # 
 # dt_points_ellies <- sf_points_ellies %>% 
 #   as.data.frame() %>% 
 #   mutate(geom = NULL, geometry = NULL, x = NULL) %>% 
 #   filter(!unique_id %in% problematic_ids)
 # 
-# dt_points_ellies %>% select(park_id, population_trend_estimate, density_km2_estimate) %>% 
+# dt_points_ellies %>% dplyr::select(park_id, population_trend_estimate, density_km2_estimate) %>% 
 #   unique()
 # 
 # summary(dt_points_ellies)
@@ -379,7 +400,7 @@ fwrite(dt_grid_hq_100m %>%
 # 
 # 
 # dt_corr <- dt_points_ellies %>% 
-#   select(mean_evi_coef, 
+#   dplyr::select(mean_evi_coef, 
 #          tree_cover_coef, shrub_cover_coef, grass_cover_coef, gr_n_cr_cover_coef, 
 #          
 #          local_density_km2, mean_density_km2, population_trend_estimate) %>% 
