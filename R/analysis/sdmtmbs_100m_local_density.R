@@ -37,6 +37,8 @@ quantile(dt$dw_min_median_mode_fraction, na.rm = T)
 
 names(dt)
 
+acceptable_numbers = seq(1, 10000000, 5) #to select every fifth grid cell
+
 dt_mod <- dt %>% 
   filter(dw_min_median_mode_fraction >= 50) %>% 
   dplyr::select(
@@ -71,7 +73,8 @@ dt_mod <- dt %>%
     y_moll_km = y_mollweide/1000,
   ) %>%
   group_by(park_id) %>% 
-  filter(n() >= 10) %>% 
+  mutate(park_row_nr = 1:n()) %>% 
+  filter(park_row_nr %in% acceptable_numbers) %>%   filter(n() >= 10) %>% 
   ungroup() %>% 
   as.data.table() %>% 
   fold(., #make sure to stratify folds in a way that each park is present in each fold

@@ -344,10 +344,9 @@ mesh_res_list <- future_map(unique(responses),
                                 #plot(mesh)
                                 
                                 formula <- as.formula(paste0(resp, " ~ density_trend_estimate_scaled*mean_density_km2_scaled +
-          months_severe_drought_scaled*mean_density_km2_scaled +,
+          months_severe_drought_scaled*mean_density_km2_scaled +
           fire_frequency_scaled*mean_density_km2_scaled + 
           mat_change_scaled*mean_density_km2_scaled + 
-          prec_change_scaled*mean_density_km2_scaled + 
           n_deposition_scaled*mean_density_km2_scaled"))
                                 
                                 

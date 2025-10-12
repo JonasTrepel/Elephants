@@ -37,6 +37,8 @@ quantile(dt$dw_min_median_mode_fraction, na.rm = T)
 
 names(dt)
 
+acceptable_numbers = seq(1, 10000000, 5) #to select every fifth grid cell
+
 dt_mod <- dt %>% 
   filter(dw_min_median_mode_fraction >= 50) %>% 
   dplyr::select(
@@ -71,6 +73,8 @@ dt_mod <- dt %>%
     y_moll_km = y_mollweide/1000,
   ) %>%
   group_by(park_id) %>% 
+  mutate(park_row_nr = 1:n()) %>% 
+  filter(park_row_nr %in% acceptable_numbers) %>% 
   filter(n() >= 10) %>% 
   ungroup() %>% 
   as.data.table() %>% 
@@ -342,10 +346,9 @@ mesh_res_list <- future_map(unique(responses),
                                 #plot(mesh)
                                 
                                 formula <- as.formula(paste0(resp, " ~ density_trend_estimate_scaled*local_density_km2_scaled +
-          months_severe_drought_scaled*local_density_km2_scaled +,
+          months_severe_drought_scaled*local_density_km2_scaled +
           fire_frequency_scaled*local_density_km2_scaled + 
           mat_change_scaled*local_density_km2_scaled + 
-          prec_change_scaled*local_density_km2_scaled + 
           n_deposition_scaled*local_density_km2_scaled"))
                                 
                                 
