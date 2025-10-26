@@ -205,7 +205,9 @@ var_res_list <- future_map(unique(responses),
                                dt_var_res_sub <- rbind(dt_tmp, dt_var_res_sub)
                                
                                print(paste0(var, " done"))
-                               
+                               rm(fit0)
+                               rm(fit)
+                               gc()
                              }
                              
                              return(dt_var_res_sub)
@@ -382,6 +384,9 @@ mesh_res_list <- future_map(unique(responses),
                                 
                                 dt_mesh_res_sub <- rbind(tmp_tidy, dt_mesh_res_sub)
                                 print(paste0(i, " done"))
+                                rm(fit)
+                                rm(fit_cv)
+                                gc()
                                 
                               }
                               

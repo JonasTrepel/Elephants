@@ -143,12 +143,15 @@ vars <- c("local_density_km2_scaled",
           "mat_change_scaled", 
           "prec_change_scaled", 
           "n_deposition_scaled", 
-          "density_trend_estimate_scaled*local_density_km2_scaled",
-          "months_severe_drought_scaled*local_density_km2_scaled",
-          "fire_frequency_scaled*local_density_km2_scaled", 
-          "mat_change_scaled*local_density_km2_scaled", 
-          "prec_change_scaled*local_density_km2_scaled", 
-          "n_deposition_scaled*local_density_km2_scaled")
+          "mean_density_km2_scaled", 
+          "s(local_density_km2_scaled, k = 3)",
+          "s(density_trend_estimate_scaled, k = 3)",
+          "s(months_severe_drought_scaled, k = 3)",
+          "s(fire_frequency_scaled, k = 3)", 
+          "s(mat_change_scaled, k = 3)", 
+          "s(prec_change_scaled, k = 3)", 
+          "s(n_deposition_scaled, k = 3)", 
+          "s(mean_density_km2_scaled, k = 3)")
 
 plan(multisession, workers = 6)
 options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
@@ -238,24 +241,24 @@ dt_var_res <- rbindlist(var_res_list) %>%
     .default = var,
     var == "local_density_km2_scaled" ~ "Local Elephant Density",
     var == "mean_density_km2_scaled" ~ "Mean Elephant Density",
-    var == "density_trend_estimate_scaled" ~ "Elephant Population Growth",
+    var == "density_trend_estimate_scaled" ~ "Elephant Density Trend",
     var == "mat_change_scaled" ~ "MAT Trend",
     var == "prec_change_scaled" ~ "Precipitation Trend",
     var == "n_deposition_scaled" ~ "Nitrogen deposition",
     var == "fire_frequency_scaled" ~ "Fire frequency",
     var == "months_severe_drought_scaled" ~ "N Drought Months", 
-    var == "density_trend_estimate_scaled*local_density_km2_scaled" ~ "Elephant Population Growth:Local Elephant Density",
-    var == "mat_change_scaled*local_density_km2_scaled" ~ "MAT Trend:Local Elephant Density",
-    var == "prec_change_scaled*local_density_km2_scaled" ~ "Precipitation Trend:Local Elephant Density",
-    var == "n_deposition_scaled*local_density_km2_scaled" ~ "Nitrogen deposition:Local Elephant Density",
-    var == "fire_frequency_scaled*local_density_km2_scaled" ~ "Fire frequency:Local Elephant Density",
-    var == "months_severe_drought_scaled*local_density_km2_scaled" ~ "N Drought Months:Local Elephant Density", 
-    var == "density_trend_estimate_scaled*mean_density_km2_scaled" ~ "Elephant Population Growth:Mean Elephant Density",
-    var == "mat_change_scaled*mean_density_km2_scaled" ~ "MAT Trend:Mean Elephant Density",
-    var == "prec_change_scaled*mean_density_km2_scaled" ~ "Precipitation Trend:Mean Elephant Density",
-    var == "n_deposition_scaled*mean_density_km2_scaled" ~ "Nitrogen deposition:Mean Elephant Density",
-    var == "fire_frequency_scaled*mean_density_km2_scaled" ~ "Fire frequency:Mean Elephant Density",
-    var == "months_severe_drought_scaled*mean_density_km2_scaled" ~ "N Drought Months:Mean Elephant Density"), 
+    var == "mat_scaled" ~ "MAT", 
+    var == "map_scaled" ~ "MAP",
+    var == "s(local_density_km2_scaled, k = 3)" ~ "Local Elephant Density Smoothed",
+    var == "s(mean_density_km2_scaled, k = 3)" ~ "Mean Elephant Density Smoothed",
+    var == "s(density_trend_estimate_scaled, k = 3)" ~ "Elephant Density Trend Smoothed",
+    var == "s(mat_change_scaled, k = 3)" ~ "MAT Trend Smoothed",
+    var == "s(prec_change_scaled, k = 3)" ~ "Precipitation Trend Smoothed",
+    var == "s(n_deposition_scaled, k = 3)" ~ "Nitrogen deposition Smoothed",
+    var == "s(fire_frequency_scaled, k = 3)" ~ "Fire frequency Smoothed",
+    var == "s(months_severe_drought_scaled, k = 3)" ~ "N Drought Months Smoothed", 
+    var == "s(mat_scaled, k = 3)" ~ "MAT Smoothed", 
+    var == "s(map_scaled, k = 3)" ~ "MAP Smoothed"), 
   point_col = case_when(
     abs(delta_aic) <= 2 ~ "no difference",
     delta_aic > 2 ~ "improved model", 
@@ -283,7 +286,7 @@ p_aic <- dt_var_res %>%
         strip.background = element_rect(fill = "linen", color = "linen"))
 
 p_aic
-ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_density.png", dpi = 600, height = 6, width = 9)
+ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_density_smoothed_smoothed.png", dpi = 600, height = 5, width = 9)
 # 
 
 ### 2 - Choose Mesh ------------------
@@ -342,35 +345,49 @@ mesh_res_list <- future_map(unique(responses),
                                 
                                 #plot(mesh)
                                 
-                                formula <- as.formula(paste0(resp, " ~ density_trend_estimate_scaled*local_density_km2_scaled +
-          months_severe_drought_scaled*local_density_km2_scaled +
-          fire_frequency_scaled*local_density_km2_scaled + 
-          mat_change_scaled*local_density_km2_scaled + 
-          n_deposition_scaled*local_density_km2_scaled"))
+                                formula <- as.formula(paste0(resp, " ~ s(local_density_km2_scaled, k = 3) +
+                                s(density_trend_estimate_scaled, k = 3) +
+                             s(months_severe_drought_scaled, k = 3) +
+                             s(fire_frequency_scaled, k = 3) +
+                             s(mat_change_scaled, k = 3) + 
+                             s(n_deposition_scaled, k = 3)"))
                                 
                                 
-                                fit_cv <- sdmTMB::sdmTMB_cv(formula,
-                                                            data = dt_mod,
-                                                            mesh = mesh,
-                                                            k_folds = 5,
-                                                            spatial = "on",
-                                                            fold_ids = "fold_id", # created above, folds are stratified to ensure each park is present in each fold 
-                                                            family = sdmTMB::student()
-                                )
+                                fit_cv <- tryCatch({
+                                  sdmTMB::sdmTMB_cv(
+                                    formula,
+                                    data = dt_mod,
+                                    mesh = mesh,
+                                    k_folds = 5,
+                                    spatial = "on",
+                                    family = sdmTMB::student(),
+                                    fold_ids = "fold_id" # stratified folds
+                                  )
+                                }, error = function(e) {
+                                  message("Skipping cross valid model due to error: ", e$message)
+                                  return(NULL)
+                                })
+                                if (is.null(fit_cv)) {next} 
                                 
-                                fit <- sdmTMB::sdmTMB(formula,
-                                                      data = dt_mod,
-                                                      mesh = mesh,
-                                                      spatial = "on",
-                                                      family = sdmTMB::student()
-                                )
+                                fit <- tryCatch({
+                                  sdmTMB::sdmTMB(
+                                    formula,
+                                    data = dt_mod,
+                                    mesh = mesh,
+                                    family = sdmTMB::student(),
+                                    spatial = "on"
+                                  )
+                                }, error = function(e) {
+                                  message("Skipping main model due to error: ", e$message)
+                                  return(NULL)
+                                })
                                 
-                                
+                                if (is.null(fit)) {next}
                                 #gen_r2 <- performance::r2(fit)[1] #1-sum((y-y_hat)^2)/sum((y-y_bar)^2)
                                 
                                 san <- sdmTMB::sanity(fit)
                                 
-                                model_id = paste0(resp, "_", mesh_id, "_1000m_local_density_with_interactions")
+                                model_id = paste0(resp, "_", mesh_id, "_1000m_local_density_smoothed")
                                 
                                 tmp_tidy <- broom::tidy(fit, conf.int = TRUE) %>%
                                   #dplyr::filter(!grepl("(Intercept)", term)) %>%
@@ -401,6 +418,7 @@ mesh_res_list <- future_map(unique(responses),
                                 rm(fit)
                                 rm(fit_cv)
                                 gc()
+                                
                               }
                               
                               return(dt_mesh_res_sub)
@@ -426,27 +444,27 @@ dt_mesh_res <- rbindlist(mesh_res_list) %>%
     .default = term,
     term == "local_density_km2_scaled" ~ "Local Elephant Density",
     term == "mean_density_km2_scaled" ~ "Mean Elephant Density",
-    term == "density_trend_estimate_scaled" ~ "Elephant Population Growth",
+    term == "density_trend_estimate_scaled" ~ "Elephant Density Trend",
     term == "mat_change_scaled" ~ "MAT Trend",
     term == "prec_change_scaled" ~ "Precipitation Trend",
     term == "n_deposition_scaled" ~ "Nitrogen deposition",
     term == "fire_frequency_scaled" ~ "Fire frequency",
     term == "months_severe_drought_scaled" ~ "N Drought Months", 
-    term == "density_trend_estimate_scaled:local_density_km2_scaled" ~ "Elephant Population Growth:Local Elephant Density",
-    term == "local_density_km2_scaled:mat_change_scaled" ~ "MAT Trend:Local Elephant Density",
-    term == "prec_change_scaled:local_density_km2_scaled" ~ "Precipitation Trend:Local Elephant Density",
-    term == "local_density_km2_scaled:n_deposition_scaled" ~ "Nitrogen deposition:Local Elephant Density",
-    term == "local_density_km2_scaled:fire_frequency_scaled" ~ "Fire frequency:Local Elephant Density",
-    term == "local_density_km2_scaled:months_severe_drought_scaled" ~ "N Drought Months:Local Elephant Density", 
-    term == "density_trend_estimate_scaled:mean_density_km2_scaled" ~ "Elephant Population Growth:Mean Elephant Density",
-    term == "mat_change_scaled:mean_density_km2_scaled" ~ "MAT Trend:Mean Elephant Density",
-    term == "prec_change_scaled:mean_density_km2_scaled" ~ "Precipitation Trend:Mean Elephant Density",
-    term == "n_deposition_scaled:mean_density_km2_scaled" ~ "Nitrogen deposition:Mean Elephant Density",
-    term == "fire_frequency_scaled:mean_density_km2_scaled" ~ "Fire frequency:Mean Elephant Density",
-    term == "months_severe_drought_scaled:mean_density_km2_scaled" ~ "N Drought Months:Mean Elephant Density"))
+    term == "s(local_density_km2_scaled, k = 3)" ~ "Local Elephant Density Smoothed",
+    term == "s(mean_density_km2_scaled, k = 3)" ~ "Mean Elephant Density Smoothed",
+    term == "s(density_trend_estimate_scaled, k = 3)" ~ "Elephant Density Trend Smoothed",
+    term == "s(mat_change_scaled, k = 3)" ~ "MAT Trend Smoothed",
+    term == "s(prec_change_scaled, k = 3)" ~ "Precipitation Trend Smoothed",
+    term == "s(n_deposition_scaled, k = 3)" ~ "Nitrogen deposition Smoothed",
+    term == "s(fire_frequency_scaled, k = 3)" ~ "Fire frequency Smoothed",
+    term == "s(months_severe_drought_scaled, k = 3)" ~ "N Drought Months Smoothed"))
 unique(dt_mesh_res$clean_term)
 summary(dt_mesh_res)
-fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results_1000m_local_density_with_interactions.csv")
+fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results_1000m_local_density_smoothed.csv")
+
+
+######################## Plot Best Models -------------------
+
 
 p_covs <- dt_mesh_res %>% 
   filter(!grepl("Intercept", term)) %>% 
@@ -465,35 +483,8 @@ p_covs <- dt_mesh_res %>%
         panel.background = element_rect(fill = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_covs
-ggsave(plot = p_covs, "builds/plots/supplement/cov_estimates_different_meshs_1000m_local_density_with_interactions.png", dpi = 600, height = 12, width = 12)
+ggsave(plot = p_covs, "builds/plots/supplement/cov_estimates_different_meshs_1000m_local_density_smoothed.png", dpi = 600, height = 12, width = 12)
 
-p_est <- dt_mesh_res %>% 
-  mutate(clean_response = factor(clean_response, levels = c(
-    "Woody Cover Trend", "Canopy Height Trend", "EVI Trend", 
-    "Tree Cover SD Trend", "Canopy Height SD Trend", "EVI SD Trend"))) %>% 
-  # filter(sanity_checks == TRUE) %>% 
-  filter(!grepl("Intercept", term)) %>% 
-  group_by(response, term) %>% 
-  slice_max(log_cpo_approx) %>% 
-  ungroup() %>% 
-  ggplot() +
-  geom_vline(xintercept = 0,linetype = "dashed") +
-  geom_pointrange(aes(y = clean_term, x = estimate, xmin = conf.low, xmax = conf.high, color = sig), 
-                  linewidth = 1.1, size = 1.1, alpha = 0.75, shape = 18) +
-  geom_hline(yintercept = 0) +
-  scale_color_manual(values = c("non-significant" = "grey75", 
-                                positive = "#5F903D", 
-                                negative = "#B5549C")) +
-  facet_wrap(~clean_response, scales = "free_x", ncol = 3) +
-  labs(y = "", title = "km² Scale") +
-  theme(legend.position = "none", 
-        panel.grid.major.x = element_blank(), 
-        panel.grid.minor.x = element_blank(),
-        panel.border = element_blank(), 
-        panel.background = element_rect(fill = "snow"), 
-        strip.background = element_rect(fill = "linen", color = "linen"))
-p_est
-ggsave(plot = p_est, "builds/plots/cov_estimates_best_mesh_1000m_local_density_with_interactions.png.png", dpi = 600, height = 6.5, width = 10)
 
 p_cpo <- dt_mesh_res %>% 
   mutate(clean_response = factor(clean_response, levels = c(
@@ -511,5 +502,5 @@ p_cpo <- dt_mesh_res %>%
         panel.background = element_rect(fill = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_cpo
-ggsave(plot = p_cpo, "builds/plots/supplement/log_cpo_approx_different_meshs_1000m_local_density_with_interactions.png.png", dpi = 600, height = 8, width = 8)
+ggsave(plot = p_cpo, "builds/plots/supplement/log_cpo_approx_different_meshs_1000m_local_density_smoothed.png", dpi = 600, height = 8, width = 8)
 
