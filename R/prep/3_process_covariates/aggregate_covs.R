@@ -184,7 +184,7 @@ canopy_height_files <- data.table(filepath = list.files("data/spatial_data/time_
 
 plan(multisession, workers = 6)
 
-future_walk(1:nrow(canopy_height_files),
+furrr::future_walk(1:nrow(canopy_height_files),
             .progress = TRUE,
             function(i){
               
@@ -223,6 +223,93 @@ future_walk(1:nrow(canopy_height_files),
             })
 plan(sequential)
 
+#7.2 Tree cover from canopy height ------------------
+
+
+
+canopy_height_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                        pattern = "canopy_height", 
+                                                        full.names = TRUE), 
+                                  filename = list.files("data/spatial_data/time_series/",
+                                                        pattern = "canopy_height", 
+                                                        full.names = FALSE)) %>% 
+  filter(grepl("30m", filename)) %>% 
+  filter(!grepl("sd", filename)) %>% 
+  mutate(filename = gsub(".tif", "", filename),
+         colname =  gsub("_30m", "", filename), 
+         years = gsub("canopy_height_", "", colname)) #%>% filter(years %in% c("2002", "2005", "2008", "2013", "2016", "2019", "2022"))
+
+
+hunter_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                        pattern = "hunter", 
+                                                        full.names = TRUE), 
+                                  filename = list.files("data/spatial_data/time_series/",
+                                                        pattern = "hunter", 
+                                                        full.names = FALSE)) 
+
+for(i in 1:nrow(hunter_files)){
+  r <- rast(hunter_files[i,]$filepath)
+  plot(r, main = paste0(hunter_files[i,]$filename))
+  Sys.sleep(1)
+  
+}
+
+
+
+ssa_ext <- ext(-17.5, 51.0, -35.0, 16.0)
+ssa_vect <- as.polygons(ssa_ext, crs = "EPSG:4326")
+
+plan(multisession, workers = 6)
+
+future_walk(1:nrow(canopy_height_files),
+            .progress = TRUE,
+            function(i){
+              
+              #for(file in unique(dynamic_world_files)){
+              
+              file <- canopy_height_files[i, ]$filepath
+              og_r <- rast(file)
+              
+              ssa_ext <- ext(-17.5, 51.0, -35.0, 16.0)
+              og_r <- crop(og_r, ssa_ext)
+              #plot(og_r)
+              
+              data_type_og_r <- terra::datatype(og_r)
+              
+              year <- canopy_height_files[i, ]$years
+              
+              tree_r <- (og_r > 2)
+              
+              rm(og_r)
+              
+              #aggregate at 90m 
+              agg_300m_r <- terra::aggregate(tree_r,
+                                            fact = 10,
+                                            fun = "mean", 
+                                            na.rm=TRUE,
+                                            filename = paste0(
+                                              "data/spatial_data/time_series/hunter_woody_cover_", 
+                                              year, "_300m.tif"),  
+                                            cores = 1, 
+                                            overwrite = T)
+              #plot(agg_300m_r)
+              rm(agg_300m_r)
+              
+              #aggregate at 900m
+              agg_900m_r <- terra::aggregate(tree_r,
+                                             fact = 30,
+                                             fun = "mean", 
+                                             na.rm=TRUE,
+                                             filename = paste0(
+                                               "data/spatial_data/time_series/hunter_woody_cover_", 
+                                               year, "_900m.tif"),                                              cores = 1, 
+                                             overwrite = T)
+              #plot(agg_900m_r)
+              rm(agg_900m_r)
+              gc()
+              
+            })
+plan(sequential)
 
 #8. Canopy height SD 90m ------------------
 
