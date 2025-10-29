@@ -1,0 +1,222 @@
+library(sdmTMB)
+library(tidyverse)
+
+set.seed(1)
+
+predictor_dat <- data.frame(
+  X = runif(300), Y = runif(300),
+  b1 = rnorm(300), b2 = rnorm(300),
+  year = rep(1:6, each = 50),
+  f_year = as.factor(rep(1:6, each = 50)) # random intercept
+)
+
+mesh <- make_mesh(predictor_dat, xy_cols = c("X", "Y"), cutoff = 0.1)
+
+sim_dat <- sdmTMB_simulate(
+  formula = ~ 1 + b1 + b2 + (1 | f_year),
+  data = predictor_dat,
+  time = "year",
+  mesh = mesh,
+  family = gaussian(),
+  range = 0.5,
+  sigma_E = 0.2,
+  sigma_O = 0.7,
+  phi = 0.9,
+  seed = 123,
+  B = c(0.2, -0.4, 0.3)
+)
+sim_dat$f_year <- as.factor(sim_dat$year) # ml+fm: for testing random effects
+
+#### regular ---
+
+fit_re <- sdmTMB(observed ~ 1 + b1 + b2 + (1 | f_year),
+                 data = sim_dat, mesh = mesh, spatial = "on", 
+                 family = student()) 
+sanity(fit_re)
+
+
+#### Smoth ---
+
+fit_re_s <- sdmTMB(observed ~ 1 + s(b1, k = 3) + s(b2, k = 3) + (1 | f_year),
+                 data = sim_dat, mesh = mesh, spatial = "on",
+                 family = student()) 
+sanity(fit_re_s)
+
+
+get_variance_tweedie <- function(x, mu, phi) {
+  p <- unname(stats::plogis(get_pars(x)$thetaf) + 1)
+  phi * mu^p
+}
+
+get_distribution_variance <- function(x) {
+  phi <- exp(get_pars(x)$ln_phi)
+  if (x$family$family %in% "gaussian") {
+    return(phi^2)
+  }
+  if (x$family$family %in% "Gamma") {
+    return(stats::family(x)$variance(exp(-0.5 * log(phi))))
+  }
+  
+  
+  if (x$family$family %in% c("tweedie", "Gamma", "poisson")) {
+    re <- x$split_formula[[1]][[2]]
+    if (!is.null(re)) {
+      rterms <- paste0("(", re, ")") # FIXME: works for multiple!?
+      nullform <- reformulate(rterms, response = ".")
+    } else {
+      nullform <- ". ~ 1"
+    }
+    null_model <- update(x, nullform)
+    mu <- null_model$family$linkinv(unname(fixef(null_model)))
+  }
+  
+  cvsquared <- tryCatch(
+    {
+      vv <- switch(x$family$family,
+                   poisson = stats::family(x)$variance(mu),
+                   # Gamma = stats::family(x)$variance(phi),
+                   # nbinom1 = ,
+                   # nbinom2 = .variance_family_nbinom(x, mu, sig, faminfo),
+                   # truncated_nbinom2 = stats::family(x)$variance(mu, sig),
+                   tweedie = get_variance_tweedie(x, mu, phi)
+                   # beta = .variance_family_beta(x, mu, sig),
+      )
+      if (vv < 0) {
+        cli::cli_warn("Model's distribution-specific variance is negative. Results are not reliable.")
+      }
+      vv / mu^2
+    },
+    error = function(x) {
+      cli::cli_warn("Can't calculate model's distribution-specific variance. Results are not reliable.")
+      0
+    }
+  )
+  log1p(cvsquared)
+}
+
+r2.sdmTMB <- function(x, which_fixef = NULL, method = NULL) {
+  if (!inherits(x, "sdmTMB")) {
+    cli::cli_abort("'x' must be a model of class sdmTMB.", call. = FALSE)
+  }
+  if (isTRUE(x$reml)) {
+    cli::cli_abort("r2.sdmTMB() does not yet work with REML", call. = FALSE)
+  }
+  if (length(x$family$family) > 1) {
+    cli::cli_abort("r2.sdmTMB() does not work for delta (hurdle) models yet.", call. = FALSE)
+  }
+  if (x$family$family == "student") {
+    cli::cli_inform("Family is student, but the variance does not (yet) account for the degrees of freedom.")
+  }
+  # if (x$family$family == "binomial" & is.null(method)) {
+  #   cli::cli_inform("`method` not specified, using the theoretical approach")
+  # }
+  # if (x$family$family == "tweedie" & is.null(method)) {
+  #   cli::cli_inform("`method` not specified, using the lognormal approximation.")
+  # }
+  if (!x$family$family %in% c("student", "gaussian", "binomial", "tweedie", "Gamma", "poisson")) {
+    cli::cli_abort("r2.sdmTMB() currently only works for Gaussian, binomial, Gamma, Poisson, and Tweedie models.", call. = FALSE)
+  }
+  if (!is.null(x$spatial_varying)) {
+    cli::cli_abort("r2.sdmTMB() currently does not work with spatially varying coefficient models.", call. = FALSE)
+  }
+  
+  lp <- x$tmb_obj$env$last.par.best
+  r <- x$tmb_obj$report(lp)
+  
+  varF <- var(r$eta_fixed_i[, 1L]) # FIXME delta
+  
+  if (isTRUE(x$smoothers$has_smooths)) {
+    varSmooths <- var(r$eta_smooth_i)
+  } else {
+    varSmooths <- 0
+  }
+  
+  b <- tidy(x, "ran_par")
+  sigma <- function(x) {
+    .b <- tidy(x, "ran_par")
+    .b$estimate[.b$term == "phi"]
+  }
+  
+  varO <- varE <- varV <- varG <- 0
+  if (x$tmb_data$include_spatial == 1L && x$tmb_data$no_spatial) {
+    varO <- b$estimate[b$term == "sigma_O"]^2 # spatial variance
+  }
+  if (x$tmb_data$spatial_only == 0L && !x$tmb_data$no_spatial) {
+    varE <- b$estimate[b$term == "sigma_E"]^2 # spatiotemporal variance
+  }
+  if (x$tmb_data$random_walk == 1L) {
+    if (!identical(x$time_varying, ~1)) {
+      cli::cli_abort("r2.sdmTMB() currently only works with time-varying intercepts.", call. = FALSE)
+    }
+    varV <- b$estimate[b$term == "sigma_V"]^2 # time-varying variance
+  }
+  if (x$tmb_data$nobs_RE > 0) {
+    varG <- b$estimate[b$term == "sigma_G"]^2 # random effect variance
+  }
+  
+  if (x$family$family %in% c("student", "gaussian")) {
+    varR <- sigma(x)^2
+    # denominator <- varF_all + varO + varE + varR + varV + varG
+  } else if (x$family$family == "binomial" && x$family$link == "logit") {
+    # "theoretical" method of Nakagawa supp. row 115
+    varR <- pi^2 / 3 # FIXME: CHECK THIS
+  } else if (x$family$family %in% c("tweedie", "Gamma", "poisson")) {
+    varR <- get_distribution_variance(x)
+  } else {
+    cli::cli_abort("Family not implemented", call. = FALSE)
+  }
+  
+  denominator <- varF + varSmooths + varO + varE + varR + varV + varG
+  varF_all <- varF + varSmooths
+  
+  marginal <- varF_all / denominator
+  
+  cond_rf_sp <- cond_rf_spt <- cond_tv <- cond_re <- cond_all <- cond_smooth <- cond_fixed <- NULL
+  if (varO != 0) {
+    cond_rf_sp <- varO / denominator
+  }
+  if (varE != 0) {
+    cond_rf_spt <- varE / denominator
+  }
+  if (varV != 0) {
+    cond_tv <- varV / denominator
+  }
+  if (varG != 0) {
+    cond_re <- varG / denominator
+  }
+  if (varSmooths != 0) {
+    cond_smooth <- varSmooths / denominator
+  }
+  if (varF != 0) {
+    cond_fixed <- varF / denominator
+  }
+  cond_all <- (denominator - varR) / denominator
+  
+  out <- list(
+    conditional = cond_all,
+    marginal = marginal,
+    partial_smoothers = cond_smooth,
+    partial_fixed = if (!is.null(cond_smooth)) cond_fixed else NULL,
+    partial_spatial = cond_rf_sp,
+    partial_spatiotemporal = cond_rf_spt,
+    partial_time_varying = cond_tv,
+    partial_random_intercepts = cond_re
+  )
+  out[vapply(out, is.null, logical(1L))] <- NULL
+  ret <- t(as.data.frame(lapply(out, `[`, 1L)))
+  out <- data.frame(component = row.names(ret), R2 = ret[, 1L, drop = TRUE], stringsAsFactors = FALSE)
+  row.names(out) <- NULL
+  
+  if (requireNamespace("tibble", quietly = TRUE)) {
+    out <- tibble::as_tibble(out)
+  }
+  out
+}
+
+##### Try function -------------
+r2.sdmTMB(fit_re) #Warning: Family is student, but the variance does not (yet) account for the degrees of freedom.
+#Error: Error in if (x$tmb_data$nobs_RE > 0) { : argument is of length zero
+
+r2.sdmTMB(fit_re_s) #Warning: Family is student, but the variance does not (yet) account for the degrees of freedom.
+#Error: Error in if (x$tmb_data$nobs_RE > 0) { : argument is of length zero
+
