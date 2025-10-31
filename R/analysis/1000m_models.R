@@ -271,12 +271,13 @@ mesh_grid <- expand.grid(max_inner_edge = seq(50, 150, by = 50), cutoff = c(2, 4
 
 responses <- c("tree_cover_1000m_coef", "evi_900m_coef", "canopy_height_900m_coef")
 
-plan(multisession, workers = 6)
+plan(multisession, workers = 10)
 #options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
 start_time <- Sys.time()
 
 
 mesh_res_list <- list()
+dt_mesh_res <- data.frame()
 
 for (resp in unique(responses)) {
   
@@ -308,8 +309,7 @@ for (resp in unique(responses)) {
                      s(months_extreme_drought_scaled, k = 3) +
                      s(fire_frequency_scaled, k = 3) +
                      s(mat_coef_scaled, k = 3) + 
-                     s(n_deposition_scaled, k = 3) +
-                     (1 | park_id)"))
+                     s(n_deposition_scaled, k = 3)"))
       
       fit_cv <- tryCatch({
         sdmTMB::sdmTMB_cv(
@@ -317,8 +317,9 @@ for (resp in unique(responses)) {
           data = dt_mod,
           mesh = mesh,
           k_folds = 5,
+        #  family = sdmTMB::student(),
           spatial = "on",
-          fold_ids = "fold_id", 
+        #  fold_ids = "fold_id", 
           parallel = FALSE,
           reml = T
         )
@@ -368,7 +369,7 @@ plan(sequential)
 print(paste0("Started loop at: ", start_time, " and finished at: ", Sys.time()))
 print(paste0("Estimate time for CV: ", round(as.numeric(difftime(Sys.time(), start_time, units = "mins")), 2), " mins"))
 
-
+##### REMOVED PARK ID AND CHANGED FAMILY TO STUDENT
 ## bind results 
 unique(responses)
 dt_mesh_res_fin <- dt_mesh_res  %>% 
@@ -388,8 +389,8 @@ p_loglik <- dt_mesh_res_fin %>%
   mutate(clean_response = factor(clean_response, levels = c(
     "Woody Cover Trend", "Canopy Height Trend", "EVI Trend"))) %>% 
   ggplot() +
-  geom_point(aes(x = cutoff, y = sum_loglik, color = max_inner_edge)) +
-  scale_color_viridis_c(option = "B") +
+  geom_point(aes(x = cutoff, y = sum_loglik, color = max_inner_edge), size = 2, alpha = 0.8) +
+  scale_color_viridis_c(option = "B", direction = - 1) +
   labs(y = "Log Likelihood (sum)", x = "Cutoff (km)", color = "Max\nInner\nEdge\n(km)", title = "Km² scale") +
   facet_wrap(~clean_response, scales = "free") +
   theme(legend.position = "right", 
@@ -419,7 +420,7 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                             .options = furrr_options(seed = TRUE),
                             function(i) {
 
-                                
+                                resp <- dt_best_mesh[i, ]$response
                                 co <- dt_best_mesh[i, ]$cutoff
                                 i_e <- dt_best_mesh[i, ]$max_inner_edge
                                 mesh_id <- dt_best_mesh[i, ]$mesh_id
@@ -454,8 +455,7 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
                                 s(mat_coef_scaled, k = 3) + 
-                                s(n_deposition_scaled, k = 3) +
-                                (1 | park_id)"))
+                                s(n_deposition_scaled, k = 3)"))
                                 
                                 #https://github.com/pbs-assess/sdmTMB/issues/466#issuecomment-3119589818
                                 
@@ -467,10 +467,10 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                                reml = T)
                                 
                                 #intercept and random effect  
-                                fit1 <- update(fit0, 
-                                               spatial = "off", 
-                                               formula. = re_formula, 
-                                               reml = T)
+           #                     fit1 <- update(fit0, 
+          #                                     spatial = "off", 
+           #                                    formula. = re_formula, 
+            #                                   reml = T)
                                 
                                 #intercept and spatial  
                                 fit2 <- update(fit0, 
@@ -478,10 +478,10 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                                reml = T)
                                 
                                 #intercept,  random effect and spatial  
-                                fit3 <- update(fit0, 
-                                               spatial = "on", 
-                                               formula. = re_formula, 
-                                               reml = T)
+                             #   fit3 <- update(fit0, 
+                            #                   spatial = "on", 
+                            #                   formula. = re_formula, 
+                            #                   reml = T)
                                 
                                 #full model 
                                 fit_full <- update(fit0, 
@@ -499,13 +499,13 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                 (dev_explained_full <- 1 - deviance(fit_full) / deviance(fit0))
 
                                 # proportion deviance explained by the random effect:
-                                (dev_explained_re <- 1 - deviance(fit1) / deviance(fit0))
+                             #   (dev_explained_re <- 1 - deviance(fit1) / deviance(fit0))
                                 
                                 # proportion deviance explained by the mesh:
                                 (dev_explained_spatial <- 1 - deviance(fit2) / deviance(fit0))
                                 
-                                # proportion deviance explained by the mesh:
-                                (dev_explained_re_spatial <- 1 - deviance(fit3) / deviance(fit0))
+                                # proportion deviance explained by the mesh and RE:
+                              #  (dev_explained_re_spatial <- 1 - deviance(fit3) / deviance(fit0))
 
                                 # proportion deviance explained by the covariate:
                                 (dev_explained_var <- 1 - deviance(fit4) / deviance(fit0))
@@ -530,9 +530,9 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                     response = resp, 
                                     dev_explained_var = dev_explained_var, 
                                     dev_explained_full = dev_explained_full,
-                                    dev_explained_re_spatial = dev_explained_re_spatial, 
+                                  #  dev_explained_re_spatial = dev_explained_re_spatial, 
                                     dev_explained_spatial = dev_explained_spatial,
-                                    dev_explained_re = dev_explained_re,
+                                   # dev_explained_re = dev_explained_re,
                                     cutoff = co,
                                     max_inner_edge = i_e,
                                     mesh_id = mesh_id,
@@ -599,4 +599,4 @@ dt_res <- rbindlist(best_mesh_res_list) %>%
     term == "s(months_extreme_drought_scaled, k = 3)" ~ "N Drought Months Smoothed"))
 unique(dt_mesh_res$clean_term)
 summary(dt_mesh_res)
-fwrite(dt_mesh_res, "builds/model_outputs/sdmtmb_results_1000m_local_density_smoothed.csv")
+fwrite(dt_res, "builds/model_outputs/sdmtmb_results_1000m_local_density_smoothed.csv")

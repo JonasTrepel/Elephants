@@ -240,22 +240,6 @@ canopy_height_files <- data.table(filepath = list.files("data/spatial_data/time_
          years = gsub("canopy_height_", "", colname)) #%>% filter(years %in% c("2002", "2005", "2008", "2013", "2016", "2019", "2022"))
 
 
-hunter_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
-                                                        pattern = "hunter", 
-                                                        full.names = TRUE), 
-                                  filename = list.files("data/spatial_data/time_series/",
-                                                        pattern = "hunter", 
-                                                        full.names = FALSE)) 
-
-for(i in 1:nrow(hunter_files)){
-  r <- rast(hunter_files[i,]$filepath)
-  plot(r, main = paste0(hunter_files[i,]$filename))
-  Sys.sleep(1)
-  
-}
-
-
-
 ssa_ext <- ext(-17.5, 51.0, -35.0, 16.0)
 ssa_vect <- as.polygons(ssa_ext, crs = "EPSG:4326")
 
@@ -310,6 +294,23 @@ future_walk(1:nrow(canopy_height_files),
               
             })
 plan(sequential)
+
+
+hunter_files <- data.table(filepath = list.files("data/spatial_data/time_series/",
+                                                 pattern = "hunter", 
+                                                 full.names = TRUE), 
+                           filename = list.files("data/spatial_data/time_series/",
+                                                 pattern = "hunter", 
+                                                 full.names = FALSE)) 
+
+for(i in 1:nrow(hunter_files)){
+  r <- rast(hunter_files[i,]$filepath)
+  plot(r, main = paste0(hunter_files[i,]$filename))
+  Sys.sleep(1)
+  
+}
+
+
 
 #8. Canopy height SD 90m ------------------
 
