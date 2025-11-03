@@ -289,8 +289,8 @@ for (resp in unique(responses)) {
     .options = furrr_options(seed = TRUE),
     function(i) {
       
-      co <- mesh_grid[i, ]$cutoff
-      i_e <- mesh_grid[i, ]$max_inner_edge
+      co <- as.numeric(mesh_grid[i, ]$cutoff)
+      i_e <- as.numeric(mesh_grid[i, ]$max_inner_edge)
       mesh_id <- mesh_grid[i, ]$mesh_id
       
       inla_mesh <- fmesher::fm_mesh_2d_inla(
@@ -403,13 +403,15 @@ p_loglik <- dt_mesh_res_fin %>%
 p_loglik
 ggsave(plot = p_loglik, "builds/plots/supplement/sum_loglik_different_meshs_1000m_local_density_smoothed.png", dpi = 600, height = 4, width = 8)
 
+### 4 - Best Mesh ------------------
+
+dt_mesh_res_fin <- fread("builds/model_outputs/cv_mesh_selection_sdmtmb_results_1000m_local_density_smoothed.csv")
 
 dt_best_mesh <- dt_mesh_res_fin %>% 
   group_by(response) %>% 
   slice_max(sum_loglik) %>% 
   ungroup()
 
-### 4 - Best Mesh ------------------
 
 plan(multisession, workers = 3)
 #options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
@@ -421,8 +423,8 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                             function(i) {
 
                                 resp <- dt_best_mesh[i, ]$response
-                                co <- dt_best_mesh[i, ]$cutoff
-                                i_e <- dt_best_mesh[i, ]$max_inner_edge
+                                co <- as.numeric(dt_best_mesh[i, ]$cutoff)
+                                i_e <- as.numeric(dt_best_mesh[i, ]$max_inner_edge)
                                 mesh_id <- dt_best_mesh[i, ]$mesh_id
                                 
                                 inla_mesh <- fmesher::fm_mesh_2d_inla(
@@ -597,6 +599,6 @@ dt_res <- rbindlist(best_mesh_res_list) %>%
     term == "s(n_deposition_scaled, k = 3)" ~ "Nitrogen deposition Smoothed",
     term == "s(fire_frequency_scaled, k = 3)" ~ "Fire frequency Smoothed",
     term == "s(months_extreme_drought_scaled, k = 3)" ~ "N Drought Months Smoothed"))
-unique(dt_mesh_res$clean_term)
-summary(dt_mesh_res)
+unique(dt_res$clean_term)
+summary(dt_res)
 fwrite(dt_res, "builds/model_outputs/sdmtmb_results_1000m_local_density_smoothed.csv")
