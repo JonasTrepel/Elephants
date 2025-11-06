@@ -226,7 +226,7 @@ for (j in 1:nrow(mesh_guide)) {
       if(is.null(fit_cv)) return(NULL)
       
       
-      cv_model_id <- paste0("cv_", resp, "_", mesh_id, "_1000m_local_density_subsets")
+      cv_model_id <- paste0("cv_", tier, "_", mesh_id, "_1000m_local_density_subsets")
       
       tmp_tidy <- data.frame(
         tier = tier, 
@@ -280,7 +280,7 @@ dt_mesh_res_fin <- dt_mesh_res  %>%
 summary(dt_mesh_res_fin)
 
 fwrite(dt_mesh_res_fin, "builds/model_outputs/cv_mesh_selection_sdmtmb_1000m_subsets.csv")
-
+n_distinct(dt_mesh_res_fin$model_id)
 
 ##### run models --------------------------------------------
 
@@ -295,7 +295,7 @@ dt_best_mesh <- dt_mesh_res_fin %>%
 
 ### - Use best  Mesh ------------------
 
-plan(multisession, workers = 35)
+plan(multisession, workers = 15)
 #options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
 start_time <- Sys.time()
 
