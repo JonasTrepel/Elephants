@@ -3,6 +3,9 @@ builds/deprecated_models/
 builds/cv_models/
 builds/loo_models/
 builds/cv_subset_models/
+builds/subset_models/
+builds/park_models/
+builds/cv_park_models/
 data/spatial_data/
 data/raw_data/ceru/Full Telemetry Data.csv
 data/raw_data/elephants_alive/elephants_alive_tracking_data.csv
