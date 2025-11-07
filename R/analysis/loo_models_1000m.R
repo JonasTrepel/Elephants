@@ -21,7 +21,6 @@ library(glmmTMB)
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
   mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100, 
-         evi_900m_coef = evi_900m_coef/100
   ) %>% 
   filter(park_id != "Thornybush Nature Reserve")
 
@@ -38,15 +37,13 @@ dt_mod <- dt %>%
   dplyr::select(
     #mean values /habitat characteristics 
     mean_tree_cover_1000m, mean_evi_900m, mean_canopy_height_900m, 
-    mean_habitat_diversity_1000m, mean_evi_sd_900m, mean_canopy_height_sd_900m, 
-    
+
     #starting conditions
     tree_cover_1000m_2015_2016, evi_900m_2013_2014, canopy_height_900m_2000,
-    habitat_diversity_1000m_2015_2016, evi_sd_900m_2013_2014, canopy_height_sd_900m_2000,
-    
+
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-    fire_frequency, months_severe_drought, months_extreme_drought, mat_change, prec_change,
+    fire_frequency, months_severe_drought, months_extreme_drought,
     mat_coef, prec_coef,
     
     #Elephant predictors 
@@ -54,8 +51,7 @@ dt_mod <- dt %>%
     
     #Trends - Responses 
     tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
-    habitat_diversity_1000m_coef, tree_cover_sd_1000m_coef, evi_sd_900m_coef, canopy_height_sd_900m_coef, 
-    
+
     #Coords 
     x_mollweide, y_mollweide, lon, lat, 
     
@@ -91,16 +87,8 @@ dt_best_mesh <- dt_mesh_res_fin %>%
 
 
   
-responses = c("canopy_height_900m_coef", "evi_900m_coef", "tree_cover_1000m_coef")  
-parks <- c("No Park", "Balule Nature Reserve","Bwabwata","Chobe","Gonarezhou", "Hluhluwe – iMfolozi Park",
-  "Hwange","Itala Nature Reserve", "Kaingo Private Game Reserve", "Kasungu National Park",
-  "Khaudum", "Klaserie Private Nature Reserve", "Kruger National Park",
-  "Lapalala Nature Reserve", "Letaba Ranch Nature Reserve","Luambe","Luengue-Luiana National Park",
-  "Lukusuzi", "Madikwe Nature Reserve", "Makgadikgadi Pans","Manyeleti Nature Reserve",
-  "Mapungupwe National Park","Mavinga National Park", "Moremi", "Nkasa Rupara",
-  "North Luangwa", "Northern Tuli", "Nxai Pan","Pilanesberg National Park",
-  "Sabie Sands Private Nature Reserve", "Sioma Ngwezi", "South Luangwa",
-  "Tembe Elephant Park", "Timbavati Private Nature Reserve", "Umbabat Private Nature Reserve")
+responses = c("canopy_height_900m_coef", "tree_cover_1000m_coef")  
+parks <- c("No Park", as.character(unique(dt_mod$park_id)))
 
 model_guide <- CJ(response = responses, 
                   park = parks) %>% 
@@ -127,8 +115,6 @@ best_mesh_res_list <- future_map(1:nrow(model_guide),
                                        mean_density_km2_scaled = as.numeric(scale(mean_density_km2)),
                                        months_extreme_drought_scaled = as.numeric(scale(months_extreme_drought)),
                                        fire_frequency_scaled = as.numeric(scale(fire_frequency)),
-                                       mat_change_scaled = as.numeric(scale(mat_change)),
-                                       prec_change_scaled = as.numeric(scale(prec_change)),
                                        mat_coef_scaled = as.numeric(scale(mat_coef)),
                                        prec_coef_scaled = as.numeric(scale(prec_coef)),
                                        n_deposition_scaled = as.numeric(scale(n_deposition)), 
@@ -294,11 +280,7 @@ dt_res <- rbindlist(best_mesh_res_list) %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "evi_900m_coef" ~  "EVI Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend",
-    response == "tree_cover_sd_1000m_coef" ~ "Tree Cover SD Trend",
-    response == "evi_sd_900m_coef" ~ "EVI SD Trend", 
-    response == "canopy_height_sd_900m_coef" ~ "Canopy Height SD Trend"
+    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"
   ), 
   clean_term = case_when(
     .default = term,

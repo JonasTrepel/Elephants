@@ -20,11 +20,9 @@ library(glmmTMB)
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
   mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100, 
-         evi_900m_coef = evi_900m_coef/100
   ) %>% 
-  filter(park_id != "Thornybush Nature Reserve")
+  filter(park_id != "Thornybush Nature Reserve") #counts likely wrong - mean density of 6.3 elephants seems unrealistic
 
-setDT(dt)
 
 
 # get dataframe with comlete and clean data fro mdoeling 
@@ -37,15 +35,13 @@ dt_mod <- dt %>%
   dplyr::select(
     #mean values /habitat characteristics 
     mean_tree_cover_1000m, mean_evi_900m, mean_canopy_height_900m, 
-    mean_habitat_diversity_1000m, mean_evi_sd_900m, mean_canopy_height_sd_900m, 
-    
+
     #starting conditions
     tree_cover_1000m_2015_2016, evi_900m_2013_2014, canopy_height_900m_2000,
-    habitat_diversity_1000m_2015_2016, evi_sd_900m_2013_2014, canopy_height_sd_900m_2000,
-    
+
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-    fire_frequency, months_severe_drought, months_extreme_drought, mat_change, prec_change,
+    fire_frequency, months_severe_drought, months_extreme_drought,
     mat_coef, prec_coef,
     
     #Elephant predictors 
@@ -53,8 +49,7 @@ dt_mod <- dt %>%
     
     #Trends - Responses 
     tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
-    habitat_diversity_1000m_coef, tree_cover_sd_1000m_coef, evi_sd_900m_coef, canopy_height_sd_900m_coef, 
-    
+
     #Coords 
     x_mollweide, y_mollweide, lon, lat, 
     
@@ -83,8 +78,6 @@ dt_mod <- dt %>%
     mean_density_km2_scaled = as.numeric(scale(mean_density_km2)),
     months_extreme_drought_scaled = as.numeric(scale(months_extreme_drought)),
     fire_frequency_scaled = as.numeric(scale(fire_frequency)),
-    mat_change_scaled = as.numeric(scale(mat_change)),
-    prec_change_scaled = as.numeric(scale(prec_change)),
     mat_coef_scaled = as.numeric(scale(mat_coef)),
     prec_coef_scaled = as.numeric(scale(prec_coef)),
     n_deposition_scaled = as.numeric(scale(n_deposition)), 
@@ -101,7 +94,7 @@ glimpse(dt_mod)
 
 dt_corr_pred <- dt_mod %>% 
   dplyr::select(mat, map, n_deposition, human_modification, 
-                fire_frequency, months_extreme_drought, mat_change, prec_change, 
+                fire_frequency, months_extreme_drought,
                 mat_coef, prec_coef, 
                 mean_density_km2, local_density_km2)
 
@@ -113,7 +106,7 @@ ggcorrplot(corr, hc.order = FALSE, type = "lower",
 
 # 2. Test covariate model improvement -------------------------------------
 
-responses <- c("tree_cover_1000m_coef", "evi_900m_coef", "canopy_height_900m_coef")
+responses <- c("tree_cover_1000m_coef", "canopy_height_900m_coef")
 
 vars <- c("local_density_km2_scaled",
           "months_extreme_drought_scaled",
@@ -206,7 +199,6 @@ dt_var_res <- rbindlist(var_res_list) %>%
   mutate(clean_response = case_when(
     .default = resp,
     resp == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    resp == "evi_900m_coef" ~  "EVI Trend",
     resp == "canopy_height_900m_coef" ~  "Canopy Height Trend"
   ), 
   clean_term = case_when(
@@ -258,7 +250,7 @@ p_aic <- dt_var_res %>%
         strip.background = element_rect(fill = "linen", color = "linen"))
 
 p_aic
-ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_density_smoothed.png", dpi = 600, height = 5, width = 9)
+ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_density_smoothed.png", dpi = 600, height = 5, width = 7)
 
 ### 3 - Choose Mesh ------------------
 #https://www.biorxiv.org/content/10.1101/2022.03.24.485545v4.full.pdf
@@ -269,7 +261,7 @@ ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_
 mesh_grid <- expand.grid(max_inner_edge = seq(50, 150, by = 50), cutoff = c(2, 4, 8, 16, 32), loc_cpo = NA) %>% 
   mutate(mesh_id = paste0("mesh_", 1:nrow(.)))
 
-responses <- c("tree_cover_1000m_coef", "evi_900m_coef", "canopy_height_900m_coef")
+responses <- c("tree_cover_1000m_coef", "canopy_height_900m_coef")
 
 plan(multisession, workers = 10)
 #options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
@@ -376,21 +368,17 @@ dt_mesh_res_fin <- dt_mesh_res  %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "evi_900m_coef" ~  "EVI Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend",
-    response == "tree_cover_sd_1000m_coef" ~ "Tree Cover SD Trend",
-    response == "evi_sd_900m_coef" ~ "EVI SD Trend", 
-    response == "canopy_height_sd_900m_coef" ~ "Canopy Height SD Trend"))
+    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"))
 summary(dt_mesh_res_fin)
 
 fwrite(dt_mesh_res_fin, "builds/model_outputs/cv_mesh_selection_sdmtmb_results_1000m_local_density_smoothed.csv")
 
 p_loglik <- dt_mesh_res_fin %>% 
   mutate(clean_response = factor(clean_response, levels = c(
-    "Woody Cover Trend", "Canopy Height Trend", "EVI Trend"))) %>% 
+    "Woody Cover Trend", "Canopy Height Trend"))) %>% 
   ggplot() +
   geom_point(aes(x = cutoff, y = sum_loglik, color = max_inner_edge), size = 2, alpha = 0.8) +
-  scale_color_viridis_c(option = "B", direction = - 1) +
+  scale_color_viridis_c(option = "B", direction = - 1, begin = 0.2, end = 0.8) +
   labs(y = "Log Likelihood (sum)", x = "Cutoff (km)", color = "Max\nInner\nEdge\n(km)", title = "Km² scale") +
   facet_wrap(~clean_response, scales = "free") +
   theme(legend.position = "right", 
@@ -575,11 +563,7 @@ dt_res <- rbindlist(best_mesh_res_list) %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "evi_900m_coef" ~  "EVI Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend",
-    response == "tree_cover_sd_1000m_coef" ~ "Tree Cover SD Trend",
-    response == "evi_sd_900m_coef" ~ "EVI SD Trend", 
-    response == "canopy_height_sd_900m_coef" ~ "Canopy Height SD Trend"
+    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"
   ), 
   clean_term = case_when(
     .default = term,

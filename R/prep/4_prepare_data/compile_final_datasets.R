@@ -94,7 +94,9 @@ dt_pc <- dt_pc_raw %>%
   unique() %>% 
   left_join(dt_pc_trend)
   
-
+dt_pc %>% 
+  filter(!is.na(mean_density_km2)) %>% 
+  nrow()
 
 #### 1000m grid with habitat quality -----------
 dt_grid_hq_1000m_raw <- fread("data/processed_data/data_fragments/pa_grid_1000m_with_habitat_quality.csv") %>% 
@@ -110,7 +112,7 @@ dt_grid_hq_1000m <- dt_grid_hq_1000m_raw %>%
   left_join(dt_pc) %>% 
   mutate(cell_area_km2 = 1) %>% #change to 0.01 for 100x100m grid! 
   group_by(park_id) %>% 
-  mutate(total_hq = sum(habitat_quality_norm), 
+  mutate(total_hq = sum(habitat_quality_norm, na.rm = T), 
          rel_hq = habitat_quality_norm/total_hq, 
          rel_pc = mean_population_count*rel_hq, 
          local_density_km2 = rel_pc/cell_area_km2) %>% 
@@ -123,21 +125,13 @@ dt_grid_hq_1000m <- dt_grid_hq_1000m_raw %>%
                percent_population_growth, glm_population_trend_estimate,
                glm_population_trend_p_val, glm_population_trend_r2, 
                evi_mean) %>% 
-  left_join(dt_grid_trends_1000m) %>% 
-  mutate(mat_change = (mat_coef/mean_mat)*100, #get percent changes which is more interpretable 
-         prec_change = (prec_coef/mean_prec)*100,
-         tree_cover_1000m_change = (tree_cover_1000m_coef/mean_tree_cover_1000m)*100,
-         canopy_height_900m_change = (canopy_height_900m_coef/mean_canopy_height_900m)*100,
-         evi_900m_change = (evi_900m_coef/mean_evi_900m)*100,
-         tree_cover_sd_1000m_change = (tree_cover_sd_1000m_coef/mean_tree_cover_sd_1000m)*100,
-         canopy_height_sd_900m_change = (canopy_height_sd_900m_coef/mean_canopy_height_sd_900m)*100,
-         evi_sd_900m_change = (evi_sd_900m_coef/mean_evi_sd_900m)*100,
-         habitat_diversity_1000m_change = (habitat_diversity_1000m_coef/mean_habitat_diversity_1000m)/100
-         )
+  left_join(dt_grid_trends_1000m)
 
-hist(dt_grid_hq_1000m$tree_cover_sd_1000m_change)
-hist(dt_grid_hq_1000m$canopy_height_sd_900m_change)
-hist(dt_grid_hq_1000m$habitat_diversity_1000m_change)
+setdiff(unique(dt_grid_hq_1000m_raw$park_id), unique(dt_pc$park_id))
+setdiff(unique(dt_pc$park_id), unique(dt_grid_hq_1000m_raw$park_id))
+dt_grid_hq_1000m[dt_grid_hq_1000m$park_id == "Limpopo", ]$local_density_km2
+dt_grid_hq_1000m[dt_grid_hq_1000m$park_id == "Maputo", ]$local_density_km2
+
 
 sum(dt_grid_hq_1000m[dt_grid_hq_1000m$park_id == "Kruger National Park", ]$local_density_km2, na.rm = T)
 sum(dt_grid_hq_1000m[dt_grid_hq_1000m$park_id == "Kruger National Park", ]$mean_density_km2, na.rm = T)
@@ -149,105 +143,6 @@ fwrite(dt_grid_hq_1000m %>%
   filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
   filter(!park_id %in% c("Zambezi", "iSimangaliso Wetland Park")), 
   "data/processed_data/clean_data/analysis_ready_grid_1000m.csv")
-
-### Exploratory plots ----
-
-park_order <- dt_grid_hq_1000m %>%
-  filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>%
-  group_by(park_id) %>%
-  summarise(mean_density = mean(mean_density_km2, na.rm = TRUE)) %>%
-  arrange(mean_density)  %>% 
-  pull(park_id)
-
-
-dt_grid_hq_1000m %>% 
-  filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
-  mutate(park_id = factor(park_id, levels = park_order)) %>%
-  ggplot() +
-  geom_boxplot(aes(x = park_id, y = tree_cover_1000m_coef, fill = cluster_id)) +
-  theme_classic() +
-  geom_hline(yintercept = 0, color = "red") +
-  theme(axis.text.x = element_text(angle = 90))
-
-dt_grid_hq_1000m %>% 
-  filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
-  mutate(park_id = factor(park_id, levels = park_order)) %>%
-  ggplot() +
-  geom_boxplot(aes(x = park_id, y = evi_900m_coef, fill = cluster_id)) +
-  theme_classic() +
-  geom_hline(yintercept = 0, color = "red") +
-  theme(axis.text.x = element_text(angle = 90))
-
-dt_grid_hq_1000m %>% 
-  filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
-  mutate(park_id = factor(park_id, levels = park_order)) %>%
-  ggplot() +
-  geom_boxplot(aes(x = park_id, y = canopy_height_900m_coef, fill = cluster_id)) +
-  theme_classic() +
-  geom_hline(yintercept = 0, color = "red") +
-  theme(axis.text.x = element_text(angle = 90))
-
-
-dt_grid_hq_1000m %>% 
-  filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
-  mutate(park_id = factor(park_id, levels = park_order)) %>%
-  ggplot() +
-  geom_boxplot(aes(x = park_id, y = habitat_diversity_1000m_coef, fill = cluster_id)) +
-  theme_classic() +
-  geom_hline(yintercept = 0, color = "red") +
-  theme(axis.text.x = element_text(angle = 90))
-
-dt_grid_hq_1000m %>% 
-  filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
-  mutate(park_id = factor(park_id, levels = park_order)) %>%
-  ggplot() +
-  geom_boxplot(aes(x = park_id, y = evi_sd_900m_coef, fill = cluster_id)) +
-  theme_classic() +
-  geom_hline(yintercept = 0, color = "red") +
-  theme(axis.text.x = element_text(angle = 90))
-
-
-dt_grid_hq_1000m %>% 
-  filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
-  mutate(park_id = factor(park_id, levels = park_order)) %>%
-  ggplot() +
-  geom_boxplot(aes(x = park_id, y = canopy_height_sd_900m_coef, fill = cluster_id)) +
-  theme_classic() +
-  geom_hline(yintercept = 0, color = "red") +
-  theme(axis.text.x = element_text(angle = 90))
-
-
-dt_grid_hq_1000m %>% 
-  filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
-  mutate(park_id = factor(park_id, levels = park_order)) %>%
-  ggplot() +
-  geom_point(aes(x = evi_mean, y = evi_900m_coef))
-  
-cor.test(dt_grid_hq_1000m$evi_900m_coef, dt_grid_hq_1000m$mean_evi_900m)
-
-dt_grid_hq_1000m %>% 
-  dplyr::select(mean_density_km2, park_id) %>% 
-  unique() %>% 
-  arrange(-mean_density_km2) %>% 
-  as.data.table()
-
-n_distinct(dt_grid_hq_1000m[!is.na(dt_grid_hq_1000m$local_density_km2),]$park_id)
-n_distinct(dt_grid_hq_1000m[!is.na(dt_grid_hq_1000m$density_trend_estimate),]$park_id)
-
-dt_corr_1000m <- dt_grid_hq_1000m %>% 
-  filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
-  filter(!park_id %in% c("Zambezi", "iSimangaliso Wetland Park")) %>% #one vary high, the other strange (very unclear where in the park eephabts can go etc)
-  dplyr::select(evi_900m_coef, tree_cover_1000m_coef, canopy_height_900m_coef, 
-         evi_sd_900m_coef, habitat_diversity_1000m_coef, canopy_height_sd_900m_coef, 
-         
-         local_density_km2, mean_density_km2, percent_population_growth, 
-         prec_coef, mat_coef, n_deposition, fire_frequency,
-         months_extreme_drought, months_severe_drought) %>% 
-  filter(complete.cases(.))
-
-corr <- round(cor(dt_corr_1000m), 2)
-ggcorrplot::ggcorrplot(corr, hc.order = FALSE, type = "lower",
-                       lab = TRUE)
 
 
 #### 100m grid with habitat quality -----------
@@ -282,22 +177,7 @@ dt_grid_hq_100m <- dt_grid_hq_100m_raw %>%
                 glm_population_trend_p_val, glm_population_trend_r2, 
                 evi_mean) %>% 
   left_join(dt_grid_trends_100m) %>% 
-  mutate(local_density_km2 = local_density_ha*100) %>% 
-  mutate(mat_change = (mat_coef/mean_mat)*100, #get percent changes which is more interpretable 
-         prec_change = (prec_coef/mean_prec)*100,
-         tree_cover_100m_change = (tree_cover_100m_coef/mean_tree_cover_100m)*100,
-         canopy_height_90m_change = (canopy_height_90m_coef/mean_canopy_height_90m)*100,
-         evi_90m_change = (evi_90m_coef/mean_evi_90m)*100,
-         tree_cover_sd_100m_change = (tree_cover_sd_100m_coef/mean_tree_cover_sd_100m)*100,
-         canopy_height_sd_90m_change = (canopy_height_sd_90m_coef/mean_canopy_height_sd_90m)*100,
-         evi_sd_90m_change = (evi_sd_90m_coef/mean_evi_sd_90m)*100, 
-         habitat_diversity_100m_change = (habitat_diversity_100m_coef/mean_habitat_diversity_100m)/100
-  )
-
-hist(dt_grid_hq_100m$tree_cover_sd_100m_change)
-hist(dt_grid_hq_100m$canopy_height_sd_90m_change)
-hist(dt_grid_hq_100m$evi_sd_90m_change)
-
+  mutate(local_density_km2 = local_density_ha*100)
 summary(dt_grid_hq_100m)
 
 sum(dt_grid_hq_100m[dt_grid_hq_100m$park_id == "Kruger National Park", ]$local_density_ha, na.rm = T)

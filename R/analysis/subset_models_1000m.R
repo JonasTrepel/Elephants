@@ -21,7 +21,6 @@ library(glmmTMB)
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
   mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100, 
-         evi_900m_coef = evi_900m_coef/100
   ) %>% 
   filter(park_id != "Thornybush Nature Reserve")
 
@@ -38,15 +37,13 @@ dt_mod <- dt %>%
   dplyr::select(
     #mean values /habitat characteristics 
     mean_tree_cover_1000m, mean_evi_900m, mean_canopy_height_900m, 
-    mean_habitat_diversity_1000m, mean_evi_sd_900m, mean_canopy_height_sd_900m, 
-    
+
     #starting conditions
     tree_cover_1000m_2015_2016, evi_900m_2013_2014, canopy_height_900m_2000,
-    habitat_diversity_1000m_2015_2016, evi_sd_900m_2013_2014, canopy_height_sd_900m_2000,
-    
+
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-    fire_frequency, months_severe_drought, months_extreme_drought, mat_change, prec_change,
+    fire_frequency, months_severe_drought, months_extreme_drought,
     mat_coef, prec_coef,
     
     #Elephant predictors 
@@ -54,8 +51,7 @@ dt_mod <- dt %>%
     
     #Trends - Responses 
     tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
-    habitat_diversity_1000m_coef, tree_cover_sd_1000m_coef, evi_sd_900m_coef, canopy_height_sd_900m_coef, 
-    
+
     #Coords 
     x_mollweide, y_mollweide, lon, lat, country_code_iso3,
     
@@ -101,6 +97,21 @@ table(dt_mod$tree_cover_q)
 table(dt_mod$evi_q)
 table(dt_mod$canopy_height_q)
 
+dt_mod %>% 
+  group_by(canopy_height_q) %>% 
+  summarize(mean = mean(canopy_height_900m_2000), 
+            sd = sd(canopy_height_900m_2000))
+
+dt_mod %>% 
+  group_by(tree_cover_q) %>% 
+  summarize(mean = mean(tree_cover_1000m_2015_2016), 
+            sd = sd(tree_cover_1000m_2015_2016))
+
+dt_mod %>% 
+  group_by(evi_q) %>% 
+  summarize(mean = mean(evi_900m_2013_2014), 
+            sd = sd(evi_900m_2013_2014))
+
 ### 2 - Choose Mesh ------------------
 #https://www.biorxiv.org/content/10.1101/2022.03.24.485545v4.full.pdf
 
@@ -114,7 +125,7 @@ mesh_grid <- expand.grid(max_inner_edge = seq(50, 150, by = 50), cutoff = c(2, 4
 subsets <- c("lq", "mq", "uq", #lower, medium and upper quantile
         "fenced", "unfenced") 
 
-responses <- c("tree_cover_1000m_coef", "evi_900m_coef", "canopy_height_900m_coef")
+responses <- c("tree_cover_1000m_coef", "canopy_height_900m_coef")
 
 mesh_guide <- CJ(subset = subsets, 
                  response = responses) %>% 
@@ -124,19 +135,12 @@ mesh_guide <- CJ(subset = subsets,
            tier == "canopy_height_900m_coef_mq" ~ "canopy_height_q == 'mq'",
            tier == "canopy_height_900m_coef_uq" ~ "canopy_height_q == 'uq'",
            
-           tier == "evi_900m_coef_lq" ~ "evi_q == 'lq'",
-           tier == "evi_900m_coef_mq" ~ "evi_q == 'mq'",
-           tier == "evi_900m_coef_uq" ~ "evi_q == 'uq'",
-           
            tier == "tree_cover_1000m_coef_lq" ~ "tree_cover_q == 'lq'",
            tier == "tree_cover_1000m_coef_mq" ~ "tree_cover_q == 'mq'",
            tier == "tree_cover_1000m_coef_uq" ~ "tree_cover_q == 'uq'",
            
            tier == "canopy_height_900m_coef_fenced" ~ "fenced == 'fenced'",
            tier == "canopy_height_900m_coef_unfenced" ~ "fenced == 'unfenced'",
-           
-           tier == "evi_900m_coef_fenced" ~ "fenced == 'fenced'",
-           tier == "evi_900m_coef_unfenced" ~ "fenced == 'unfenced'",
            
            tier == "tree_cover_1000m_coef_fenced" ~ "fenced == 'fenced'",
            tier == "tree_cover_1000m_coef_unfenced" ~ "fenced == 'unfenced'"))
@@ -167,8 +171,6 @@ for (j in 1:nrow(mesh_guide)) {
       mean_density_km2_scaled = as.numeric(scale(mean_density_km2)),
       months_extreme_drought_scaled = as.numeric(scale(months_extreme_drought)),
       fire_frequency_scaled = as.numeric(scale(fire_frequency)),
-      mat_change_scaled = as.numeric(scale(mat_change)),
-      prec_change_scaled = as.numeric(scale(prec_change)),
       mat_coef_scaled = as.numeric(scale(mat_coef)),
       prec_coef_scaled = as.numeric(scale(prec_coef)),
       n_deposition_scaled = as.numeric(scale(n_deposition)), 
@@ -272,11 +274,7 @@ dt_mesh_res_fin <- dt_mesh_res  %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "evi_900m_coef" ~  "EVI Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend",
-    response == "tree_cover_sd_1000m_coef" ~ "Tree Cover SD Trend",
-    response == "evi_sd_900m_coef" ~ "EVI SD Trend", 
-    response == "canopy_height_sd_900m_coef" ~ "Canopy Height SD Trend"))
+    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"))
 summary(dt_mesh_res_fin)
 
 fwrite(dt_mesh_res_fin, "builds/model_outputs/cv_mesh_selection_sdmtmb_1000m_subsets.csv")
@@ -315,8 +313,6 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                        mean_density_km2_scaled = as.numeric(scale(mean_density_km2)),
                                        months_extreme_drought_scaled = as.numeric(scale(months_extreme_drought)),
                                        fire_frequency_scaled = as.numeric(scale(fire_frequency)),
-                                       mat_change_scaled = as.numeric(scale(mat_change)),
-                                       prec_change_scaled = as.numeric(scale(prec_change)),
                                        mat_coef_scaled = as.numeric(scale(mat_coef)),
                                        prec_coef_scaled = as.numeric(scale(prec_coef)),
                                        n_deposition_scaled = as.numeric(scale(n_deposition)), 
@@ -475,7 +471,6 @@ dt_res <- rbindlist(best_mesh_res_list) %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "evi_900m_coef" ~  "EVI Trend",
     response == "canopy_height_900m_coef" ~  "Canopy Height Trend"
   ), 
   clean_term = case_when(

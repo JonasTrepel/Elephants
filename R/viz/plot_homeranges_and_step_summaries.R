@@ -9,7 +9,7 @@ library(sf)
 
 dt_ele_raw <- fread("data/processed_data/clean_data/elephant_id_meta_data.csv")
 
-dt_est <- fread("builds/model_outputs/issf_estimates_12hr_steps.csv") %>% 
+dt_est <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") %>% 
   left_join(dt_ele_raw) %>%
   mutate(cluster_id = case_when(
     cluster_id == "greater_kruger" ~ "Limpopo", 
@@ -38,13 +38,18 @@ sf_africa <- sf_world %>% filter(region_un == "Africa") %>%
 
 ### Plots ------------------------------------------
 p_1 <- sf_mcp %>% 
+  left_join(dt_ele) %>% 
+  filter(!sex == "U") %>% 
   ggplot() +
   ylim(-35, -7.5) +
   xlim(9, 40) +
-  geom_sf(data = sf_africa, fill = "linen") +
-  geom_sf(alpha = 0.25, fill = "black") +
+  geom_sf(data = sf_africa, fill = "linen", color = "grey25") +
+  geom_sf(alpha = 0.25, aes(fill = sex, color = sex)) +
+  scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   # geom_sf(data = sf_clust, alpha = 0.1, fill = "yellow") + 
-  theme_void()
+  theme_void() +
+  theme(legend.position = "none")
 p_1
 
 
@@ -52,8 +57,8 @@ p_2 <- dt_ele %>%
   filter(sex %in% c("M", "F")) %>% 
   ggplot() +
   geom_boxplot(aes(x = sex, y = hr_mcp_area_km2, color = sex, fill = sex), alpha = 0.75) +
-  scale_color_scico_d(palette = "batlow") +
-  scale_fill_scico_d(palette = "batlow") +
+  scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   labs(x = "Sex", y = "Home Range Area (km2)") +
   theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
@@ -78,8 +83,8 @@ p_3 <- dt_ele %>%
   filter(sex %in% c("M", "F")) %>% 
   ggplot() +
   geom_boxplot(aes(x = sex, y = hr_mcp_area_km2, color = sex, fill = sex), alpha = 0.75) +
-  scale_color_scico_d(palette = "batlow") +
-  scale_fill_scico_d(palette = "batlow") +
+  scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   labs(x = "Sex", y = "Home Range Area (km2)") +
   facet_wrap(~cluster_id, scales = "free_y", ncol = 4) +
   theme(legend.position = "none", 

@@ -11,8 +11,15 @@ library(ggcorrplot)
 #get data frame with cluster specific median estimates ready. 
 dt_ele <- fread("data/processed_data/clean_data/elephant_id_meta_data.csv")
 
-dt_est_raw <- fread("builds/model_outputs/issf_estimates_12hr_steps.csv") %>% 
+dt_est_raw <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") %>% 
   left_join(dt_ele)
+
+n_distinct(dt_est_raw$individual_id)
+
+dt_est_raw %>% dplyr::select(cluster_id, individual_id) %>% 
+  unique() %>% 
+  pull(cluster_id) %>% 
+  table()
 
 dt_est_wy <- dt_est_raw %>% 
   filter(season == "whole_year") %>% 
@@ -547,7 +554,9 @@ dt_grid_1000m_hq <- dt_grid_1000m_vars %>%
   ) %>% 
   ungroup()
 
-glimpse(dt_grid_1000m_hq[dt_grid_1000m_hq$park_id == "Kafue", ])
+glimpse(dt_grid_1000m_hq[dt_grid_1000m_hq$park_id == "Maputo", ])
+glimpse(dt_grid_1000m_hq[dt_grid_1000m_hq$park_id == "Limpopo", ])
+
 
 
 fwrite(dt_grid_1000m_hq, "data/processed_data/data_fragments/pa_grid_1000m_with_habitat_quality.csv")

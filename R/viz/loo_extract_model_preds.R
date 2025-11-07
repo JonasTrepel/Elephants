@@ -56,42 +56,7 @@ for_results <- future_map(
              )
     
 
-    
-    # for (var in unique(vars)) {
-    #   var_us <- gsub("_scaled", "", var)
-    #   mean_x <- mean(dat[[var_us]], na.rm = TRUE)
-    #   sd_x   <- sd(dat[[var_us]], na.rm = TRUE)
-    #   
-    #   term_call <- paste0(var, " [all]")
-    #   m_plot <- ggeffects::ggpredict(m, terms = term_call)
-    #   
-    #   plot_data <- as.data.table(m_plot) %>%
-    #     mutate(
-    #       x_unscaled = round(x * sd_x + mean_x, 3),
-    #       var_name = var,
-    #       response_name = response,
-    #       excluded_park = park, 
-    #       dev_explained_full = dt_bm_loo[i,]$dev_explained_full, 
-    #       dev_explained_var = dt_bm_loo[i,]$dev_explained_var, 
-    #       aic = aic, 
-    #       n = nrow(dat)
-    #     )
-    #   
-    #   # Ensure confidence interval columns exist
-    #   if (!any(grepl("conf", names(plot_data)))) {
-    #     plot_data <- plot_data %>%
-    #       mutate(conf.low = NA,
-    #              conf.high = NA,
-    #              std.error = NA)
-    #   }
-    #   
-    #   
-    #   dt_pred_loo_sub <- rbind(dt_pred_loo_sub, plot_data)
-    # }
-    
-
-    #print(paste0(response, " done at: ", Sys.time()))
-    
+   
     # Clean up that mess
     rm(m)
     gc()
@@ -206,7 +171,7 @@ vars <- c("local_density_km2_scaled",
           "mat_coef_scaled", 
           "n_deposition_scaled")
 
-responses <- c("tree_cover_1000m_coef", "canopy_height_900m_coef", "evi_900m_coef")
+responses <- c("tree_cover_1000m_coef", "canopy_height_900m_coef")
 
 parks <- c("No Park", "Mavinga National Park", "Luengue-Luiana National Park", "Hwange", 
            "South Luangwa", "Kruger National Park", "Bwabwata")
@@ -259,7 +224,11 @@ for_results_pred <- future_map(
           excluded_park = park,
           dev_explained_full = extr_guide[i,]$dev_explained_full,
           dev_explained_var = extr_guide[i,]$dev_explained_var,
-          n = nrow(dat)
+          n = nrow(dat),
+          q95_unscaled = as.numeric(quantile(dat[[var_us]], .95, na.rm = T)), 
+          q05_unscaled = as.numeric(quantile(dat[[var_us]], .05, na.rm = T)), 
+          q95 = as.numeric(quantile(dat[[var]], .95, na.rm = T)), 
+          q05 = as.numeric(quantile(dat[[var]], .05, na.rm = T))
         )
 
       # Ensure confidence interval columns exist
@@ -289,7 +258,6 @@ dt_pred_comp <- rbindlist(for_results_pred) %>%
          response_clean = case_when(
            response_name == "canopy_height_900m_coef" ~ "Canopy Height Trend",
            response_name == "tree_cover_1000m_coef" ~ "Tree Cover Trend",
-           response_name == "evi_900m_coef" ~ "EVI Trend"
          ),
          var_clean = case_when(
            var_name == "local_density_km2_scaled" ~ "Local Elephant Density",
@@ -320,7 +288,7 @@ p_smooth <- dt_pred_comp %>%
   scico::scale_color_scico_d(begin = .1, end = .9, palette = "batlow") +
   scico::scale_fill_scico_d(begin = .1, end = .9, palette = "batlow") +
   theme_bw() +
-  theme(legend.position = "right", 
+  theme(legend.position = "bottom", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
         panel.border = element_blank(), 
@@ -329,4 +297,4 @@ p_smooth <- dt_pred_comp %>%
 
 p_smooth
 
-ggsave(plot = p_smooth, "builds/plots/supplement_loo_1000m_model_predictions.png", dpi = 900, height = 6, width = 9)
+ggsave(plot = p_smooth, "builds/plots/supplement/loo_1000m_model_predictions.png", dpi = 900, height = 5, width = 8)

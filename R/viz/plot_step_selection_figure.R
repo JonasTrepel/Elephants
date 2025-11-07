@@ -6,10 +6,13 @@ library(ggridges)
 library(MetBrewer)
 library(scico)
 library(patchwork)
+library(rnaturalearth)
+library(sf)
+library(ggspatial)
 
 dt_ele <- fread("data/processed_data/clean_data/elephant_id_meta_data.csv")
 
-dt_est <- fread("builds/model_outputs/issf_estimates_12hr_steps.csv") %>% 
+dt_est <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") %>% 
   left_join(dt_ele) %>%
   #filter(cluster_id %in% c("chobe", "limpopo", "kzn", "luangwa")) %>% 
   mutate(cluster_id = case_when(
@@ -41,17 +44,18 @@ p_est_ridges <- dt_est %>%
     term == "slope" ~ "Slope",
   )) %>% 
   ggplot() +
-  geom_density_ridges_gradient(aes(y = clean_term, x = estimate, fill = after_stat(x))) +
-  scico::scale_fill_scico(palette = "bam", midpoint = 0, direction = 1
-  ) +
+  geom_density_ridges_gradient(aes(y = clean_term, x = estimate, fill = after_stat(x)), 
+                               color = "grey90", alpha = 0.8) +
+  scico::scale_fill_scico(palette = "vik", midpoint = 0, direction = 1) +
+  #scico::scale_color_scico(palette = "vik", midpoint = 0, direction = 1) +
   geom_vline(xintercept = 0, linetype = "dashed") +
   labs(subtitle = "Estimate Distribution", y = "", x = "Estimate", fill = "") +
-  theme_classic() +
+  theme_minimal() +
   theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
         panel.border = element_blank(), 
-        panel.background = element_rect(fill = "snow"), 
+        panel.background = element_rect(fill = "snow", color = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_est_ridges 
 
@@ -90,10 +94,10 @@ dt_me <- dt_est %>%
     median_ci_lb > 0 ~ "positive", 
     median_ci_ub < 0 ~ "negative"))
 
-scico(palette = "bam", n = 7)
+scico(palette = "vik", n = 7)
 
 #"#65014B" "#B5549C" "#E4ADD6" "#F5F0F0" "#C0D9A1" "#5F903D" "#0C4C00"
-
+#"#001260" "#06558B" "#71A7C4" "#EBE5E0" "#D29773" "#AA4613" "#590007"
 p_est <- dt_me %>% 
   filter(season == "whole_year") %>% 
   ggplot() +
@@ -105,12 +109,12 @@ p_est <- dt_me %>%
     size = 1, linewidth = 1.1, alpha = 0.9
   ) +
   scale_shape_manual(values = c("positive" = 23, "negative" = 23, "non-significant" = 21), guide = "none") +
-  theme_classic() +
-  scale_color_manual(values = c("positive" = "#5F903D", 
-                                "negative" = "#B5549C", 
+  theme_minimal() +
+  scale_color_manual(values = c("positive" = "#AA4613", 
+                                "negative" = "#06558B", 
                                 "non-significant" = "grey75")) +
-  scale_fill_manual(values = c("positive" = "#5F903D", 
-                                "negative" = "#B5549C", 
+  scale_fill_manual(values = c("positive" = "#AA4613", 
+                                "negative" = "#06558B", 
                                 "non-significant" = "grey75")) +
   labs(x = "", y = "Estimate", color = "Season", fill = "Season", 
        subtitle = paste0("Median Estimates (± 95 % CI)\nn = ", n_distinct(dt_est$individual_id))) +
@@ -123,14 +127,14 @@ p_est <- dt_me %>%
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
         panel.border = element_blank(), 
-        panel.background = element_rect(fill = "snow"), 
+        panel.background = element_rect(fill = "snow", color = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_est
 
 
-p_med_est <- p_est | p_est_ridges
+p_med_est <- p_est / p_est_ridges
 p_med_est
-ggsave(plot = p_med_est, "builds/plots/median_estimates_12hr_steps.png", dpi = 600, width = 8, height = 3)
+ggsave(plot = p_med_est, "builds/plots/median_estimates_12hr_steps.png", dpi = 600, width = 4, height = 8)
 
 
 #### Estimates vs context ----------------------
@@ -158,7 +162,7 @@ p_est_tm <- dt_est %>%
   geom_point(aes(x = term_mean, y = estimate, color = cluster_id), size = 0.75, alpha = 0.5) +
   geom_smooth(aes(x = term_mean, y = estimate), method = "lm") +
   facet_wrap(~clean_term, scales = "free", ncol = 5) +
-  labs(x = "Variable Mean", y = "Estimate") +
+  labs(x = "Variable Mean", y = "Estimate", subtitle = "Estimate ~ Variable Mean") +
   scale_color_scico_d(palette = "batlow") +
   theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
@@ -273,89 +277,82 @@ p_est_cluster <- dt_me_cluster %>%
   scale_shape_manual(values = c("positive" = 23, "negative" = 23, "non-significant" = 21), guide = "none") +
   scale_alpha_manual(values = c("significant" = 0.9, "non-significant" = 0.5), guide = "none") +
   theme_bw() +
-  scico::scale_color_scico_d(palette = "batlow") +
-  scico::scale_fill_scico_d(palette = "batlow") +
+  scico::scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  scico::scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   labs(x = "", y = "Estimate", color = "Season", fill = "Season", 
        subtitle = paste0("Cluster-Specific Median Estimates (± 95 % CI)")) +
   guides(
     fill = guide_legend(nrow = 2),
     color = guide_legend(nrow = 2)
   ) +
-  theme_classic() +
+  theme_minimal() +
   coord_flip() +
   theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
         panel.border = element_blank(), 
-        panel.background = element_rect(fill = "snow"), 
+        panel.background = element_rect(fill = "snow", color = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen")) +
   facet_wrap(~cluster_id, ncol = 5)
 p_est_cluster
 
-p_mean_var <- dt_est %>% 
-  filter(season == "whole_year" & !is.na(cluster_id)) %>% 
-  pivot_longer(cols = c(evi_mean_mean, slope_mean,
-                        distance_to_water_km_mean, distance_to_settlement_km_mean, 
-                        human_modification_mean), 
-               names_to = "var_name", values_to = "var_mean_value") %>% 
-  mutate(clean_var_name = case_when(
-    .default = var_name,
-    var_name == "evi_mean_mean" ~ "EVI",
-    var_name == "distance_to_water_km_mean" ~ "Distance to Water",
-    var_name == "distance_to_settlement_km_mean" ~ "Distance to Settlement",
-    var_name == "human_modification_mean" ~ "Human Modification Index",
-    var_name == "slope_mean" ~ "Slope")) %>% 
+### Maps ----------------------------
+
+# Location points 
+sf_loc <- fread("data/processed_data/clean_data/all_location_data.csv") %>% 
+  mutate(month = month(date_time)) %>% 
+  st_as_sf(coords = c("lon", "lat"), 
+           crs = 4326) %>% 
+  st_transform(., crs = 4326)
+
+#24hr estimates 
+
+dt_est <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv")
+
+
+sf_clust <- st_read("data/spatial_data/protected_areas/pa_clusters.gpkg") %>% 
+  st_transform(crs = 4326) %>% 
+  filter(cluster_id %in% c("limpopo", "kzn", "chobe", "luangwa")) %>% 
+  mutate(cluster_id = case_when(
+    cluster_id == "greater_kruger" ~ "Limpopo", 
+    cluster_id == "greater_waterberg" ~ "Limpopo", 
+    cluster_id == "limpopo" ~ "Limpopo", 
+    cluster_id == "kzn" ~ "KZN", 
+    cluster_id == "luangwa" ~ "Luangwa", 
+    cluster_id == "chobe" ~ "Chobe", 
+    cluster_id == "kafue" ~ "Kafue", 
+    cluster_id == "zambezi" ~ "Zambezi"
+  )) 
+
+# World 
+sf_world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
+
+# Africa 
+sf_africa <- sf_world %>% filter(region_un == "Africa") %>% 
+  filter(!name == "Madagascar") %>% 
+  st_transform(., crs = 4326)
+
+
+p_loc <- sf_loc %>% 
+  filter(individual_id %in% unique(dt_est$individual_id)) %>%
+  sample_n(500000) %>% 
   ggplot() +
-  geom_boxplot(aes(x = cluster_id, y = var_mean_value, color = cluster_id, fill = cluster_id), alpha = 0.5) +
-  scico::scale_color_scico_d(palette = "batlow") +
-  scico::scale_fill_scico_d(palette = "batlow") +
-  facet_wrap(~clean_var_name, ncol = 5, scales = "free_y") +
-  labs(y = "Home Range Variable Mean", x = "Cluster ID") +
-  theme_bw() +
-  theme(legend.position = "none", 
-        panel.grid.major.x = element_blank(), 
-        panel.grid.minor.x = element_blank(),
-        panel.border = element_blank(), 
-        panel.background = element_rect(fill = "snow"), 
-        strip.background = element_rect(fill = "linen", color = "linen"),
-        axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Average variable values of elephant home ranges")
+  ylim(-35, -7.5) +
+  xlim(9, 40) +
+  annotation_scale(location = "br", bar_cols = c("ivory4", "white")) +
+  geom_sf(data = sf_africa, fill = "linen", color = "grey25") +
+  geom_sf(data = sf_clust, aes(color = cluster_id, fill = cluster_id), alpha = 0.25, size = 1.5,
+         # fill = "transparent", 
+          linetype = "dashed", 
+          linewidth = 1.01) +
+  scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  geom_sf(size = 0.1, alpha = 0.1, color = "black") +
+  theme_void()+
+  theme(legend.position = "none")
+p_loc
 
-p_mean_var
-
-#range
-p_var_range <- dt_est %>% 
-  filter(season == "whole_year" & !is.na(cluster_id)) %>% 
-  pivot_longer(cols = c(evi_mean_range, slope_range,
-                        distance_to_water_km_range, distance_to_settlement_km_range, 
-                        human_modification_range), 
-               names_to = "var_name", values_to = "var_range_value") %>% 
-  mutate(clean_var_name = case_when(
-    .default = var_name,
-    var_name == "evi_mean_range" ~ "EVI",
-    var_name == "distance_to_water_km_range" ~ "Distance to Water",
-    var_name == "distance_to_settlement_km_range" ~ "Distance to Settlement",
-    var_name == "human_modification_range" ~ "Human Modification Index",
-    var_name == "slope_range" ~ "Slope")) %>% 
-  ggplot() +
-  geom_boxplot(aes(x = cluster_id, y = var_range_value, color = cluster_id, fill = cluster_id), alpha = 0.5) +
-  scico::scale_color_scico_d(palette = "batlow") +
-  scico::scale_fill_scico_d(palette = "batlow") +
-  facet_wrap(~clean_var_name, ncol = 5, scales = "free_y") +
-  labs(y = "Home Range Variable Range", x = "Cluster ID") +
-  theme_bw() +
-  theme(legend.position = "none", 
-        panel.grid.major.x = element_blank(), 
-        panel.grid.minor.x = element_blank(),
-        panel.border = element_blank(), 
-        panel.background = element_rect(fill = "snow"), 
-        strip.background = element_rect(fill = "linen", color = "linen"),
-        axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Variable ranges within elephant home ranges")
-
-p_var_range
-
-### summarize 
+### summarize --------------------------------------
 
 library(patchwork)
 
@@ -364,15 +361,17 @@ p_wy
 ggsave(p_wy, filename = "builds/plots/cluster_var_means_and_ranges.png",
        dpi = 600, height = 6, width = 10)
 
+
 ###### combine estimate figure
 p_empty <- ggplot() + theme_void()
-p_med_est_2 <- p_est | p_est_ridges  | p_empty
+(p_est_map <- ((p_est / p_est_ridges)  | p_loc) +
+  plot_layout(widths = c(1, 2.8)))
 
-p_est_comb <- p_med_est_2 / p_est_tr / p_est_cluster
+(p_est_comb <- p_est_map / p_est_cluster + plot_layout(heights = c(2.5, 1)))
 p_est_comb  
 
 ggsave(p_est_comb, filename = "builds/plots/main_estimate_figure.png",
-       dpi = 600, height = 7.5, width = 10)
+       dpi = 600, height = 10, width = 10)
 
 
 # Sex and Season specifics ------------------------------
