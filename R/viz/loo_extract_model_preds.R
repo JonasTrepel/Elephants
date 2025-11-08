@@ -269,6 +269,9 @@ dt_pred_comp <- rbindlist(for_results_pred) %>%
 unique(dt_pred_comp$response_name)
 unique(dt_pred_comp$var_name)
 
+fwrite(dt_pred_comp, "builds/model_outputs/loo_sdmtmb_predictions_1000m.csv")
+
+
 p_smooth <- dt_pred_comp %>% 
   filter(!excluded_park %in% c("No Park")) %>% 
   ggplot() +

@@ -153,8 +153,7 @@ for (j in 1:nrow(mesh_guide)) {
       formula <- as.formula(paste0(resp, " ~ s(local_density_km2_scaled, k = 3) +
                      s(months_extreme_drought_scaled, k = 3) +
                      s(fire_frequency_scaled, k = 3) +
-                     s(mat_coef_scaled, k = 3) + 
-                     s(n_deposition_scaled, k = 3)"))
+                     s(mat_coef_scaled, k = 3)"))
       
       fit_cv <- tryCatch({
         sdmTMB::sdmTMB_cv(
@@ -236,15 +235,16 @@ n_distinct(dt_mesh_res_fin$model_id)
 dt_mesh_res_fin <- fread("builds/model_outputs/cv_mesh_selection_sdmtmb_1000m_parks.csv")
 
 dt_best_mesh <- dt_mesh_res_fin %>% 
-  group_by(park) %>% 
+  group_by(response, park) %>% 
   slice_max(sum_loglik) %>% 
-  ungroup()
+  ungroup() %>% 
+  filter(!park %in% c("Bwabwata"))
 
 
 
 ### - Use best  Mesh ------------------
 
-plan(multisession, workers = 30)
+plan(multisession, workers = 25)
 #options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
 start_time <- Sys.time()
 
@@ -295,15 +295,13 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                 s(local_density_km2_scaled, k = 3) +
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
-                                s(mat_coef_scaled, k = 3) + 
-                                s(n_deposition_scaled, k = 3)"))
+                                s(mat_coef_scaled, k = 3)"))
                                    
                                    full_formula <- as.formula(paste0(resp, " ~ 
                                 s(local_density_km2_scaled, k = 3) +
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
-                                s(mat_coef_scaled, k = 3) + 
-                                s(n_deposition_scaled, k = 3)"))
+                                s(mat_coef_scaled, k = 3)"))
                                    
                                    #https://github.com/pbs-assess/sdmTMB/issues/466#issuecomment-3119589818
                                    

@@ -135,8 +135,8 @@ p_q <- dt_pred_comp %>%
   geom_line(aes(x = x_unscaled, y = predicted, color = response_clean), linewidth = 1) +
   facet_grid(rows = vars(response_tier), cols = vars(var_clean), scales = "free") +
   labs(y = "Response Value", x = "Predictor Value") +
-  scico::scale_color_scico_d(begin = .1, end = .9, palette = "batlow") +
-  scico::scale_fill_scico_d(begin = .1, end = .9, palette = "batlow") +
+  scico::scale_color_scico_d(begin = .2, end = .8, palette = "batlow") +
+  scico::scale_fill_scico_d(begin = .2, end = .8, palette = "batlow") +
   theme_bw() +
   theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
@@ -161,8 +161,8 @@ p_f <- dt_pred_comp %>%
   geom_line(aes(x = x_unscaled, y = predicted, color = response_clean), linewidth = 1) +
   facet_grid(rows = vars(response_tier), cols = vars(var_clean), scales = "free") +
   labs(y = "Response Value", x = "Predictor Value") +
-  scico::scale_color_scico_d(begin = .1, end = .9, palette = "batlow") +
-  scico::scale_fill_scico_d(begin = .1, end = .9, palette = "batlow") +
+  scico::scale_color_scico_d(begin = .2, end = .8, palette = "batlow") +
+  scico::scale_fill_scico_d(begin = .2, end = .8, palette = "batlow") +
   theme_bw() +
   theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 

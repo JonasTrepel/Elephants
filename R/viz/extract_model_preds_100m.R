@@ -14,7 +14,6 @@ library(ggeffects)
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_100m.csv") %>% 
   mutate(tree_cover_100m_coef = tree_cover_100m_coef*100, 
-         evi_90m_coef = evi_90m_coef/100
   ) %>% 
   filter(park_id != "Thornybush Nature Reserve")
 
@@ -26,20 +25,19 @@ quantile(dt$dw_min_median_mode_fraction, na.rm = T)
 
 names(dt)
 
+acceptable_numbers = seq(1, 10000000, 10)
 dt_mod <- dt %>% 
   filter(dw_min_median_mode_fraction >= 50) %>% 
   dplyr::select(
     #mean values /habitat characteristics 
     mean_tree_cover_100m, mean_evi_90m, mean_canopy_height_90m, 
-    mean_habitat_diversity_100m, mean_evi_sd_90m, mean_canopy_height_sd_90m, 
-    
+
     #starting conditions
     tree_cover_100m_2015_2016, evi_90m_2013_2014, canopy_height_90m_2000,
-    habitat_diversity_100m_2015_2016, evi_sd_90m_2013_2014, canopy_height_sd_90m_2000,
-    
+
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-    fire_frequency, months_severe_drought, months_extreme_drought, mat_change, prec_change,
+    fire_frequency, months_severe_drought, months_extreme_drought,
     mat_coef, prec_coef,
     
     #Elephant predictors 
@@ -47,8 +45,7 @@ dt_mod <- dt %>%
     
     #Trends - Responses 
     tree_cover_100m_coef, evi_90m_coef, canopy_height_90m_coef, 
-    habitat_diversity_100m_coef, tree_cover_sd_100m_coef, evi_sd_90m_coef, canopy_height_sd_90m_coef, 
-    
+
     #Coords 
     x_mollweide, y_mollweide, lon, lat, 
     
@@ -61,6 +58,8 @@ dt_mod <- dt %>%
     y_moll_km = y_mollweide/1000,
   ) %>%
   group_by(park_id) %>% 
+  mutate(park_row_nr = 1:n()) %>% 
+  filter(park_row_nr %in% acceptable_numbers) %>% 
   filter(n() >= 10) %>% 
   ungroup() %>% 
   as.data.table() %>% 
@@ -77,8 +76,6 @@ dt_mod <- dt %>%
     months_severe_drought_scaled   = as.numeric(scale(months_severe_drought)),
     months_extreme_drought_scaled = as.numeric(scale(months_extreme_drought)),
     fire_frequency_scaled          = as.numeric(scale(fire_frequency)),
-    mat_change_scaled                = as.numeric(scale(mat_change)),
-    prec_change_scaled               = as.numeric(scale(prec_change)),
     n_deposition_scaled            = as.numeric(scale(n_deposition)), 
     mat_scaled = as.numeric(scale(mat)), 
     map_scaled = as.numeric(scale(map))
