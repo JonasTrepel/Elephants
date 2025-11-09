@@ -128,7 +128,7 @@ res_list <- future_map(unique(vars),
   plot_data <- as.data.table(m_plot) %>%
     as.data.table() %>% 
     mutate(
-      x_unscaled = round(x * sd_x + mean_x, 3), 
+      x_unscaled = round(x * sd_x + mean_x, 6), 
       var_name = var, 
       response_name = response, 
       aic = aic, 

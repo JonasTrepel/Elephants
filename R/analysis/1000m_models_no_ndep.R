@@ -159,7 +159,7 @@ for (resp in unique(responses)) {
       if (is.null(fit_cv)) return(NULL)
       
       
-      cv_model_id <- paste0("cv_", resp, "_", mesh_id, "_1000m_local_density_smoothed")
+      cv_model_id <- paste0("cv_", resp, "_", mesh_id, "_1000m_no_ndep")
       
       tmp_tidy <- data.frame(
         cutoff = co,
@@ -341,7 +341,7 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                    
                                    san <- sdmTMB::sanity(fit_full)
                                    
-                                   model_id = paste0(resp, "_best_mesh_1000m_local_density_smoothed")
+                                   model_id = paste0(resp, "_best_mesh_1000m_no_ndep")
                                    
                                    tmp_tidy <- broom::tidy(fit_full, conf.int = TRUE) %>%
                                      #dplyr::filter(!grepl("(Intercept)", term)) %>%
@@ -483,7 +483,7 @@ for(i in 1:nrow(dt_bm_smooth)){
                            plot_data <- as.data.table(m_plot) %>%
                              as.data.table() %>% 
                              mutate(
-                               x_unscaled = round(x * sd_x + mean_x, 3), 
+                               x_unscaled = round(x * sd_x + mean_x, 6), 
                                var_name = var, 
                                response_name = response, 
                                aic = aic, 
@@ -492,7 +492,6 @@ for(i in 1:nrow(dt_bm_smooth)){
                                q95 = as.numeric(quantile(dat[[var]], .95, na.rm = T)), 
                                q05 = as.numeric(quantile(dat[[var]], .05, na.rm = T))
                              )
-                           
                            # Ensure confidence interval columns exist - some hickup w/o in prevuous version
                            if (!any(grepl("conf", names(plot_data)))) {
                              plot_data <- plot_data %>% 
@@ -537,7 +536,7 @@ dt_1000m <- dt_pred_smooth %>%
 unique(dt_1000m$response_name)
 unique(dt_1000m$var_name)
 
-fwrite(dt_1000m, "builds/model_outputs/sdmtmb_1000m_predictions.csv")
+fwrite(dt_1000m, "builds/model_outputs/sdmtmb_1000m_predictions_no_ndep.csv")
 
 dt_long <- dt_mod %>% pivot_longer(
   cols = c("local_density_km2",
