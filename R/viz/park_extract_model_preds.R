@@ -62,7 +62,7 @@ for_results_pred <- future_map(
     
     plot_data <- as.data.table(m_plot) %>%
       mutate(
-        x_unscaled = round(x * sd_x + mean_x, 3),
+        x_unscaled = round(x * sd_x + mean_x, 6),
         var_name = var,
         response_name = response,
         park = park,
