@@ -198,8 +198,7 @@ dt_long <- dt_mod %>% pivot_longer(
     var_name == "n_deposition" ~ "N Deposition",
   )) %>% 
   pivot_longer(
-    cols = c("canopy_height_900m_coef", "tree_cover_1000m_coef", 
-             "evi_900m_coef"), 
+    cols = c("canopy_height_900m_coef", "tree_cover_1000m_coef"), 
     names_to = "response_name", 
     values_to = "response_value") %>% 
   mutate(response_clean = case_when(
@@ -231,15 +230,17 @@ rects <- dt_long %>%
 p_smooth_points <- dt_1000m %>% 
  # filter(response_name %in% c("evi_900m_coef") & tier == "Simple") %>% 
   ggplot() +
-  geom_point(data = dt_long, aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_point(data = dt_long, aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey50") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey5") +
-  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.1, color = "darkred") +
-  geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1.1, color = "darkred") +
+  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, fill = response_clean), alpha = 0.4) +
+  geom_line(aes(x = x_unscaled, y = predicted, color = response_clean), linewidth = 1.1) +
+  scale_color_manual(values = c("#40631F", "#0F443E")) +
+  scale_fill_manual(values = c("#40631F", "#0F443E")) + 
   facet_grid(rows = vars(response_clean), cols = vars(var_clean), scales = "free") +
  # labs(y = "Evi Trend", title = "Simple", x = "") +
   theme_bw() +
   labs(y = "Response Value", title = "", x = "Predictor Value") +
-  theme(legend.position = "right", 
+  theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
         panel.border = element_blank(), 
@@ -247,7 +248,7 @@ p_smooth_points <- dt_1000m %>%
         strip.background = element_rect(fill = "linen", color = "linen"))
 
 p_smooth_points
-ggsave(plot = p_smooth_points, "builds/plots/1000m_model_predictions_and_points_smooth.png", dpi = 900, height = 6, width = 9)
+ggsave(plot = p_smooth_points, "builds/plots/1000m_model_predictions_and_points_smooth.png", dpi = 900, height = 5, width = 9)
 
 
 p_smooth <- dt_1000m %>% 
