@@ -30,8 +30,7 @@ dt_mod <- dt %>%
   dplyr::select(
     #mean values /habitat characteristics 
     mean_tree_cover_1000m, mean_evi_900m, mean_canopy_height_900m, 
-    mean_habitat_diversity_1000m, mean_evi_sd_900m, mean_canopy_height_sd_900m, 
-    
+
     #starting conditions
     tree_cover_1000m_2015_2016, evi_900m_2013_2014, canopy_height_900m_2000,
 
@@ -41,7 +40,7 @@ dt_mod <- dt %>%
     mat_coef, prec_coef,
     
     #Elephant predictors 
-    mean_density_km2, local_density_km2, density_trend_estimate, density_trend_estimate,
+    mean_density_km2, local_density_km2,
     
     #Trends - Responses 
     tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
@@ -70,7 +69,6 @@ dt_mod <- dt %>%
   mutate(
     local_density_km2_scaled       = as.numeric(scale(local_density_km2)),
     mean_density_km2_scaled       = as.numeric(scale(mean_density_km2)),
-    density_trend_estimate_scaled = as.numeric(scale(density_trend_estimate)),
     months_severe_drought_scaled   = as.numeric(scale(months_severe_drought)),
     months_extreme_drought_scaled = as.numeric(scale(months_extreme_drought)),
     fire_frequency_scaled          = as.numeric(scale(fire_frequency)),

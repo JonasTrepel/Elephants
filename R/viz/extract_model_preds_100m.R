@@ -41,7 +41,7 @@ dt_mod <- dt %>%
     mat_coef, prec_coef,
     
     #Elephant predictors 
-    mean_density_km2, local_density_km2, density_trend_estimate, density_trend_estimate,
+    mean_density_km2, local_density_km2,
     
     #Trends - Responses 
     tree_cover_100m_coef, evi_90m_coef, canopy_height_90m_coef, 
@@ -72,7 +72,6 @@ dt_mod <- dt %>%
   mutate(
     local_density_km2_scaled       = as.numeric(scale(local_density_km2)),
     mean_density_km2_scaled       = as.numeric(scale(mean_density_km2)),
-    density_trend_estimate_scaled = as.numeric(scale(density_trend_estimate)),
     months_severe_drought_scaled   = as.numeric(scale(months_severe_drought)),
     months_extreme_drought_scaled = as.numeric(scale(months_extreme_drought)),
     fire_frequency_scaled          = as.numeric(scale(fire_frequency)),
@@ -129,7 +128,7 @@ for(i in 1:nrow(dt_bm_smooth)){
                            plot_data <- as.data.table(m_plot) %>%
                              as.data.table() %>% 
                              mutate(
-                               x_unscaled = round(x * sd_x + mean_x, 3), 
+                               x_unscaled = round(x * sd_x + mean_x, 6), 
                                var_name = var, 
                                response_name = response, 
                                aic = aic
@@ -233,13 +232,15 @@ p_smooth_points <- dt_100m %>%
                sample_n(100000) %>% 
                ungroup(), aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey5") +
-  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.1, color = "darkred") +
-  geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1.1, color = "darkred") +
+  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.1) +
+  geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1.1) +
+  scale_color_manual(values = c("#40631F", "#0F443E")) +
+  scale_fill_manual(values = c("#40631F", "#0F443E")) + 
   facet_grid(rows = vars(response_clean), cols = vars(var_clean), scales = "free") +
   # labs(y = "Evi Trend", title = "Simple", x = "") +
   theme_bw() +
   labs(y = "Response Value", title = "", x = "Predictor Value") +
-  theme(legend.position = "right", 
+  theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
         panel.border = element_blank(), 
@@ -254,9 +255,11 @@ p_smooth <- dt_100m %>%
   # filter(response_name %in% c("evi_90m_coef") & tier == "Simple") %>% 
   ggplot() +
   # geom_point(data = dt_long, aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
-  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.1, color = "darkred") +
-  geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1.1, color = "darkred") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey5") +
+  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, fill = response_clean), alpha = 0.4) +
+  geom_line(aes(x = x_unscaled, y = predicted, color = response_clean), linewidth = 1.1) +
+  scale_color_manual(values = c("#40631F", "#0F443E")) +
+  scale_fill_manual(values = c("#40631F", "#0F443E")) + 
   facet_grid(rows = vars(response_clean), cols = vars(var_clean), scales = "free") +
   geom_rect(data = rects, aes(xmin = xmin1, xmax = xmax1, ymin = ymin, ymax = ymax), 
             fill = "grey90", alpha = 0.8, inherit.aes = FALSE) +
@@ -264,7 +267,7 @@ p_smooth <- dt_100m %>%
             fill = "grey90", alpha = 0.8, inherit.aes = FALSE) +
   labs(y = "Response Value", title = "", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "right", 
+  theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
         panel.border = element_blank(), 
