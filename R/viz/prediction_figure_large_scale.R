@@ -53,7 +53,10 @@ dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>%
 
 n_distinct(dt$park_id)
 (park_counts <- dt[, .N, by = park_id] %>% arrange(N))
-
+median(park_counts$N)
+sd(park_counts$N)
+nrow(dt)
+cor.test(dt$prec_coef, dt$mat_coef)
 
 dt_pred <- fread("builds/model_outputs/sdmtmb_1000m_predictions.csv")
 
