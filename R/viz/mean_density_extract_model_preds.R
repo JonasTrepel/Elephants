@@ -81,7 +81,7 @@ dt_mod <- dt %>%
 dt_bm_smooth <- fread("builds/model_outputs/sdmtmb_results_1000m_mean_density_smoothed.csv") %>% 
   mutate(clean_response = factor(clean_response, levels = c(
     "Woody Cover Trend", "Canopy Height Trend"))) %>% 
-  dplyr::select(model_id, model_path, response) %>% 
+  dplyr::select(model_id, model_path, response, dev_explained_var, dev_explained_full) %>% 
   unique()
 
 
@@ -254,8 +254,8 @@ p_smooth <- dt_1000m %>%
   ggplot() +
   # geom_point(data = dt_long, aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
-  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.3) +
-  geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1.1) +
+  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, fill = response_clean), alpha = 0.3) +
+  geom_line(aes(x = x_unscaled, y = predicted, color = response_clean), linewidth = 1.1) +
   scale_color_manual(values = c("#40631F", "#0F443E")) +
   scale_fill_manual(values = c("#40631F", "#0F443E")) + 
   facet_grid(rows = vars(response_clean), cols = vars(var_clean), scales = "free") +
