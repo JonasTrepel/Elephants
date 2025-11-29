@@ -125,4 +125,5 @@ p_hw = (p_map / (p_bar | p_cor)) + plot_annotation(tag_level = "A") +
   plot_layout(heights = c(1, 1.5))
 p_hw
 ggsave(plot = p_hw, "builds/plots/supplement/hwange_elephant_count_vs_predicted.png", 
-       dpi = 900, height = 7, width = 8)
+       dpi = 900, height = 5.5, width = 8)
+
