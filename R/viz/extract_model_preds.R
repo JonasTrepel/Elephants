@@ -13,9 +13,7 @@ library(ggeffects)
 ### get raw data 
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
-  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100, 
-  ) %>% 
-  filter(park_id != "Thornybush Nature Reserve")
+  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100)
 
 names(dt)
 

@@ -141,7 +141,8 @@ unique(dt_grid_hq_1000m[dt_grid_hq_1000m$park_id == "Kruger National Park", ]$pe
 
 fwrite(dt_grid_hq_1000m %>% 
   filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
-  filter(!park_id %in% c("Zambezi", "iSimangaliso Wetland Park")), 
+  filter(!park_id %in% c("Zambezi", "iSimangaliso Wetland Park", "Thornybush Nature Reserve")) %>% 
+    filter(!mean_density_km2 == 0), 
   "data/processed_data/clean_data/analysis_ready_grid_1000m.csv")
 
 
@@ -189,7 +190,8 @@ unique(dt_grid_hq_100m[dt_grid_hq_100m$park_id == "Kruger National Park", ]$mean
 
 fwrite(dt_grid_hq_100m %>% 
          filter(cluster_id %in% c("kzn", "limpopo", "luangwa", "chobe")) %>% 
-         filter(!park_id %in% c("Zambezi", "iSimangaliso Wetland Park")), 
+         filter(!park_id %in% c("Zambezi", "iSimangaliso Wetland Park", "Thornybush Nature Reserve")) %>% 
+         filter(!mean_density_km2 == 0), 
        "data/processed_data/clean_data/analysis_ready_grid_100m.csv")
 
 
