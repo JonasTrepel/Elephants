@@ -19,9 +19,7 @@ library(glmmTMB)
 #sf_parks <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") 
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_100m.csv") %>% 
-  mutate(tree_cover_100m_coef = tree_cover_100m_coef*100, 
-  ) %>% 
-  filter(park_id != "Thornybush Nature Reserve")
+  mutate(tree_cover_100m_coef = tree_cover_100m_coef*100)
 
 setDT(dt)
 

@@ -295,10 +295,10 @@ list_mesh_res_sub <- future_map(
         formula,
         data = dt_mod,
         mesh = mesh,
-        k_folds = 3,
+        k_folds = 5,
         #  family = sdmTMB::student(),
         spatial = "on",
-        #  fold_ids = "fold_id", 
+        #fold_ids = clust, 
         parallel = FALSE,
         reml = T
       )
@@ -380,12 +380,13 @@ ggsave(plot = p_loglik, "builds/plots/supplement/sum_loglik_different_meshs_1000
 dt_mesh_res_fin <- fread("builds/model_outputs/cv_mesh_selection_sdmtmb_results_1000m_local_density_smoothed.csv")
 
 dt_best_mesh <- dt_mesh_res_fin %>% 
+  filter(all_converged == TRUE) %>% 
   group_by(response) %>% 
   slice_max(sum_loglik) %>% 
   ungroup()
 
 
-plan(multisession, workers = 3)
+plan(multisession, workers = 2)
 #options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
 start_time <- Sys.time()
 
@@ -482,8 +483,33 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
 
                                 # proportion deviance explained by the covariate:
                                 (dev_explained_var <- 1 - deviance(fit_fixed) / deviance(fit_int))
+                                
+                                
+                                library(spdep)
+                                
+                                dt_mod_sf <- dt_mod %>% 
+                                  st_as_sf(.,
+                                           coords = c("x_mollweide", "y_mollweide"), 
+                                           crs = "ESRI:54009") %>% 
+                                  mutate(resids_full = residuals(fit_full), 
+                                         resids_fixed = residuals(fit_fixed)) %>% 
+                                  filter(!is.infinite(resids_full), !is.infinite(resids_fixed))
+                                
+                                coords <- st_coordinates(dt_mod_sf)
+                              # knn <- knearneigh(coords, k = 250)
+                              # nb_knn <- knn2nb(knn)
+                                
+                                nb_knn <- dnearneigh(coords, 0, 10000)
 
-
+                                lw <- nb2listw(nb_knn, style = "W")
+                                
+                                mi_fixed <- moran.test(dt_mod_sf$resids_fixed, lw)
+                                mi_fixed
+                                
+                                mi_full <- moran.test(dt_mod_sf$resids_full, lw)
+                                mi_full
+    
+                                
                                 san <- sdmTMB::sanity(fit_full)
                                 
                                 model_id = paste0(resp, "_best_mesh_1000m_local_density_smoothed")
@@ -501,6 +527,10 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                     dev_explained_full = dev_explained_full,
                                     dev_explained_ele = dev_explained_ele, 
                                     dev_explained_spatial = dev_explained_spatial,
+                                    morans_i_fixed = as.numeric(mi_fixed$estimate[1]), 
+                                    morans_i_full = as.numeric(mi_full$estimate[1]), 
+                                    morans_i_p_val_fixed = as.numeric(mi_fixed$p.value), 
+                                    morans_i_p_val_full = as.numeric(mi_full$p.value),
                                     cutoff = co,
                                     max_inner_edge = i_e,
                                     mesh_id = mesh_id,

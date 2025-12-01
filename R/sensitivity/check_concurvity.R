@@ -18,9 +18,7 @@ library(glmmTMB)
 #sf_parks <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") 
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
-  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100, 
-  ) %>% 
-  filter(park_id != "Thornybush Nature Reserve") #counts likely wrong - mean density of 6.3 elephants seems unrealistic
+  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100)
 
 
 

@@ -9,19 +9,21 @@ library(furrr)
 library(groupdata2)
 library(GGally)
 library(glmmTMB)
+library(sf)
 #first sfuture#first stab at sdmTMB
 
 
 #1 HOUSEKEEPING -------------------------------------
 
-#load data 
 cents <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") %>% 
   st_centroid(.) %>% 
-  mutate(x_moll_km = (st_coordinates(.)[,1])/1000, 
-         y_moll_km = (st_coordinates(.)[,2])/1000) %>% 
+  mutate(x_moll = (st_coordinates(.)[,1]), 
+         y_moll = (st_coordinates(.)[,2]), 
+         x_moll_km = x_moll/1000, 
+         y_moll_km = y_moll/1000) %>% 
   as.data.table() %>% 
   mutate(geom = NULL) %>% 
-  select(park_id = NAME, area_km2, x_moll_km, y_moll_km)
+  dplyr::select(park_id = NAME, area_km2, x_moll, y_moll, x_moll_km, y_moll_km)
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
   mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100) 
@@ -82,7 +84,8 @@ dt_mod <- dt %>%
             ) %>% 
   mutate(cv_local_density_km2 = (sd_local_density_km2/local_density_km2)*100) %>% 
   left_join(cents) %>% 
-  ungroup() 
+  ungroup() %>% 
+  mutate(mean_density_km2_scaled = as.numeric(scale(mean_density_km2))) #%>% mutate(mean_density_km2_scaled = mean_density_km2)
 
 glimpse(dt_mod)
 
@@ -91,12 +94,12 @@ dt_mod$sd_local_density_km2
 
 
 dt_mod %>% ggplot() + 
-  geom_point(aes(x = tree_cover_1000m_coef, y = cv_local_density_km2))
+  geom_point(aes(x = mean_density_km2_scaled, y = tree_cover_1000m_coef))
 
 
 dt_cor <- dt_mod %>% 
   
-  select(
+  dplyr::select(
     `Woody cover trend` = tree_cover_1000m_coef,
     `Canopy height Trend` = canopy_height_900m_coef,
     `Mean elephant density` = mean_density_km2,
@@ -120,133 +123,166 @@ corr <- round(cor(dt_cor), 2)
 
 ggcorrplot(corr, type = "lower", lab = TRUE)
 
+#nothing seems to correlate with mean elephant density too badly...   
 
-### 3 - Choose Mesh ------------------
-#https://www.biorxiv.org/content/10.1101/2022.03.24.485545v4.full.pdf
+#### Models -------
+#WOody coer 
+m_pad_tc = gam(tree_cover_1000m_coef ~ s(mean_density_km2_scaled, k = 3), 
+               select=TRUE,
+               data = dt_pad,
+               method = "REML")
+summary(m_pad_tc)
 
-#https://becarioprecario.bitbucket.io/spde-gitbook/ch-intro.html on how to construct meshs , chapter 2.6 and 2.7
+m_pad_tc_sp = gam(tree_cover_1000m_coef ~ s(mean_density_km2_scaled, k = 3) +
+                 s(y_moll_scaled),  
+               select=TRUE,
+               data = dt_pad,
+               method = "REML")
+summary(m_pad_tc_sp)
 
-#the following may take a good couple of hours to finish 
-responses <- c("tree_cover_1000m_coef", "canopy_height_900m_coef")
+# Canopy height
+m_pad_ch = gam(canopy_height_900m_coef ~ s(mean_density_km2_scaled, k = 3), 
+               select=TRUE,
+               data = dt_pad,
+               method = "REML")
+summary(m_pad_ch)
 
-mesh_grid <- expand.grid(max_inner_edge = seq(300, 900, by = 300),
-                         cutoff = c(200, 400, 800, 1600), 
-                         response = responses) %>% 
-  mutate(mesh_id = paste0("mesh_", 1:nrow(.)))
-
-plan(multisession, workers = 10)
-#options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
-start_time <- Sys.time()
-
-
-list_mesh_res_sub <- future_map(
-    1:nrow(mesh_grid),
-    .progress = TRUE,
-    .options = furrr_options(seed = TRUE),
-    function(i) {
-      
-      co <- as.numeric(mesh_grid[i, ]$cutoff)
-      i_e <- as.numeric(mesh_grid[i, ]$max_inner_edge)
-      mesh_id <- mesh_grid[i, ]$mesh_id
-      resp <- mesh_grid[i, ]$response
-      
-      inla_mesh <- fmesher::fm_mesh_2d_inla(
-        loc = cbind(dt_mod$x_moll_km, dt_mod$y_moll_km),
-        cutoff = co,
-        max.edge = c(i_e, 10000)
-      )
-      
-      mesh <- make_mesh(
-        data = dt_mod,
-        xy_cols = c("x_moll_km", "y_moll_km"),
-        mesh = inla_mesh
-      )
-      
-      formula <- as.formula(paste0(resp, " ~ s(mean_density_km2, k = 3)"))
-      
-      fit_cv <- tryCatch({
-        sdmTMB::sdmTMB_cv(
-          formula,
-          data = dt_mod,
-          mesh = mesh,
-          k_folds = 3,
-          #  family = sdmTMB::student(),
-          spatial = "on",
-          #  fold_ids = "fold_id", 
-          parallel = FALSE,
-          reml = T
-        )
-      }, error = function(e) {
-        message("Skipping CV model due to error: ", e$message)
-        return(NULL)
-      })
-      
-      if (is.null(fit_cv)) return(NULL)
-      
-      
-      cv_model_id <- paste0("cv_", resp, "_", mesh_id, "_park_average_density")
-      
-      tmp_tidy <- data.frame(
-        cutoff = co,
-        max_inner_edge = i_e,
-        mesh_id = mesh_id,
-        response = resp,
-        n_vertices = nrow(mesh$mesh$loc),
-        all_converged = fit_cv$converged,
-        p_d_hessian = sum(fit_cv$pdHess),
-        response = resp,
-        sum_loglik = fit_cv$sum_loglik,
-        n = nrow(dt_mod),
-        log_cpo_approx = fit_cv$sum_loglik / nrow(dt_mod),
-        model_id = cv_model_id,
-        model_path = paste0("builds/cv_models/", cv_model_id, ".Rds")
-      )
-      
-      saveRDS(fit_cv, file = tmp_tidy$model_path)
-      
-      rm(fit_cv)
-      gc()
-      
-      tmp_tidy
-    }
-  )
-
-plan(sequential)
+m_pad_ch_sp = gam(canopy_height_900m_coef ~ s(mean_density_km2_scaled, k = 3) +
+                    s(y_moll_scaled),  
+                  select=TRUE,
+                  data = dt_pad,
+                  method = "REML")
+summary(m_pad_ch_sp)
 
 
-dt_mesh_res <- rbindlist(list_mesh_res_sub)
 
-print(paste0("Started loop at: ", start_time, " and finished at: ", Sys.time()))
-print(paste0("Estimate time for CV: ", round(as.numeric(difftime(Sys.time(), start_time, units = "mins")), 2), " mins"))
+### Check SP
+dt_pad_sf <- st_as_sf(dt_pad, coords = c("x_moll", "y_moll"), crs = "ESRI:54009") %>% 
+  mutate(resid_ch = residuals(m_pad_ch), 
+         resid_ch_sp = residuals(m_pad_ch_sp), 
+         resid_tc = residuals(m_pad_tc), 
+         resid_tc_sp = residuals(m_pad_tc_sp))
 
-##### REMOVED PARK ID AND CHANGED FAMILY TO STUDENT
-## bind results 
-unique(responses)
-dt_mesh_res_fin <- dt_mesh_res  %>% 
-  mutate(clean_response = case_when(
-    .default = response,
-    response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"))
-summary(dt_mesh_res_fin)
 
-fwrite(dt_mesh_res_fin, "builds/model_outputs/cv_mesh_selection_sdmtmb_results_park_average_density.csv")
+library(spdep)
+coords <- st_coordinates(dt_pad_sf)
+knn <- knearneigh(coords, k = 5)
+nb_knn <- knn2nb(knn)
 
-p_loglik <- dt_mesh_res_fin %>% 
-  mutate(clean_response = factor(clean_response, levels = c(
-    "Woody Cover Trend", "Canopy Height Trend"))) %>% 
+lw <- nb2listw(nb_knn, style = "W")
+
+(mi_tc <- moran.test(dt_pad_sf$resid_tc, lw))
+(mi_tc_sp <- moran.test(dt_pad_sf$resid_tc_sp, lw))
+
+(mi_ch <- moran.test(dt_pad_sf$resid_ch, lw))
+(mi_ch_sp <- moran.test(dt_pad_sf$resid_ch_sp, lw))
+
+
+## extract ---------------
+mean_x <- mean(dt_pad$mean_density_km2, na.rm = TRUE)
+sd_x   <- sd(dt_pad$mean_density_km2, na.rm = TRUE)
+
+pred_tc = ggeffects::ggpredict(m_pad_tc_sp, term = "mean_density_km2_scaled [all]")
+plot(pred_tc)
+
+(dt_pred_tc <- as.data.frame(pred_tc) %>%
+  mutate(
+    x_unscaled = round(x * sd_x + mean_x, 6), 
+    var_name = "mean_density_km2_scaled", 
+    response_name = "tree_cover_1000m_coef", 
+    q95_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .95, na.rm = T)), 
+    q05_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .05, na.rm = T)), 
+    q95 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .95, na.rm = T)), 
+    q05 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .05, na.rm = T))
+  ))
+
+
+pred_ch = ggeffects::ggpredict(m_pad_ch_sp, term = "mean_density_km2_scaled [all]")
+plot(pred_ch)
+
+
+(dt_pred_ch <- as.data.frame(pred_ch) %>%
+    mutate(
+      x_unscaled = round(x * sd_x + mean_x, 6), 
+      var_name = "mean_density_km2_scaled", 
+      response_name = "canopy_height_900m_coef", 
+      q95_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .95, na.rm = T)), 
+      q05_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .05, na.rm = T)), 
+      q95 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .95, na.rm = T)), 
+      q05 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .05, na.rm = T))
+    ))
+
+
+dt_pred = rbind(dt_pred_tc, dt_pred_ch) %>% 
+  mutate(response_clean = case_when(
+           response_name == "canopy_height_900m_coef" ~ "Canopy Height Trend",
+           response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
+         ),
+         var_clean = case_when(
+           var_name == "mean_density_km2_scaled" ~ "Elephant Density"))
+unique(dt_pred$response_name)
+unique(dt_pred$var_name)
+
+fwrite(dt_pred, "builds/model_outputs/gam_park_average_density_predictions.csv")
+
+
+
+dt_long <- dt_pad %>% pivot_longer(
+  cols = c("mean_density_km2"), 
+  names_to = "var_name", 
+  values_to = "var_value") %>% 
+  mutate(var_clean = case_when(
+    var_name == "mean_density_km2" ~ "Elephant Density"
+  )) %>% 
+  pivot_longer(
+    cols = c("canopy_height_900m_coef", "tree_cover_1000m_coef"), 
+    names_to = "response_name", 
+    values_to = "response_value") %>% 
+  mutate(response_clean = case_when(
+    response_name == "canopy_height_900m_coef" ~ "Canopy Height Trend",
+    response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend"
+  ))
+
+rects <- dt_long %>%
+  group_by(var_clean) %>%
+  mutate(
+    lower_quantile_x = quantile(var_value, 0.05),
+    upper_quantile_x = quantile(var_value, 0.95),
+  ) %>%
+  ungroup() %>% 
+  group_by(var_clean) %>%
+  summarize(
+    ymin = -Inf,
+    ymax = Inf,
+    xmin1 = -Inf,
+    xmax1 = first(lower_quantile_x),
+    xmin2 = first(upper_quantile_x),
+    xmax2 = Inf
+  ) %>%
+  ungroup()
+
+### plot -----------------------------
+
+p_smooth_points <- dt_pred %>% 
+  # filter(response_name %in% c("evi_900m_coef") & tier == "Simple") %>% 
   ggplot() +
-  geom_point(aes(x = cutoff, y = sum_loglik, color = max_inner_edge), size = 2, alpha = 0.8) +
-  scale_color_viridis_c(option = "B", direction = - 1, begin = 0.2, end = 0.8) +
-  labs(y = "Log Likelihood (sum)", x = "Cutoff (km)", color = "Max\nInner\nEdge\n(km)", title = "Km² scale") +
-  facet_wrap(~clean_response, scales = "free") +
-  theme(legend.position = "right", 
-        plot.title = element_text(hjust = .5),
+  geom_point(data = dt_long, aes(x = var_value, y = response_value), alpha = 0.75, size = 1, color = "grey50") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey5") +
+  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, fill = response_clean), alpha = 0.4) +
+  geom_line(aes(x = x_unscaled, y = predicted, color = response_clean), linewidth = 1.1) +
+  scale_color_manual(values = c("#40631F", "#0F443E")) +
+  scale_fill_manual(values = c("#40631F", "#0F443E")) + 
+  facet_wrap(~response_clean, scales = "free") +
+  # labs(y = "Evi Trend", title = "Simple", x = "") +
+  theme_bw() +
+  labs(y = "Response Value", title = "", x = "Elephant Density") +
+  theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
         panel.border = element_blank(), 
         panel.background = element_rect(fill = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
-p_loglik
-ggsave(plot = p_loglik, "builds/plots/supplement/sum_loglik_different_meshs_park_average_density.png", dpi = 600, height = 4, width = 8)
 
-
+p_smooth_points
+ggsave(plot = p_smooth_points, "builds/plots/supplement/park_average_density_predictions.png", 
+       dpi = 900, height = 3, width = 6)

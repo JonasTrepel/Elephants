@@ -4,7 +4,6 @@ library(tidylog)
 library(ggcorrplot)
 library(broom)
 library("sdmTMB")
-library(sdmTMBextra)
 library(future)
 library(furrr)
 library(groupdata2)
@@ -20,9 +19,7 @@ library(glmmTMB)
 #sf_parks <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") 
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
-  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100, 
-  ) %>% 
-  filter(park_id != "Thornybush Nature Reserve")
+  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100)
 
 setDT(dt)
 
@@ -337,9 +334,11 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                    )
                                    
 
+                                   
                                    int_formula <- as.formula(paste0(resp, "~ 1"))
                                    
-                                   re_formula <- as.formula(paste0(resp, "~ 1 + (1 | park_id)"))
+                                   ele_formula <- as.formula(paste0(resp, " ~ 
+                                s(local_density_km2_scaled, k = 3)"))
                                    
                                    fixed_formula <- as.formula(paste0(resp, " ~ 
                                 s(local_density_km2_scaled, k = 3) +
@@ -358,60 +357,52 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                    #https://github.com/pbs-assess/sdmTMB/issues/466#issuecomment-3119589818
                                    
                                    #intercept only 
-                                   fit0 <- sdmTMB(int_formula,
-                                                  spatial = "off",
-                                                  data = dt_sub,
-                                                  mesh = mesh, 
-                                                  reml = T)
+                                   fit_int <- sdmTMB(int_formula,
+                                                     spatial = "off",
+                                                     data = dt_sub,
+                                                     mesh = mesh, 
+                                                     reml = T)
                                    
-                                   #intercept and random effect  
-                                   #                     fit1 <- update(fit0, 
-                                   #                                     spatial = "off", 
-                                   #                                    formula. = re_formula, 
-                                   #                                   reml = T)
                                    
                                    #intercept and spatial  
-                                   fit2 <- update(fit0, 
-                                                  spatial = "on", 
-                                                  reml = T)
+                                   fit_sp <- sdmTMB(int_formula, 
+                                                    spatial = "on", 
+                                                    data = dt_sub,
+                                                    mesh = mesh, 
+                                                    reml = T)
                                    
-                                   #intercept,  random effect and spatial  
-                                   #   fit3 <- update(fit0, 
-                                   #                   spatial = "on", 
-                                   #                   formula. = re_formula, 
-                                   #                   reml = T)
+                                   fit_ele <- sdmTMB(ele_formula, 
+                                                     spatial = "off", 
+                                                     data = dt_sub,
+                                                     mesh = mesh, 
+                                                     reml = T)
                                    
                                    #full model 
-                                   fit_full <- update(fit0, 
+                                   fit_full <- sdmTMB(full_formula, 
                                                       spatial = "on", 
-                                                      formula. = full_formula, 
+                                                      data = dt_sub,
+                                                      mesh = mesh, 
                                                       reml = T)
                                    
                                    #fixed effects only 
-                                   fit4 <- update(fit0, 
-                                                  spatial = "off", 
-                                                  formula. = fixed_formula, 
-                                                  reml = T)
+                                   fit_fixed <- sdmTMB(fixed_formula, 
+                                                       spatial = "off", 
+                                                       data = dt_sub,
+                                                       mesh = mesh, 
+                                                       reml = T)
                                    
                                    # total proportion deviance explained by our full model:
-                                   (dev_explained_full <- 1 - deviance(fit_full) / deviance(fit0))
+                                   (dev_explained_full <- 1 - deviance(fit_full) / deviance(fit_int))
                                    
-                                   # proportion deviance explained by the random effect:
-                                   #   (dev_explained_re <- 1 - deviance(fit1) / deviance(fit0))
+                                   # proportion deviance explained by elephants:
+                                   (dev_explained_ele <- 1 - deviance(fit_ele) / deviance(fit_int))
                                    
                                    # proportion deviance explained by the mesh:
-                                   (dev_explained_spatial <- 1 - deviance(fit2) / deviance(fit0))
-                                   
-                                   # proportion deviance explained by the mesh and RE:
-                                   #  (dev_explained_re_spatial <- 1 - deviance(fit3) / deviance(fit0))
+                                   (dev_explained_spatial <- 1 - deviance(fit_sp) / deviance(fit_int))
                                    
                                    # proportion deviance explained by the covariate:
-                                   (dev_explained_var <- 1 - deviance(fit4) / deviance(fit0))
+                                   (dev_explained_var <- 1 - deviance(fit_fixed) / deviance(fit_int))
                                    
-                                   # proportion covariate deviance explained compared to just the spatial field:
-                                   # i.e., how much additional deviance is explained by the covariate beyond what
-                                   # the spatial structure explains
-                                   (dev_explained_just_var <- 1 - deviance(fit_full) / deviance(fit2))
                                    
                                    san <- sdmTMB::sanity(fit_full)
                                    
@@ -429,9 +420,8 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                        tier = tier,
                                        dev_explained_var = dev_explained_var, 
                                        dev_explained_full = dev_explained_full,
-                                       #  dev_explained_re_spatial = dev_explained_re_spatial, 
+                                       dev_explained_ele = dev_explained_ele, 
                                        dev_explained_spatial = dev_explained_spatial,
-                                       # dev_explained_re = dev_explained_re,
                                        cutoff = co,
                                        max_inner_edge = i_e,
                                        n_vertices = nrow(mesh$mesh$loc),
@@ -455,7 +445,7 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                    
                                    print(paste0(i, " done"))
                                    
-                                   rm(fit0, fit1, fit2, fit3, fit4, fit_full)
+                                   rm(fit_int, fit_sp, fit_ele, fit_full, fit_fixed)
                                    gc()
                                    
                                    return(tmp_tidy)
