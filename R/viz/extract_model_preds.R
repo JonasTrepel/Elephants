@@ -1,6 +1,5 @@
 # Compare best models 
 library(data.table)
-library(sjPlot)
 library(tidyverse)
 library(sdmTMB)
 library(patchwork)
@@ -128,10 +127,10 @@ res_list <- future_map(unique(vars),
       var_name = var, 
       response_name = response, 
       aic = aic, 
-      q95_unscaled = as.numeric(quantile(dat[[var_us]], .95, na.rm = T)), 
-      q05_unscaled = as.numeric(quantile(dat[[var_us]], .05, na.rm = T)), 
-      q95 = as.numeric(quantile(dat[[var]], .95, na.rm = T)), 
-      q05 = as.numeric(quantile(dat[[var]], .05, na.rm = T))
+      q975_unscaled = as.numeric(quantile(dat[[var_us]], .975, na.rm = T)), 
+      q025_unscaled = as.numeric(quantile(dat[[var_us]], .025, na.rm = T)), 
+      q975 = as.numeric(quantile(dat[[var]], .975, na.rm = T)), 
+      q025 = as.numeric(quantile(dat[[var]], .025, na.rm = T))
     )
   
   # Ensure confidence interval columns exist - some hickup w/o in prevuous version
@@ -206,8 +205,8 @@ dt_long <- dt_mod %>% pivot_longer(
 rects <- dt_long %>%
   group_by(var_clean) %>%
   mutate(
-    lower_quantile_x = quantile(var_value, 0.05),
-    upper_quantile_x = quantile(var_value, 0.95),
+    lower_quantile_x = quantile(var_value, 0.025),
+    upper_quantile_x = quantile(var_value, 0.975),
   ) %>%
   ungroup() %>% 
   group_by(var_clean) %>%

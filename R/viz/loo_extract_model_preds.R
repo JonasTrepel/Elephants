@@ -115,7 +115,7 @@ dt_diff_p <- dt_diff %>%
   mutate(park_label = paste0(excluded_park, " (n = ", n_park, ")"), 
          clean_response = case_when(
            response == "tree_cover_1000m_coef" ~ "Tree Cover Trend", 
-           response == "canopy_height_900m_coef" ~ "Canopy Heightr Trend", 
+           response == "canopy_height_900m_coef" ~ "Canopy Height Trend", 
            response == "evi_900m_coef" ~ "EVI Trend"),
          park_label = fct_reorder(park_label, n_park)
   )
@@ -173,7 +173,7 @@ vars <- c("local_density_km2_scaled",
 
 responses <- c("tree_cover_1000m_coef", "canopy_height_900m_coef")
 
-parks <- c("No Park", "Mavinga National Park", "Luengue-Luiana National Park", "Hwange", 
+parks <- c("No Park","Luengue-Luiana National Park", "Hwange", "Limpopo",
            "South Luangwa", "Kruger National Park", "Bwabwata")
 
 
@@ -225,10 +225,10 @@ for_results_pred <- future_map(
           dev_explained_full = extr_guide[i,]$dev_explained_full,
           dev_explained_var = extr_guide[i,]$dev_explained_var,
           n = nrow(dat),
-          q95_unscaled = as.numeric(quantile(dat[[var_us]], .95, na.rm = T)), 
-          q05_unscaled = as.numeric(quantile(dat[[var_us]], .05, na.rm = T)), 
-          q95 = as.numeric(quantile(dat[[var]], .95, na.rm = T)), 
-          q05 = as.numeric(quantile(dat[[var]], .05, na.rm = T))
+          q975_unscaled = as.numeric(quantile(dat[[var_us]], .975, na.rm = T)), 
+          q025_unscaled = as.numeric(quantile(dat[[var_us]], .025, na.rm = T)), 
+          q975 = as.numeric(quantile(dat[[var]], .975, na.rm = T)), 
+          q025 = as.numeric(quantile(dat[[var]], .025, na.rm = T))
         )
 
       # Ensure confidence interval columns exist
@@ -257,7 +257,7 @@ dt_pred_comp <- rbindlist(for_results_pred) %>%
   mutate(scale = "km2", 
          response_clean = case_when(
            response_name == "canopy_height_900m_coef" ~ "Canopy Height Trend",
-           response_name == "tree_cover_1000m_coef" ~ "Tree Cover Trend",
+           response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
          ),
          var_clean = case_when(
            var_name == "local_density_km2_scaled" ~ "Local Elephant Density",
