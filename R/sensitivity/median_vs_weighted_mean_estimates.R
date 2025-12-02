@@ -251,4 +251,4 @@ library(patchwork)
 p <- (p_est_median|p_est_mean) / p_est_cluster_median / p_est_cluster_mean
 p
 ggsave(plot = p, "builds/plots/supplement/median_vs_weighted_mean_estimates.png", dpi = 900, 
-       height = 10, width = 10)
+       height = 8, width = 10)
