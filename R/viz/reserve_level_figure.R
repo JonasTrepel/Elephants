@@ -113,9 +113,9 @@ p_pred <- dt_pred %>%
   scale_color_manual(values = c("#0C4C00", "#262600")) +
   scale_fill_manual(values = c("#0C4C00", "#262600")) + 
   geom_rect(data = dt_rects, aes(xmin = xmin1, xmax = xmax1, ymin = ymin, ymax = ymax), 
-            fill = "grey90", alpha = 0.4, inherit.aes = FALSE) +
+            fill = "snow", alpha = 0.5, inherit.aes = FALSE) +
   geom_rect(data = dt_rects, aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax), 
-            fill = "grey90", alpha = 0.4, inherit.aes = FALSE) +
+            fill = "snow", alpha = 0.5, inherit.aes = FALSE) +
   labs(y = "Response Value", title = "", x = "Elephant Density (Ind./km²)") +
   theme_bw() +
   theme(legend.position = "none", 
@@ -235,6 +235,6 @@ p_maps <- plot_grid(
 )
 
 p_maps
-ggsave(plot = p_maps, "builds/plots/reserve_density_figure.jpeg", 
+ggsave(plot = p_maps, "builds/plots/reserve_density_figure.png", 
        dpi = 900, height = 10, width = 10)
 
