@@ -34,7 +34,7 @@ dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>%
 
 quantile(dt$dw_min_median_mode_fraction, na.rm = T)
 table(dt$population_trend_n)
-dt_mod <- dt %>% 
+dt_pad <- dt %>% 
   filter(dw_min_median_mode_fraction >= 50) %>% 
   dplyr::select(
     #mean values /habitat characteristics 
@@ -87,17 +87,17 @@ dt_mod <- dt %>%
   ungroup() %>% 
   mutate(mean_density_km2_scaled = as.numeric(scale(mean_density_km2))) #%>% mutate(mean_density_km2_scaled = mean_density_km2)
 
-glimpse(dt_mod)
+glimpse(dt_pad)
 
-dt_mod$sd_local_density_km2
-dt_mod$sd_local_density_km2
+dt_pad$sd_local_density_km2
+dt_pad$sd_local_density_km2
 
 
-dt_mod %>% ggplot() + 
+dt_pad %>% ggplot() + 
   geom_point(aes(x = mean_density_km2_scaled, y = tree_cover_1000m_coef))
 
 
-dt_cor <- dt_mod %>% 
+dt_cor <- dt_pad %>% 
   
   dplyr::select(
     `Woody cover trend` = tree_cover_1000m_coef,
