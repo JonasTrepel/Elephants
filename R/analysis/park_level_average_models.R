@@ -85,7 +85,9 @@ dt_pad <- dt %>%
   mutate(cv_local_density_km2 = (sd_local_density_km2/local_density_km2)*100) %>% 
   left_join(cents) %>% 
   ungroup() %>% 
-  mutate(mean_density_km2_scaled = as.numeric(scale(mean_density_km2))) #%>% mutate(mean_density_km2_scaled = mean_density_km2)
+  mutate(mean_density_km2_scaled = as.numeric(scale(mean_density_km2)),
+         x_moll_scaled = as.numeric(scale(x_moll)), 
+         y_moll_scaled = as.numeric(scale(y_moll))) #%>% mutate(mean_density_km2_scaled = mean_density_km2)
 
 glimpse(dt_pad)
 
@@ -190,10 +192,10 @@ plot(pred_tc)
     x_unscaled = round(x * sd_x + mean_x, 6), 
     var_name = "mean_density_km2_scaled", 
     response_name = "tree_cover_1000m_coef", 
-    q95_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .95, na.rm = T)), 
-    q05_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .05, na.rm = T)), 
-    q95 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .95, na.rm = T)), 
-    q05 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .05, na.rm = T))
+    q975_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .975, na.rm = T)), 
+    q025_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .025, na.rm = T)), 
+    q975 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .975, na.rm = T)), 
+    q025 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .025, na.rm = T))
   ))
 
 
@@ -206,10 +208,10 @@ plot(pred_ch)
       x_unscaled = round(x * sd_x + mean_x, 6), 
       var_name = "mean_density_km2_scaled", 
       response_name = "canopy_height_900m_coef", 
-      q95_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .95, na.rm = T)), 
-      q05_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .05, na.rm = T)), 
-      q95 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .95, na.rm = T)), 
-      q05 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .05, na.rm = T))
+      q975_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .975, na.rm = T)), 
+      q025_unscaled = as.numeric(quantile(dt_pad$mean_density_km2, .025, na.rm = T)), 
+      q975 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .975, na.rm = T)), 
+      q025 = as.numeric(quantile(dt_pad$mean_density_km2_scaled, .025, na.rm = T))
     ))
 
 
@@ -246,8 +248,8 @@ dt_long <- dt_pad %>% pivot_longer(
 rects <- dt_long %>%
   group_by(var_clean) %>%
   mutate(
-    lower_quantile_x = quantile(var_value, 0.05),
-    upper_quantile_x = quantile(var_value, 0.95),
+    lower_quantile_x = quantile(var_value, 0.025),
+    upper_quantile_x = quantile(var_value, 0.975),
   ) %>%
   ungroup() %>% 
   group_by(var_clean) %>%
@@ -270,8 +272,8 @@ p_smooth_points <- dt_pred %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey5") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, fill = response_clean), alpha = 0.4) +
   geom_line(aes(x = x_unscaled, y = predicted, color = response_clean), linewidth = 1.1) +
-  scale_color_manual(values = c("#40631F", "#0F443E")) +
-  scale_fill_manual(values = c("#40631F", "#0F443E")) + 
+  scale_color_manual(values = c("#0C4C00", "#262600")) +
+  scale_fill_manual(values = c("#0C4C00", "#262600")) + 
   facet_wrap(~response_clean, scales = "free") +
   # labs(y = "Evi Trend", title = "Simple", x = "") +
   theme_bw() +

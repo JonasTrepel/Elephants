@@ -19,7 +19,7 @@ source("R/functions/assign_cluster.R")
 
 # Park Boundaries 
 
-pas <- st_read("data/spatial_data/protected_areas/pas_intersecting_with_locations_data.gpkg")
+pas <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg")
 
 
 # Clusters
@@ -1029,7 +1029,7 @@ for(ind in unique(hr_locohs$individual_id)){
 
 dt_final <- dt_loc_sub %>% 
   dplyr::select(-park_id) %>% 
-  left_join(park_for_id[, !(names(park_for_id) %in% c("is_area_km2", "hr_area_km2"))]) %>% 
+  left_join(park_for_id[, -c("is_area_km2", "hr_area_km2")]) %>% 
   left_join(cluster_for_id[, c("individual_id", "cluster_id")]) %>% 
   left_join(hr_meta) %>% 
   unique()
@@ -1064,6 +1064,7 @@ n_distinct(dt_meta$individual_id)
 
 fwrite(dt_meta, "data/processed_data/clean_data/elephant_id_meta_data.csv")
 
+table(dt_meta$park_id)
 
 # 
 # ######################### Resample ########################## 
