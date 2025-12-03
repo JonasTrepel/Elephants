@@ -164,7 +164,7 @@ dt_1000m <- dt_pred_smooth %>%
   mutate(scale = "km2", 
          response_clean = case_when(
            response_name == "canopy_height_900m_coef" ~ "Canopy Height Trend",
-           response_name == "tree_cover_1000m_coef" ~ "Tree Cover Trend",
+           response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
            response_name == "evi_900m_coef" ~ "EVI Trend"
          ),
          var_clean = case_when(
@@ -255,9 +255,9 @@ p_smooth <- dt_1000m %>%
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1.1, color = "darkred") +
   facet_grid(rows = vars(response_clean), cols = vars(var_clean), scales = "free") +
   geom_rect(data = rects, aes(xmin = xmin1, xmax = xmax1, ymin = ymin, ymax = ymax), 
-            fill = "grey90", alpha = 0.8, inherit.aes = FALSE) +
+            fill = "snow", alpha = 0.8, inherit.aes = FALSE) +
   geom_rect(data = rects, aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax), 
-            fill = "grey90", alpha = 0.8, inherit.aes = FALSE) +
+            fill = "snow", alpha = 0.8, inherit.aes = FALSE) +
   labs(y = "Response Value", title = "", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 

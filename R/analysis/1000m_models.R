@@ -83,7 +83,10 @@ dt_mod <- dt %>%
 
 n_distinct(dt_mod$park_id)
 (park_counts <- dt_mod[, .N, by = park_id] %>% arrange(N))
-
+mean(park_counts$N)
+sd(park_counts$N)
+range(park_counts$N)
+median(park_counts$N)
 #check model data 
 glimpse(dt_mod)
 
