@@ -10,6 +10,7 @@ library(groupdata2)
 library(GGally)
 library(glmmTMB)
 library(sf)
+library(mgcv)
 #first sfuture#first stab at sdmTMB
 
 
@@ -183,6 +184,8 @@ lw <- nb2listw(nb_knn, style = "W")
 ## extract ---------------
 mean_x <- mean(dt_pad$mean_density_km2, na.rm = TRUE)
 sd_x   <- sd(dt_pad$mean_density_km2, na.rm = TRUE)
+
+plot(ggeffects::ggpredict(m_pad_tc, term = "mean_density_km2_scaled [all]"))
 
 pred_tc = ggeffects::ggpredict(m_pad_tc_sp, term = "mean_density_km2_scaled [all]")
 plot(pred_tc)

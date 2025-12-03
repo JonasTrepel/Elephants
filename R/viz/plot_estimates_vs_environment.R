@@ -149,7 +149,11 @@ dt_pca_mean <- dt_est %>%
          `Slope` = slope_mean) %>%
   mutate(cluster_id = case_when(
     .default = cluster_id, 
-    !cluster_id %in% c("chobe", "kzn", "limpopo", "luangwa") ~ "not assigned"
+    !cluster_id %in% c("chobe", "kzn", "limpopo", "luangwa") ~ "Not assigned", 
+    cluster_id == "limpopo" ~ "GL & GM", 
+    cluster_id == "kzn" ~ "Lebombo", 
+    cluster_id == "luangwa" ~ "MAZA", 
+    cluster_id == "chobe" ~ "KAZA"
   ))
 pr_mean <- princomp(dt_pca_mean %>% select(-individual_id, -cluster_id))
 
@@ -212,7 +216,11 @@ dt_pca_range <- dt_est %>%
          `Slope` = slope_range) %>%
   mutate(cluster_id = case_when(
     .default = cluster_id, 
-    !cluster_id %in% c("chobe", "kzn", "limpopo", "luangwa") ~ "not assigned"
+    !cluster_id %in% c("chobe", "kzn", "limpopo", "luangwa") ~ "Not assigned",
+    cluster_id == "limpopo" ~ "GL & GM", 
+    cluster_id == "kzn" ~ "Lebombo", 
+    cluster_id == "luangwa" ~ "MAZA", 
+    cluster_id == "chobe" ~ "KAZA"
   ))
 pr_range <- princomp(dt_pca_range %>% select(-individual_id, -cluster_id))
 

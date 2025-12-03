@@ -120,9 +120,22 @@ p_cor = sf_b2 %>%
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_cor
 
+library(cowplot)
+# bottom row: p_bar | p_cor
+row_bottom <- plot_grid(
+  p_bar, p_cor,
+  ncol = 2,
+  rel_widths = c(1, 1)
+)
 
-p_hw = (p_map / (p_bar | p_cor)) + plot_annotation(tag_level = "A") +
-  plot_layout(heights = c(1, 1.5))
+# combine rows
+p_hw <- plot_grid(
+  p_map,
+  row_bottom,
+  ncol = 1,
+  rel_heights = c(1, 1)   # adjust as needed
+)
+
 p_hw
 ggsave(plot = p_hw, "builds/plots/supplement/hwange_elephant_count_vs_predicted.png", 
        dpi = 900, height = 5.5, width = 8)

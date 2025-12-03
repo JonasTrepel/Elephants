@@ -107,15 +107,15 @@ p_pred <- dt_pred %>%
   ggplot() +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, 
-                  fill = response_clean, color= response_clean), alpha = 0.3, linetype = "dashed") +
+                  fill = response_clean), alpha = 0.3, linetype = "dashed") +
   geom_line(aes(x = x_unscaled, y = predicted, response_clean), linewidth = 1.1) +
   facet_wrap(~response_clean, scales = "free") +
   scale_color_manual(values = c("#0C4C00", "#262600")) +
   scale_fill_manual(values = c("#0C4C00", "#262600")) + 
   geom_rect(data = dt_rects, aes(xmin = xmin1, xmax = xmax1, ymin = ymin, ymax = ymax), 
-            fill = "snow", alpha = 0.5, inherit.aes = FALSE) +
+            fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
   geom_rect(data = dt_rects, aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax), 
-            fill = "snow", alpha = 0.5, inherit.aes = FALSE) +
+            fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
   labs(y = "Response Value", title = "", x = "Elephant Density (Individuals/km²)", 
        subtitle = "D") +
   theme_bw() +
