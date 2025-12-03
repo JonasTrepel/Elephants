@@ -16,12 +16,12 @@ dt_est <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") %>%
   left_join(dt_ele) %>%
   #filter(cluster_id %in% c("chobe", "limpopo", "kzn", "luangwa")) %>% 
   mutate(cluster_id = case_when(
-    cluster_id == "greater_kruger" ~ "Limpopo", 
-    cluster_id == "greater_waterberg" ~ "Limpopo", 
-    cluster_id == "limpopo" ~ "Limpopo", 
-    cluster_id == "kzn" ~ "KZN", 
-    cluster_id == "luangwa" ~ "Luangwa", 
-    cluster_id == "chobe" ~ "Chobe", 
+    cluster_id == "greater_kruger" ~ "GL & GM", 
+    cluster_id == "greater_waterberg" ~ "GL & GM", 
+    cluster_id == "limpopo" ~ "GL & GM", 
+    cluster_id == "kzn" ~ "Lebombo", 
+    cluster_id == "luangwa" ~ "MAZA", 
+    cluster_id == "chobe" ~ "KAZA", 
     cluster_id == "kafue" ~ "Kafue", 
     cluster_id == "zambezi" ~ "Zambezi"
   )) 
@@ -132,7 +132,7 @@ p_est
 
 p_med_est <- p_est / p_est_ridges
 p_med_est
-ggsave(plot = p_med_est, "builds/plots/median_estimates_12hr_steps.png", dpi = 600, width = 4, height = 8)
+ggsave(plot = p_med_est, "builds/plots/median_estimates_24hr_steps.png", dpi = 600, width = 4, height = 8)
 
 
 
@@ -184,7 +184,7 @@ dt_est %>%
 
 p_est_cluster <- dt_me_cluster %>% 
   filter(season == "whole_year" & !is.na(cluster_id)) %>% 
-  filter(cluster_id %in% c("Chobe", "Limpopo", "KZN", "Luangwa")) %>% 
+  filter(cluster_id %in% c("GL & GM", "Lebombo", "KAZA", "MAZA")) %>% 
   ggplot() +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_pointrange(
@@ -233,12 +233,12 @@ sf_clust <- st_read("data/spatial_data/protected_areas/pa_clusters.gpkg") %>%
   st_transform(crs = 4326) %>% 
   filter(cluster_id %in% c("limpopo", "kzn", "chobe", "luangwa")) %>% 
   mutate(cluster_id = case_when(
-    cluster_id == "greater_kruger" ~ "Limpopo", 
-    cluster_id == "greater_waterberg" ~ "Limpopo", 
-    cluster_id == "limpopo" ~ "Limpopo", 
-    cluster_id == "kzn" ~ "KZN", 
-    cluster_id == "luangwa" ~ "Luangwa", 
-    cluster_id == "chobe" ~ "Chobe", 
+    cluster_id == "greater_kruger" ~ "GL & GM", 
+    cluster_id == "greater_waterberg" ~ "GL & GM", 
+    cluster_id == "limpopo" ~ "GL & GM", 
+    cluster_id == "kzn" ~ "Lebombo", 
+    cluster_id == "luangwa" ~ "MAZA", 
+    cluster_id == "chobe" ~ "KAZA", 
     cluster_id == "kafue" ~ "Kafue", 
     cluster_id == "zambezi" ~ "Zambezi"
   )) 
@@ -259,11 +259,11 @@ p_loc <- sf_loc %>%
   ylim(-35, -7.5) +
   xlim(9, 40) +
   annotation_scale(location = "br", bar_cols = c("ivory4", "white")) +
-  geom_sf(data = sf_africa, fill = "linen", color = "grey25") +
+  geom_sf(data = sf_africa, fill = "linen", color = "ivory3", alpha = .25) +
   geom_sf(data = sf_clust, aes(color = cluster_id, fill = cluster_id), alpha = 0.25, size = 1.5,
          # fill = "transparent", 
           linetype = "dashed", 
-          linewidth = 1.01) +
+          linewidth = 1.002) +
   scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   geom_sf(size = 0.1, alpha = 0.1, color = "black") +
@@ -274,12 +274,6 @@ p_loc
 ### summarize --------------------------------------
 
 library(patchwork)
-
-p_wy <- p_mean_var / p_var_range
-p_wy  
-ggsave(p_wy, filename = "builds/plots/cluster_var_means_and_ranges.png",
-       dpi = 600, height = 6, width = 10)
-
 
 ###### combine estimate figure
 p_empty <- ggplot() + theme_void()
