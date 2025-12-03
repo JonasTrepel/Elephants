@@ -179,7 +179,7 @@ variance_explained_mean <- eigenvalues_mean / sum(eigenvalues_mean)
 p_pca_mean <- ggplot() +
   geom_point(data = scores_mean, aes(x = Comp.1, y = Comp.2, color = cluster_id),  size = 1, alpha = 0.75) +
   stat_ellipse(data = scores_mean %>% 
-                 filter(cluster_id != "not assigned"),
+                 filter(cluster_id != "Not assigned"),
                aes(x = Comp.1, y = Comp.2, color = cluster_id),
                type = "t", level = 0.9, linewidth = 0.8, alpha = 0.8) +
   geom_segment(data = loadings_mean, aes(x = 0, y = 0, xend = Comp.1*5, yend = Comp.2*5),
@@ -246,7 +246,7 @@ variance_explained_range <- eigenvalues_range / sum(eigenvalues_range)
 p_pca_range <- ggplot() +
   geom_point(data = scores_range, aes(x = Comp.1, y = Comp.2, color = cluster_id),  size = 1, alpha = 0.75) +
   stat_ellipse(data = scores_range %>% 
-                 filter(cluster_id != "not assigned"),
+                 filter(cluster_id != "Not assigned"),
                aes(x = Comp.1, y = Comp.2, color = cluster_id),
                type = "t", level = 0.9, linewidth = 0.8, alpha = 0.8) +
   geom_segment(data = loadings_range, aes(x = 0, y = 0, xend = Comp.1*5, yend = Comp.2*5),
