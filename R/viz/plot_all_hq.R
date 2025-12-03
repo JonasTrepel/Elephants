@@ -7,8 +7,6 @@ dt_grid_1000m_hq_plot <- fread("data/processed_data/clean_data/analysis_ready_gr
   mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100)
 
 
-unique(dt_pc$park_id)
-
 for (park in unique(dt_grid_1000m_hq_plot$park_id)) {
   
   print(paste0("Start with ", park))
@@ -45,7 +43,6 @@ dt_grid_100m_hq_plot <- fread("data/processed_data/clean_data/analysis_ready_gri
   mutate(tree_cover_100m_coef = tree_cover_100m_coef*100)
 
 
-unique(dt_pc$park_id)
 
 for (park in unique(dt_grid_100m_hq_plot$park_id)) {
   
@@ -77,3 +74,4 @@ for (park in unique(dt_grid_100m_hq_plot$park_id)) {
   filename <- paste0("builds/plots/supplement/habitat_quality_maps/100m_", gsub(" ", "_", tolower(park)), "_hq.png")
   ggsave(plot = p_1, filename = filename, dpi = 600)
 }
+

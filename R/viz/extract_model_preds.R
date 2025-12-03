@@ -198,7 +198,7 @@ dt_long <- dt_mod %>% pivot_longer(
     values_to = "response_value") %>% 
   mutate(response_clean = case_when(
       response_name == "canopy_height_900m_coef" ~ "Canopy Height Trend",
-      response_name == "tree_cover_1000m_coef" ~ "Tree Cover Trend",
+      response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
       response_name == "evi_900m_coef" ~ "EVI Trend"
          ))
 
@@ -229,8 +229,8 @@ p_smooth_points <- dt_1000m %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey5") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, fill = response_clean), alpha = 0.4) +
   geom_line(aes(x = x_unscaled, y = predicted, color = response_clean), linewidth = 1.1) +
-  scale_color_manual(values = c("#40631F", "#0F443E")) +
-  scale_fill_manual(values = c("#40631F", "#0F443E")) + 
+  scale_color_manual(values = c("#0C4C00", "#262600")) +
+  scale_fill_manual(values = c("#0C4C00", "#262600")) + 
   facet_grid(rows = vars(response_clean), cols = vars(var_clean), scales = "free") +
  # labs(y = "Evi Trend", title = "Simple", x = "") +
   theme_bw() +
