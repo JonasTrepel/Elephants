@@ -308,4 +308,4 @@ p_smooth_points <- dt_pred %>%
 
 p_smooth_points
 ggsave(plot = p_smooth_points, "builds/plots/supplement/linear_park_average_density_predictions.png", 
-       dpi = 900, height = 3, width = 6)
+       dpi = 900, height = 2.9, width = 6)
