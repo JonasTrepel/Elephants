@@ -10,7 +10,7 @@ p_hwange <- dt %>% filter(park_id %in% c("Hwange")) %>%
   geom_tile(aes(x = x_mollweide, y = y_mollweide, fill = habitat_quality_norm)) +
   scale_color_scico(palette = "bamako", begin = 0.05, end = 0.95) +
   scale_fill_scico(palette = "bamako", begin = 0.05, end = 0.95) +
-  labs(title = "Hwange", fill = "Habitat\nQuality") +
+  labs(title = "Hwange NP", fill = "Habitat\nQuality") +
   theme_void() + coord_fixed() + 
   theme(legend.position = "right")
 p_hwange
@@ -21,7 +21,7 @@ p_chobe <- dt %>% filter(park_id %in% c("Chobe")) %>%
   scale_color_scico(palette = "bamako", begin = 0.05, end = 0.95) +
   scale_fill_scico(palette = "bamako", begin = 0.05, end = 0.95) +
   theme_void() + coord_fixed() + 
-  labs(title = "Chobe", fill = "Habitat\nQuality") +
+  labs(title = "Chobe NP", fill = "Habitat\nQuality") +
   theme(legend.position = "right")
 p_chobe
 
@@ -31,7 +31,7 @@ p_hip <- dt %>% filter(park_id %in% c("Hluhluwe – iMfolozi Park")) %>%
   geom_tile(aes(x = x_mollweide, y = y_mollweide, fill = habitat_quality_norm)) +
   scale_color_scico(palette = "bamako", begin = 0.05, end = 0.95) +
   scale_fill_scico(palette = "bamako", begin = 0.05, end = 0.95) +
-  labs(title = "Hluhluwe – iMfolozi Park", fill = "Habitat\nQuality") +
+  labs(title = "Hluhluwe–iMfolozi Park", fill = "Habitat\nQuality") +
   theme_void() + coord_fixed() + 
   theme(legend.position = "right") 
 p_hip
@@ -41,7 +41,7 @@ p_gon <- dt %>% filter(park_id %in% c("Gonarezhou")) %>%
   geom_tile(aes(x = x_mollweide, y = y_mollweide, fill = habitat_quality_norm)) +
   scale_color_scico(palette = "bamako", begin = 0.05, end = 0.95) +
   scale_fill_scico(palette = "bamako", begin = 0.05, end = 0.95) +
-  labs(title = "Gonarezhou", fill = "Habitat\nQuality") +
+  labs(title = "Gonarezhou NP", fill = "Habitat\nQuality") +
   theme_void() + coord_fixed()
 p_gon
 
@@ -50,7 +50,7 @@ p_knp <- dt %>% filter(park_id %in% c("Kruger National Park")) %>%
   geom_tile(aes(x = x_mollweide, y = y_mollweide, fill = habitat_quality_norm)) +
   scale_color_scico(palette = "bamako", begin = 0.05, end = 0.95) +
   scale_fill_scico(palette = "bamako", begin = 0.05, end = 0.95) +
-  labs(title = "Kruger National Park", fill = "Habitat\nQuality") +
+  labs(title = "Kruger NP", fill = "Habitat\nQuality") +
   theme_void() + coord_fixed() + 
   theme(legend.position = "right")
 p_knp 
@@ -60,7 +60,7 @@ p_sl <- dt %>% filter(park_id %in% c("South Luangwa")) %>%
   geom_tile(aes(x = x_mollweide, y = y_mollweide, fill = habitat_quality_norm)) +
   scale_color_scico(palette = "bamako", begin = 0.05, end = 0.95) +
   scale_fill_scico(palette = "bamako", begin = 0.05, end = 0.95) +
-  labs(title = "South Luangwa", fill = "Habitat\nQuality") +
+  labs(title = "South Luangwa NP", fill = "Habitat\nQuality") +
   theme_void() + coord_fixed() + 
   theme(legend.position = "right")
 p_sl
@@ -71,7 +71,7 @@ p_dens_hwange <- dt %>% filter(park_id %in% c("Hwange")) %>%
   geom_tile(aes(x = x_mollweide, y = y_mollweide, fill = local_density_km2)) +
   scale_color_scico(palette = "batlow", begin = 0.2, end = 0.8) +
   scale_fill_scico(palette = "batlow", begin = 0.2, end = 0.8) +
-  labs(title = "Hwange", fill = "Elephant\nDensity\n(Ind./km²)") +
+  labs(title = "Hwange NP", fill = "Elephant\nDensity\n(Ind./km²)") +
   theme_void() + coord_fixed() + 
   theme(legend.position = "right")
 p_dens_hwange
@@ -82,7 +82,7 @@ p_dens_chobe <- dt %>% filter(park_id %in% c("Chobe")) %>%
   scale_color_scico(palette = "batlow", begin = 0.2, end = 0.8) +
   scale_fill_scico(palette = "batlow", begin = 0.2, end = 0.8) +
   theme_void() + coord_fixed() + 
-  labs(title = "Chobe", fill = "Elephant\nDensity\n(Ind./km²)") +
+  labs(title = "Chobe NP", fill = "Elephant\nDensity\n(Ind./km²)") +
   theme(legend.position = "right")
 p_dens_chobe
 
@@ -92,7 +92,7 @@ p_dens_hip <- dt %>% filter(park_id %in% c("Hluhluwe – iMfolozi Park")) %>%
   geom_tile(aes(x = x_mollweide, y = y_mollweide, fill = local_density_km2)) +
   scale_color_scico(palette = "batlow", begin = 0.2, end = 0.8) +
   scale_fill_scico(palette = "batlow", begin = 0.2, end = 0.8) +
-  labs(title = "Hluhluwe – iMfolozi Park", fill = "Elephant\nDensity\n(Ind./km²)") +
+  labs(title = "Hluhluwe–iMfolozi Park", fill = "Elephant\nDensity\n(Ind./km²)") +
   theme_void() + coord_fixed() + 
   theme(legend.position = "right") 
 p_dens_hip
@@ -102,7 +102,7 @@ p_dens_gon <- dt %>% filter(park_id %in% c("Gonarezhou")) %>%
   geom_tile(aes(x = x_mollweide, y = y_mollweide, fill = local_density_km2)) +
   scale_color_scico(palette = "batlow", begin = 0.2, end = 0.8) +
   scale_fill_scico(palette = "batlow", begin = 0.2, end = 0.8) +
-  labs(title = "Gonarezhou", fill = "Elephant\nDensity\n(Ind./km²)") +
+  labs(title = "Gonarezhou NP", fill = "Elephant\nDensity\n(Ind./km²)") +
   theme_void() + coord_fixed()
 p_dens_gon
 
@@ -111,7 +111,7 @@ p_dens_knp <- dt %>% filter(park_id %in% c("Kruger National Park")) %>%
   geom_tile(aes(x = x_mollweide, y = y_mollweide, fill = local_density_km2)) +
   scale_color_scico(palette = "batlow", begin = 0.2, end = 0.8) +
   scale_fill_scico(palette = "batlow", begin = 0.2, end = 0.8) +
-  labs(title = "Kruger National Park", fill = "Elephant\nDensity\n(Ind./km²)") +
+  labs(title = "Kruger NP", fill = "Elephant\nDensity\n(Ind./km²)") +
   theme_void() + coord_fixed() + 
   theme(legend.position = "right")
 p_dens_knp 
@@ -121,7 +121,7 @@ p_dens_sl <- dt %>% filter(park_id %in% c("South Luangwa")) %>%
   geom_tile(aes(x = x_mollweide, y = y_mollweide, fill = local_density_km2)) +
   scale_color_scico(palette = "batlow", begin = 0.2, end = 0.8) +
   scale_fill_scico(palette = "batlow", begin = 0.2, end = 0.8) +
-  labs(title = "South Luangwa", fill = "Elephant\nDensity\n(Ind./km²)") +
+  labs(title = "South Luangwa NP", fill = "Elephant\nDensity\n(Ind./km²)") +
   theme_void() + coord_fixed() + 
   theme(legend.position = "right")
 p_dens_sl

@@ -91,7 +91,8 @@ p_bar = sf_b2 %>%
   geom_col(aes(x = block_name, y = numbers, fill = type, group = type),
            position = "dodge") +
   scale_fill_scico_d(palette = "batlow", end = .7, begin = 0.3) +
-  labs(x = "Block", y = "Elephant Numbers") +
+  labs(x = "Block", y = "Elephant Numbers", fill = "") +
+  guides(fill = guide_legend(reverse = TRUE)) +
   coord_flip() +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 

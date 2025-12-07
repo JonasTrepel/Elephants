@@ -150,6 +150,23 @@ m_pad_tc_sp_lin = gam(tree_cover_1000m_coef ~ mean_density_km2_scaled +
                   method = "REML")
 summary(m_pad_tc_sp_lin)
 
+m_pad_tc_quad = gam(tree_cover_1000m_coef ~ mean_density_km2_scaled + I(mean_density_km2_scaled^2),# + s(y_moll_scaled),  
+                       select=T,
+                       data = dt_pad,
+                       method = "REML")
+summary(m_pad_tc_quad)
+
+plot(ggeffects::ggpredict(m_pad_tc_quad, term = "mean_density_km2_scaled [all]"))
+
+
+m_pad_tc_sp_quad = gam(tree_cover_1000m_coef ~ mean_density_km2_scaled + I(mean_density_km2_scaled^2) + s(y_moll_scaled),  
+                      select=TRUE,
+                      data = dt_pad,
+                      method = "REML")
+summary(m_pad_tc_sp_quad)
+plot(ggeffects::ggpredict(m_pad_tc_sp_quad, term = "mean_density_km2_scaled [all]"))
+
+
 AIC(m_pad_tc_sp) - AIC(m_pad_tc_sp_lin)
 # Canopy height
 m_pad_ch = gam(canopy_height_900m_coef ~ s(mean_density_km2_scaled, k = 3), 
@@ -174,15 +191,29 @@ summary(m_pad_ch_sp_lin)
 
 AIC(m_pad_ch_sp) - AIC(m_pad_ch_sp_lin)
 
+m_pad_ch_quad = gam(canopy_height_900m_coef ~ mean_density_km2_scaled + I(mean_density_km2_scaled^2),  
+                       select=T,
+                       data = dt_pad,
+                       method = "REML")
+summary(m_pad_ch_quad)
+
+plot(ggeffects::ggpredict(m_pad_ch_quad, term = "mean_density_km2_scaled [all]"))
 
 
+m_pad_ch_sp_quad = gam(canopy_height_900m_coef ~ mean_density_km2_scaled + I(mean_density_km2_scaled^2) + s(y_moll_scaled),  
+                       select=T,
+                       data = dt_pad,
+                       method = "REML")
+summary(m_pad_ch_sp_quad)
+
+plot(ggeffects::ggpredict(m_pad_ch_sp_quad, term = "mean_density_km2_scaled [all]"))
 
 ### Check SP
 dt_pad_sf <- st_as_sf(dt_pad, coords = c("x_moll", "y_moll"), crs = "ESRI:54009") %>% 
-  mutate(resid_ch = residuals(m_pad_ch), 
-         resid_ch_sp = residuals(m_pad_ch_sp), 
-         resid_tc = residuals(m_pad_tc), 
-         resid_tc_sp = residuals(m_pad_tc_sp))
+  mutate(resid_ch = residuals(m_pad_ch_quad), 
+         resid_ch_sp = residuals(m_pad_ch_sp_quad), 
+         resid_tc = residuals(m_pad_tc_quad), 
+         resid_tc_sp = residuals(m_pad_tc_sp_quad))
 
 
 library(spdep)
