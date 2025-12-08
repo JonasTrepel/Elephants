@@ -326,9 +326,9 @@ ggsave(plot = p_mean, "builds/plots/supplement/var_distibution_clusters.png",
 library(patchwork)
 p_pca <- (p_pca_mean | p_pca_range)
 
-p_comb = (p_pca / p_mean) + plot_layout(heights = c(2, 1)) + plot_annotation(tag_levels = "A")
+p_comb = (p_pca / p_mean) + plot_layout(heights = c(1.8, 1)) + plot_annotation(tag_levels = "A")
 p_comb
 ggsave(plot = p_comb, "builds/plots/supplement/cluster_pca_and_ridges.png", dpi = 600, 
-       height = 6.5, width = 8)
+       height = 6.5, width = 9)
 
   
