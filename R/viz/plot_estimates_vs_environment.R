@@ -275,3 +275,41 @@ ggsave(plot = p_pca, "builds/plots/supplement/cluster_pca.png", dpi = 600,
        height = 4, width = 8)
 
 
+#### Show distribution 
+
+dt_mean <- dt_est %>%
+  ungroup() %>% 
+  left_join(dt_ele) %>% 
+  select(individual_id, cluster_id, evi_mean_mean, distance_to_water_km_mean, distance_to_settlement_km_mean, human_modification_mean, slope_mean) %>%
+  filter(complete.cases(.)) %>% 
+  unique() %>% 
+  rename(EVI = evi_mean_mean, 
+         `Dist. to Water` = distance_to_water_km_mean, 
+         `Dist. to Settlement` = distance_to_settlement_km_mean, 
+         `Human Modification` = human_modification_mean, 
+         `Slope` = slope_mean) %>%
+  mutate(cluster_id = case_when(
+    .default = cluster_id, 
+    !cluster_id %in% c("chobe", "kzn", "limpopo", "luangwa") ~ "Not assigned", 
+    cluster_id == "limpopo" ~ "GL & GM", 
+    cluster_id == "kzn" ~ "Lebombo", 
+    cluster_id == "luangwa" ~ "MAZA", 
+    cluster_id == "chobe" ~ "KAZA"
+  ))
+
+
+library(ggridges)
+p_mean = dt_mean %>% 
+  filter(cluster_id != "Not assigned") %>% 
+  pivot_longer(cols = c("EVI", "Dist. to Water", "Dist. to Settlement", 
+                        "Human Modification", "Slope"), 
+               names_to = "var_name", values_to = "var_value") %>% 
+  ggplot(aes(x = var_value, y = cluster_id)) +
+  facet_wrap(~var_name, scales = "free_x", ncol = 5) +
+  geom_density_ridges() +
+  theme_bw() +
+  labs(x = "", y = "")
+ggsave(plot = p_mean, "builds/plots/supplement/var_distibution_clusters.png", 
+       dpi = 900, height = 3, width = 12)
+
+  
