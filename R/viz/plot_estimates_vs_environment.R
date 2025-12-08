@@ -300,16 +300,35 @@ dt_mean <- dt_est %>%
 
 library(ggridges)
 p_mean = dt_mean %>% 
-  filter(cluster_id != "Not assigned") %>% 
+  #filter(cluster_id != "Not assigned") %>% 
   pivot_longer(cols = c("EVI", "Dist. to Water", "Dist. to Settlement", 
                         "Human Modification", "Slope"), 
                names_to = "var_name", values_to = "var_value") %>% 
   ggplot(aes(x = var_value, y = cluster_id)) +
   facet_wrap(~var_name, scales = "free_x", ncol = 5) +
-  geom_density_ridges() +
+  geom_density_ridges(aes(fill = cluster_id, color = cluster_id)) +
+  scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   theme_bw() +
-  labs(x = "", y = "")
+  labs(x = "", y = "")+
+  theme_minimal() +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_blank(), 
+        panel.background = element_rect(fill = "snow", color = "snow"), 
+        strip.background = element_rect(fill = "linen", color = "linen"))
+p_mean
+
 ggsave(plot = p_mean, "builds/plots/supplement/var_distibution_clusters.png", 
-       dpi = 900, height = 3, width = 12)
+       dpi = 900, height = 3, width = 12) 
+
+library(patchwork)
+p_pca <- (p_pca_mean | p_pca_range)
+
+p_comb = (p_pca / p_mean) + plot_layout(heights = c(2, 1)) + plot_annotation(tag_levels = "A")
+p_comb
+ggsave(plot = p_comb, "builds/plots/supplement/cluster_pca_and_ridges.png", dpi = 600, 
+       height = 6.5, width = 8)
 
   
