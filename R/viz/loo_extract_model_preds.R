@@ -112,11 +112,46 @@ for(park in unique(dt_pred_loo$excluded_park)){
 
 
 dt_diff_p <- dt_diff %>%
-  mutate(park_label = paste0(excluded_park, " (n = ", n_park, ")"), 
+  mutate(clean_excluded_park = case_when(
+    excluded_park == "Balule Nature Reserve" ~ "Balule Private Nature Reserve",
+    excluded_park == "Bwabwata" ~ "Bwabwata National Park",
+    excluded_park == "Chobe"~ "Chobe National Park",
+    excluded_park == "Gonarezhou" ~ "Gonarezhou National Park",
+    excluded_park == "Hluhluwe – iMfolozi Park" ~ "Hluhluwe–iMfolozi Park",
+    excluded_park == "Hwange"~ "Hwange National Park",
+    excluded_park == "Itala Nature Reserve"~ "Ithala Game Reserve",
+    excluded_park == "Kaingo Private Game Reserve"~ "Kaingo Private Game Reserve",
+    excluded_park == "Kasungu National Park"~ "Kasungu National Park",
+    excluded_park == "Khaudum" ~ "Khaudum National Park",
+    excluded_park == "Klaserie Private Nature Reserve" ~ "Klaserie Private Nature Reserve",
+    excluded_park == "Kruger National Park" ~ "Kruger National Park",
+    excluded_park == "Lapalala Nature Reserve" ~ "Lapalala Private Nature Reserve",
+    excluded_park == "Letaba Ranch Nature Reserve" ~ "Letaba Ranch Nature Reserve",
+    excluded_park == "Limpopo"~ "Limpopo National Park",
+    excluded_park == "Luambe"~ "Luambe National Park",
+    excluded_park == "Luengue-Luiana National Park"~ "Luengue-Luiana National Park",
+    excluded_park == "Madikwe Nature Reserve" ~ "Madikwe Provincial Reserve",
+    excluded_park == "Makgadikgadi Pans"~ "Makgadikgadi Pans National Park",
+    excluded_park == "Manyeleti Nature Reserve" ~ "Manyeleti Private Nature Reserve",
+    excluded_park == "Mapungupwe National Park" ~ "Mapungubwe National Park",
+    excluded_park == "Maputo"~ "Maputo National Park",
+    excluded_park == "Moremi"~ "Moremi Game Reserve",
+    excluded_park == "Nkasa Rupara"~ "Nkasa Rupara National Park",
+    excluded_park == "No Park" ~ "No Park",
+    excluded_park == "North Luangwa" ~ "North Luangwa National Park",
+    excluded_park == "Northern Tuli" ~ "Northern Tuli Game Reserve",
+    excluded_park == "Nxai Pan"~ "Nxai Pan National Park",
+    excluded_park == "Pilanesberg National Park" ~ "Pilanesberg Provincial Reserve",
+    excluded_park == "Sabie Sands Private Nature Reserve"  ~ "Sabie Sands Private Nature Reserve",
+    excluded_park == "Sioma Ngwezi" ~ "Sioma Ngwezi National Park",
+    excluded_park == "South Luangwa" ~ "South Luangwa National Park",
+    excluded_park == "Tembe Elephant Park" ~ "Tembe Elephant Park",
+    excluded_park == "Timbavati Private Nature Reserve" ~ "Timbavati Private Nature Reserve",
+    excluded_park == "Umbabat Private Nature Reserve"~ "Umbabat Private Nature Reserve")) %>% 
+  mutate(park_label = paste0(clean_excluded_park, " (n = ", n_park, ")"), 
          clean_response = case_when(
            response == "tree_cover_1000m_coef" ~ "Tree Cover Trend", 
-           response == "canopy_height_900m_coef" ~ "Canopy Height Trend", 
-           response == "evi_900m_coef" ~ "EVI Trend"),
+           response == "canopy_height_900m_coef" ~ "Canopy Height Trend"),
          park_label = fct_reorder(park_label, n_park)
   )
   
@@ -265,7 +300,43 @@ dt_pred_comp <- rbindlist(for_results_pred) %>%
            var_name == "fire_frequency_scaled" ~ "Fire Frequency",
            var_name == "mat_coef_scaled" ~ "Temperature Change",
            var_name == "n_deposition_scaled" ~ "N Deposition",
-         ))
+         ), 
+         clean_excluded_park = case_when(
+           excluded_park == "Balule Nature Reserve" ~ "Balule Private Nature Reserve",
+           excluded_park == "Bwabwata" ~ "Bwabwata National Park",
+           excluded_park == "Chobe"~ "Chobe National Park",
+           excluded_park == "Gonarezhou" ~ "Gonarezhou National Park",
+           excluded_park == "Hluhluwe – iMfolozi Park" ~ "Hluhluwe–iMfolozi Park",
+           excluded_park == "Hwange"~ "Hwange National Park",
+           excluded_park == "Itala Nature Reserve"~ "Ithala Game Reserve",
+           excluded_park == "Kaingo Private Game Reserve"~ "Kaingo Private Game Reserve",
+           excluded_park == "Kasungu National Park"~ "Kasungu National Park",
+           excluded_park == "Khaudum" ~ "Khaudum National Park",
+           excluded_park == "Klaserie Private Nature Reserve" ~ "Klaserie Private Nature Reserve",
+           excluded_park == "Kruger National Park" ~ "Kruger National Park",
+           excluded_park == "Lapalala Nature Reserve" ~ "Lapalala Private Nature Reserve",
+           excluded_park == "Letaba Ranch Nature Reserve" ~ "Letaba Ranch Nature Reserve",
+           excluded_park == "Limpopo"~ "Limpopo National Park",
+           excluded_park == "Luambe"~ "Luambe National Park",
+           excluded_park == "Luengue-Luiana National Park"~ "Luengue-Luiana National Park",
+           excluded_park == "Madikwe Nature Reserve" ~ "Madikwe Provincial Reserve",
+           excluded_park == "Makgadikgadi Pans"~ "Makgadikgadi Pans National Park",
+           excluded_park == "Manyeleti Nature Reserve" ~ "Manyeleti Private Nature Reserve",
+           excluded_park == "Mapungupwe National Park" ~ "Mapungubwe National Park",
+           excluded_park == "Maputo"~ "Maputo National Park",
+           excluded_park == "Moremi"~ "Moremi Game Reserve",
+           excluded_park == "Nkasa Rupara"~ "Nkasa Rupara National Park",
+           excluded_park == "No Park" ~ "No Park",
+           excluded_park == "North Luangwa" ~ "North Luangwa National Park",
+           excluded_park == "Northern Tuli" ~ "Northern Tuli Game Reserve",
+           excluded_park == "Nxai Pan"~ "Nxai Pan National Park",
+           excluded_park == "Pilanesberg National Park" ~ "Pilanesberg Provincial Reserve",
+           excluded_park == "Sabie Sands Private Nature Reserve"  ~ "Sabie Sands Private Nature Reserve",
+           excluded_park == "Sioma Ngwezi" ~ "Sioma Ngwezi National Park",
+           excluded_park == "South Luangwa" ~ "South Luangwa National Park",
+           excluded_park == "Tembe Elephant Park" ~ "Tembe Elephant Park",
+           excluded_park == "Timbavati Private Nature Reserve" ~ "Timbavati Private Nature Reserve",
+           excluded_park == "Umbabat Private Nature Reserve"~ "Umbabat Private Nature Reserve"))
 unique(dt_pred_comp$response_name)
 unique(dt_pred_comp$var_name)
 
@@ -277,14 +348,14 @@ p_smooth <- dt_pred_comp %>%
   ggplot() +
   # geom_point(data = dt_long, aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
-  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, fill = excluded_park ), alpha = 0.1) +
-  geom_line(aes(x = x_unscaled, y = predicted, color = excluded_park), linewidth = 1) +
+  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, fill = clean_excluded_park ), alpha = 0.1) +
+  geom_line(aes(x = x_unscaled, y = predicted, color = clean_excluded_park), linewidth = 1) +
   geom_ribbon(data = dt_pred_comp %>% 
                 filter(excluded_park %in% c("No Park")), 
               aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.1, fill = "black") +
   geom_line(data = dt_pred_comp %>% 
               filter(excluded_park %in% c("No Park")),
-            aes(x = x_unscaled, y = predicted, color = excluded_park), color = "black", linewidth = 1) +
+            aes(x = x_unscaled, y = predicted, color = clean_excluded_park), color = "black", linewidth = 1) +
   facet_grid(rows = vars(response_clean), cols = vars(var_clean), scales = "free") +
   labs(y = "Response Value", title = "", x = "Predictor Value",
        color = "Excluded Park", fill = "Excluded Park") +
