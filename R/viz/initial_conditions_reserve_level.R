@@ -92,4 +92,40 @@ fwrite(dt_pad,"data/processed_data/clean_data/reserve_level_average_data.csv")
 
 }
 
-dt = fread("data/processed_data/clean_data/reserve_level_average_data.csv")
+dt = fread("data/processed_data/clean_data/reserve_level_average_data.csv") %>% 
+  mutate(cluster_id = case_when(
+    cluster_id == "greater_kruger" ~ "GL & GM", 
+    cluster_id == "greater_waterberg" ~ "GL & GM", 
+    cluster_id == "limpopo" ~ "GL & GM", 
+    cluster_id == "kzn" ~ "Lebombo", 
+    cluster_id == "luangwa" ~ "MAZA", 
+    cluster_id == "chobe" ~ "KAZA", 
+    cluster_id == "kafue" ~ "Kafue", 
+    cluster_id == "zambezi" ~ "Zambezi"), 
+    initial_tree_cover = initial_tree_cover*100)
+
+
+p_in <- dt %>% 
+  pivot_longer(cols = c("initial_tree_cover", "initial_canopy_height"), 
+               names_to = "var_name", values_to = "var_value") %>% 
+  mutate(var_name = case_when(
+    var_name == "initial_canopy_height" ~ "Initial Canopy Height (m)", 
+    var_name == "initial_tree_cover" ~ "Initial Woody Cover (%)"
+  )) %>% 
+  ggplot() +
+  geom_point(aes(x = mean_density_km2, y = var_value, color = cluster_id)) +
+  labs(x = "Elephant Density (Individuals/km²)", 
+       y = "Variable Value", 
+       color = "Cluster") +
+  facet_wrap(~var_name, scales = "free_y") +
+  scico::scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  theme(legend.position = "right", 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_blank(), 
+        panel.background = element_rect(fill = "snow", color = "snow"), 
+        strip.background = element_rect(fill = "linen", color = "linen"))
+p_in
+
+ggsave(plot = p_in, "builds/plots/supplement/intital_reserve_conditions.png", 
+       dpi = 900, height = 4, width = 8.5)
