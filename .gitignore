@@ -1,4 +1,5 @@
 builds/models/
+data/raw_data/
 builds/deprecated_models/
 builds/cv_models/
 builds/loo_models/
