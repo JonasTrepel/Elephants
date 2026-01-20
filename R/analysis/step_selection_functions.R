@@ -17,6 +17,44 @@
                "24hrs"
                )
   
+  #set TRUE if you're reviewing this manuscript. If you do: Thank you!! 
+  review = TRUE
+
+for(param in unique(params)){ 
+    
+  if(review){
+    
+      if(param == "1hr"){
+        
+        dt <- fread("data/processed_data/for_review_only/anon_steps_1hr_habitat_covariates.csv")
+        mean(dt$sl_) 
+        quantile(dt$sl_)
+        
+      } else if(param == "3hrs"){
+        
+        dt <- fread("data/processed_data/for_review_only/anon_steps_3hrs_habitat_covariates.csv")
+        mean(dt$sl_) 
+        quantile(dt$sl_)
+        
+      } else if(param == "12hrs"){
+        
+        dt <- fread("data/processed_data/for_review_only/anon_steps_12hrs_habitat_covariates.csv")
+        mean(dt$sl_) #2718.854
+        quantile(dt$sl_)
+        # 0%      25%      50%      75%     100% 
+        #0.000 1254.603 2334.965 3865.864 8661.769
+      } else if(param == "24hrs"){
+        
+        dt <- fread("data/processed_data/for_review_only/anon_steps_24hrs_habitat_covariates.csv")
+        
+        mean(dt$sl_) 
+        quantile(dt$sl_)
+        
+      }
+    
+  }else{
+    
+  
   for(param in unique(params)){ 
   
   if(param == "1hr"){
@@ -41,9 +79,13 @@
   } else if(param == "24hrs"){
     
     dt <- fread("data/processed_data/data_fragments/steps_24hrs_habitat_covariates.csv")
+
     mean(dt$sl_) 
     quantile(dt$sl_)
     
+  }
+    
+  }
   }
   
   n_distinct(dt$individual_id)
@@ -57,7 +99,6 @@
       distance_to_water_km,
       distance_to_settlement_km,
       human_modification,
-      enerscape, 
       slope, 
       elevation
     )

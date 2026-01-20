@@ -10,7 +10,14 @@ library(rnaturalearth)
 library(sf)
 library(ggspatial)
 
+review = TRUE
+if(review){
+  dt_ele <- fread("data/processed_data/for_review_only/anon_elephant_id_meta_data.csv")
+  
+}else{
+
 dt_ele <- fread("data/processed_data/clean_data/elephant_id_meta_data.csv")
+}
 
 dt_est <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") %>% 
   left_join(dt_ele) %>%
@@ -216,6 +223,8 @@ p_est_cluster <- dt_me_cluster %>%
 p_est_cluster
 
 ### Maps ----------------------------
+
+#### necessary data cannot be shared :(
 
 # Location points 
 sf_loc <- fread("data/processed_data/clean_data/all_location_data.csv") %>% 
