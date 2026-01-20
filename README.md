@@ -51,3 +51,6 @@ Scripts used to generate the figures included in the manuscript
 - `extract_model_preds.R`: extract model predictions from main models at 1000m scale
 - `prediction_figure_local_scale.R`: produces figure 3. 
 R/viz/supplement/ contains scripts to produce the supplementary figures`
+
+
+Please don't hesitate to contact me at jonas.trepel[at]bio.au.dk should you have any questions! 
