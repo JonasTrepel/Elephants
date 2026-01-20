@@ -35,6 +35,7 @@ data/processed_data/clean_data/final_grid_data.csv
 data/processed_data/clean_data/analysis_ready_grid_1000m.csv
 data/processed_data/clean_data/analysis_ready_grid_100m.csv
 
+data/processed_data/for_review_only/
 # History files
 .Rhistory
 .Rapp.history
