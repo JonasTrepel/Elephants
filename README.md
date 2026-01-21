@@ -49,7 +49,8 @@ Scripts used to generate the figures included in the manuscript
 - `reserve_level_figure.R`: code for fig. 1
 - `plot_step_selection_figure.R`: code for fig. 2 (needs location data, which we sadly cannot share)
 - `extract_model_preds.R`: extract model predictions from main models at 1000m scale
-- `prediction_figure_local_scale.R`: produces figure 3. 
+- `prediction_figure_local_scale.R`: produces figure 3.
+
 R/viz/supplement/ contains scripts to produce the supplementary figures`
 
 
