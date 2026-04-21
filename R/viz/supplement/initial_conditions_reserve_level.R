@@ -109,7 +109,7 @@ p_in <- dt %>%
   pivot_longer(cols = c("initial_tree_cover", "initial_canopy_height"), 
                names_to = "var_name", values_to = "var_value") %>% 
   mutate(var_name = case_when(
-    var_name == "initial_canopy_height" ~ "Initial Canopy Height (m)", 
+    var_name == "initial_canopy_height" ~ "Initial Vegetation Height (m)", 
     var_name == "initial_tree_cover" ~ "Initial Woody Cover (%)"
   )) %>% 
   ggplot() +
