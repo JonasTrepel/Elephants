@@ -93,18 +93,15 @@ dt_pad <- dt %>%
 glimpse(dt_pad)
 
 dt_pad$sd_local_density_km2
-dt_pad$sd_local_density_km2
-
 
 dt_pad %>% ggplot() + 
   geom_point(aes(x = mean_density_km2_scaled, y = tree_cover_1000m_coef))
 
 
 dt_cor <- dt_pad %>% 
-  
   dplyr::select(
     `Woody cover trend` = tree_cover_1000m_coef,
-    `Canopy height Trend` = canopy_height_900m_coef,
+    `Vegetation height Trend` = canopy_height_900m_coef,
     `Mean elephant density` = mean_density_km2,
     `Elevation` = elevation,
     `MAT` = mat,
@@ -118,11 +115,12 @@ dt_cor <- dt_pad %>%
     `Local elephant density `= local_density_km2,
     `Sample size` = n,
     `CV local density`= cv_local_density_km2,
-    `Park area` = area_km2
+    `Park area` = area_km2, 
+    Latitude = y_moll_scaled
   ) %>% 
   filter(complete.cases(.))
 
-corr <- round(cor(dt_cor), 2)
+corr <- round(cor(dt_cor, method = "s"), 2)
 
 ggcorrplot(corr, type = "lower", lab = TRUE)
 
@@ -143,7 +141,7 @@ m_pad_tc_sp = gam(tree_cover_1000m_coef ~ s(mean_density_km2_scaled, k = 3) +
                method = "REML")
 summary(m_pad_tc_sp)
 
-# Canopy height
+# Vegetation Height 
 m_pad_ch = gam(canopy_height_900m_coef ~ s(mean_density_km2_scaled, k = 3), 
                select=TRUE,
                data = dt_pad,
@@ -220,7 +218,7 @@ plot(pred_ch)
 
 dt_pred = rbind(dt_pred_tc, dt_pred_ch) %>% 
   mutate(response_clean = case_when(
-           response_name == "canopy_height_900m_coef" ~ "Canopy Height Trend",
+           response_name == "canopy_height_900m_coef" ~ "Vegetation Height Trend",
            response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
          ),
          var_clean = case_when(
@@ -244,7 +242,7 @@ dt_long <- dt_pad %>% pivot_longer(
     names_to = "response_name", 
     values_to = "response_value") %>% 
   mutate(response_clean = case_when(
-    response_name == "canopy_height_900m_coef" ~ "Canopy Height Trend",
+    response_name == "canopy_height_900m_coef" ~ "Vegetation Height Trend",
     response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend"
   ))
 
@@ -291,3 +289,4 @@ p_smooth_points <- dt_pred %>%
 p_smooth_points
 ggsave(plot = p_smooth_points, "builds/plots/supplement/park_average_density_predictions.png", 
        dpi = 900, height = 3, width = 6)
+

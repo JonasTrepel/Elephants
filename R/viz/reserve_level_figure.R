@@ -189,8 +189,8 @@ p_pa_ch <- sf_pas %>%
                          pad_y = unit(0.5, "cm"),
                          style = north_arrow_fancy_orienteering) +
   theme_void() +
-  labs(fill = "Canopy Height Trend", 
-       color = "Canopy Height Trend", 
+  labs(fill = "Vegetation Height Trend", 
+       color = "Vegetation Height Trend", 
        subtitle = "B") +
   theme(legend.position = "bottom")
 p_pa_ch
