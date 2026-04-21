@@ -112,13 +112,11 @@ vars <- c("local_density_km2_scaled",
           "fire_frequency_scaled", 
           "mat_coef_scaled", 
           "prec_coef_scaled", 
-          "n_deposition_scaled", 
           "s(local_density_km2_scaled, k = 3)",
           "s(months_extreme_drought_scaled, k = 3)",
           "s(fire_frequency_scaled, k = 3)", 
           "s(mat_coef_scaled, k = 3)", 
-          "s(prec_coef_scaled, k = 3)", 
-          "s(n_deposition_scaled, k = 3)")
+          "s(prec_coef_scaled, k = 3)")
 
 plan(multisession, workers = 6)
 #options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
@@ -247,7 +245,7 @@ p_aic <- dt_var_res %>%
         strip.background = element_rect(fill = "linen", color = "linen"))
 
 p_aic
-ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_density_smoothed.png", dpi = 600, height = 4.5, width = 7)
+ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_1000m_local_density_smoothed.png", dpi = 600, height = 4, width = 7)
 
 ### 3 - Choose Mesh ------------------
 #https://www.biorxiv.org/content/10.1101/2022.03.24.485545v4.full.pdf
