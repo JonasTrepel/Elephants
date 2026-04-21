@@ -103,150 +103,150 @@ ggcorrplot(corr, hc.order = FALSE, type = "lower",
 
 # 2. Test covariate model improvement -------------------------------------
 
-responses <- c("tree_cover_100m_coef", "canopy_height_90m_coef")
-
-vars <- c("local_density_km2_scaled",
-          "months_extreme_drought_scaled",
-          "fire_frequency_scaled", 
-          "mat_coef_scaled", 
-          "prec_coef_scaled", 
-          "n_deposition_scaled", 
-          "mean_density_km2_scaled",
-          "s(local_density_km2_scaled, k = 3)",
-          "s(months_extreme_drought_scaled, k = 3)",
-          "s(fire_frequency_scaled, k = 3)", 
-          "s(mat_coef_scaled, k = 3)", 
-          "s(prec_coef_scaled, k = 3)", 
-          "s(n_deposition_scaled, k = 3)", 
-          "s(mean_density_km2_scaled, k = 3)")
-
-options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
-plan(multisession, workers = 6)
-start_time <- Sys.time()
-
-var_res_list <- future_map(unique(responses),
-                           .progress = TRUE,
-                           .options = furrr_options(seed = TRUE),
-                           function(resp) {
-                             
-                             library(tidyverse)
-                             library(data.table)
-                             library(sf)
-                             library(DHARMa)
-                             library(broom)
-                             library("sdmTMB")
-                             library(future)
-                             library(furrr)
-                             
-                             
-                             dt_var_res_sub <- data.frame()
-                             
-                             for (var in unique(vars)) {
-                               
-                               int_formula <- as.formula(paste0(resp, " ~ 1 + (1 | park_id)"))
-                               formula <- as.formula(paste0(resp, " ~ ", var, " + (1 | park_id)"))
-                               
-                               
-                               
-                               fit0 <- sdmTMB::sdmTMB(int_formula,
-                                                      data = dt_mod,
-                                                      spatial = "off"
-                               )
-                               
-                               fit <- sdmTMB::sdmTMB(formula,
-                                                     data = dt_mod,
-                                                     spatial = "off"
-                               )
-                               
-                               
-                               san <- sdmTMB::sanity(fit)
-                               
-                               aic_fit = AIC(fit); aic_fit0 = AIC(fit0)
-                               
-                               delta_aic = aic_fit0 - aic_fit #positive values indicate improvement
-                               
-                               dt_tmp = data.frame(
-                                 resp = resp,
-                                 var = var, 
-                                 aic_fit = aic_fit, 
-                                 aic_fit0 = aic_fit0, 
-                                 delta_aic = delta_aic
-                               )
-                               
-                               
-                               dt_var_res_sub <- rbind(dt_tmp, dt_var_res_sub)
-                               
-                               print(paste0(var, " done"))
-                               rm(fit0)
-                               rm(fit)
-                               gc()
-                             }
-                             
-                             return(dt_var_res_sub)
-                           }
-)
-plan(sequential)
-
-print(paste0("Started loop at: ", start_time, " and finished at: ", Sys.time()))
-
-## bind results 
-unique(responses)
-dt_var_res <- rbindlist(var_res_list) %>% 
-  mutate(clean_response = case_when(
-    .default = resp,
-    resp == "tree_cover_100m_coef" ~ "Woody Cover Trend",
-    resp == "canopy_height_90m_coef" ~  "Canopy Height Trend"
-  ), 
-  clean_term = case_when(
-    .default = var,
-    var == "local_density_km2_scaled" ~ "Local Elephant Density",
-    var == "mean_density_km2_scaled" ~ "Mean Elephant Density",
-    var == "density_trend_estimate_scaled" ~ "Elephant Density Trend",
-    var == "mat_coef_scaled" ~ "MAT Trend",
-    var == "prec_coef_scaled" ~ "Precipitation Trend",
-    var == "n_deposition_scaled" ~ "Nitrogen deposition",
-    var == "fire_frequency_scaled" ~ "Fire frequency",
-    var == "months_extreme_drought_scaled" ~ "N Drought Months", 
-    var == "mat_scaled" ~ "MAT", 
-    var == "map_scaled" ~ "MAP",
-    var == "s(local_density_km2_scaled, k = 3)" ~ "Local Elephant Density Smoothed",
-    var == "s(mean_density_km2_scaled, k = 3)" ~ "Mean Elephant Density Smoothed",
-    var == "s(density_trend_estimate_scaled, k = 3)" ~ "Elephant Density Trend Smoothed",
-    var == "s(mat_coef_scaled, k = 3)" ~ "MAT Trend Smoothed",
-    var == "s(prec_coef_scaled, k = 3)" ~ "Precipitation Trend Smoothed",
-    var == "s(n_deposition_scaled, k = 3)" ~ "Nitrogen deposition Smoothed",
-    var == "s(fire_frequency_scaled, k = 3)" ~ "Fire frequency Smoothed",
-    var == "s(months_extreme_drought_scaled, k = 3)" ~ "N Drought Months Smoothed", 
-    var == "s(mat_scaled, k = 3)" ~ "MAT Smoothed", 
-    var == "s(map_scaled, k = 3)" ~ "MAP Smoothed"), 
-  point_col = case_when(
-    abs(delta_aic) <= 2 ~ "no difference",
-    delta_aic > 2 ~ "improved model", 
-    delta_aic < 2 ~ "worsened model"
-  ))
-
-
-
-#plot 
-
-p_aic <- dt_var_res %>% 
-  ggplot() +
-  geom_point(aes(x = delta_aic, y = clean_term, color = point_col)) +
-  facet_wrap(~clean_response, scales = "free_x") +
-  scale_color_manual(values = c("no difference" = "grey75", 
-                                "improved model" = "#5F903D", 
-                                "worsened model" = "#B5549C")) +
-  facet_wrap(~clean_response, scales = "free_x", ncol = 3) +
-  labs(y = "", x = "Delta AIC", color = "") +
-  theme(legend.position = "bottom", 
-        panel.grid.major.x = element_blank(), 
-        panel.grid.minor.x = element_blank(),
-        panel.border = element_blank(), 
-        panel.background = element_rect(fill = "snow"), 
-        strip.background = element_rect(fill = "linen", color = "linen"))
-
-p_aic
-ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_100m_local_density_smoothed.png", dpi = 600, height = 5, width = 7)
+# responses <- c("tree_cover_100m_coef", "canopy_height_90m_coef")
+# 
+# vars <- c("local_density_km2_scaled",
+#           "months_extreme_drought_scaled",
+#           "fire_frequency_scaled", 
+#           "mat_coef_scaled", 
+#           "prec_coef_scaled", 
+#           "n_deposition_scaled", 
+#           "mean_density_km2_scaled",
+#           "s(local_density_km2_scaled, k = 3)",
+#           "s(months_extreme_drought_scaled, k = 3)",
+#           "s(fire_frequency_scaled, k = 3)", 
+#           "s(mat_coef_scaled, k = 3)", 
+#           "s(prec_coef_scaled, k = 3)", 
+#           "s(n_deposition_scaled, k = 3)", 
+#           "s(mean_density_km2_scaled, k = 3)")
+# 
+# options(future.globals.maxSize = 15 * 1024^3)  # 15 GiB
+# plan(multisession, workers = 6)
+# start_time <- Sys.time()
+# 
+# var_res_list <- future_map(unique(responses),
+#                            .progress = TRUE,
+#                            .options = furrr_options(seed = TRUE),
+#                            function(resp) {
+#                              
+#                              library(tidyverse)
+#                              library(data.table)
+#                              library(sf)
+#                              library(DHARMa)
+#                              library(broom)
+#                              library("sdmTMB")
+#                              library(future)
+#                              library(furrr)
+#                              
+#                              
+#                              dt_var_res_sub <- data.frame()
+#                              
+#                              for (var in unique(vars)) {
+#                                
+#                                int_formula <- as.formula(paste0(resp, " ~ 1"))
+#                                formula <- as.formula(paste0(resp, " ~ ", var))
+#                                
+#                                
+#                                
+#                                fit0 <- sdmTMB::sdmTMB(int_formula,
+#                                                       data = dt_mod,
+#                                                       spatial = "off"
+#                                )
+#                                
+#                                fit <- sdmTMB::sdmTMB(formula,
+#                                                      data = dt_mod,
+#                                                      spatial = "off"
+#                                )
+#                                
+#                                
+#                                san <- sdmTMB::sanity(fit)
+#                                
+#                                aic_fit = AIC(fit); aic_fit0 = AIC(fit0)
+#                                
+#                                delta_aic = aic_fit0 - aic_fit #positive values indicate improvement
+#                                
+#                                dt_tmp = data.frame(
+#                                  resp = resp,
+#                                  var = var, 
+#                                  aic_fit = aic_fit, 
+#                                  aic_fit0 = aic_fit0, 
+#                                  delta_aic = delta_aic
+#                                )
+#                                
+#                                
+#                                dt_var_res_sub <- rbind(dt_tmp, dt_var_res_sub)
+#                                
+#                                print(paste0(var, " done"))
+#                                rm(fit0)
+#                                rm(fit)
+#                                gc()
+#                              }
+#                              
+#                              return(dt_var_res_sub)
+#                            }
+# )
+# plan(sequential)
+# 
+# print(paste0("Started loop at: ", start_time, " and finished at: ", Sys.time()))
+# 
+# ## bind results 
+# unique(responses)
+# dt_var_res <- rbindlist(var_res_list) %>% 
+#   mutate(clean_response = case_when(
+#     .default = resp,
+#     resp == "tree_cover_100m_coef" ~ "Woody Cover Trend",
+#     resp == "canopy_height_90m_coef" ~  "Vegetation Height Trend"
+#   ), 
+#   clean_term = case_when(
+#     .default = var,
+#     var == "local_density_km2_scaled" ~ "Local Elephant Density",
+#     var == "mean_density_km2_scaled" ~ "Mean Elephant Density",
+#     var == "density_trend_estimate_scaled" ~ "Elephant Density Trend",
+#     var == "mat_coef_scaled" ~ "MAT Trend",
+#     var == "prec_coef_scaled" ~ "Precipitation Trend",
+#     var == "n_deposition_scaled" ~ "Nitrogen deposition",
+#     var == "fire_frequency_scaled" ~ "Fire frequency",
+#     var == "months_extreme_drought_scaled" ~ "N Drought Months", 
+#     var == "mat_scaled" ~ "MAT", 
+#     var == "map_scaled" ~ "MAP",
+#     var == "s(local_density_km2_scaled, k = 3)" ~ "Local Elephant Density Smoothed",
+#     var == "s(mean_density_km2_scaled, k = 3)" ~ "Mean Elephant Density Smoothed",
+#     var == "s(density_trend_estimate_scaled, k = 3)" ~ "Elephant Density Trend Smoothed",
+#     var == "s(mat_coef_scaled, k = 3)" ~ "MAT Trend Smoothed",
+#     var == "s(prec_coef_scaled, k = 3)" ~ "Precipitation Trend Smoothed",
+#     var == "s(n_deposition_scaled, k = 3)" ~ "Nitrogen deposition Smoothed",
+#     var == "s(fire_frequency_scaled, k = 3)" ~ "Fire frequency Smoothed",
+#     var == "s(months_extreme_drought_scaled, k = 3)" ~ "N Drought Months Smoothed", 
+#     var == "s(mat_scaled, k = 3)" ~ "MAT Smoothed", 
+#     var == "s(map_scaled, k = 3)" ~ "MAP Smoothed"), 
+#   point_col = case_when(
+#     abs(delta_aic) <= 2 ~ "no difference",
+#     delta_aic > 2 ~ "improved model", 
+#     delta_aic < 2 ~ "worsened model"
+#   ))
+# 
+# 
+# 
+# #plot 
+# 
+# p_aic <- dt_var_res %>% 
+#   ggplot() +
+#   geom_point(aes(x = delta_aic, y = clean_term, color = point_col)) +
+#   facet_wrap(~clean_response, scales = "free_x") +
+#   scale_color_manual(values = c("no difference" = "grey75", 
+#                                 "improved model" = "#5F903D", 
+#                                 "worsened model" = "#B5549C")) +
+#   facet_wrap(~clean_response, scales = "free_x", ncol = 3) +
+#   labs(y = "", x = "Delta AIC", color = "") +
+#   theme(legend.position = "bottom", 
+#         panel.grid.major.x = element_blank(), 
+#         panel.grid.minor.x = element_blank(),
+#         panel.border = element_blank(), 
+#         panel.background = element_rect(fill = "snow"), 
+#         strip.background = element_rect(fill = "linen", color = "linen"))
+# 
+# p_aic
+# ggsave(plot = p_aic, "builds/plots/supplement/aic_univariate_models_100m_local_density_smoothed.png", dpi = 600, height = 5, width = 7)
 
 ### 3 - Choose Mesh ------------------
 #https://www.biorxiv.org/content/10.1101/2022.03.24.485545v4.full.pdf
@@ -296,8 +296,7 @@ for (resp in unique(responses)) {
       formula <- as.formula(paste0(resp, " ~ s(local_density_km2_scaled, k = 3) +
                      s(months_extreme_drought_scaled, k = 3) +
                      s(fire_frequency_scaled, k = 3) +
-                     s(mat_coef_scaled, k = 3) + 
-                     s(n_deposition_scaled, k = 3)"))
+                     s(prec_coef_scaled, k = 3)"))
       
       fit_cv <- tryCatch({
         sdmTMB::sdmTMB_cv(
@@ -357,21 +356,20 @@ plan(sequential)
 print(paste0("Started loop at: ", start_time, " and finished at: ", Sys.time()))
 print(paste0("Estimate time for CV: ", round(as.numeric(difftime(Sys.time(), start_time, units = "mins")), 2), " mins"))
 
-##### REMOVED PARK ID AND CHANGED FAMILY TO STUDENT
 ## bind results 
 unique(responses)
 dt_mesh_res_fin <- dt_mesh_res  %>% 
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_100m_coef" ~ "Woody Cover Trend",
-    response == "canopy_height_90m_coef" ~  "Canopy Height Trend"))
+    response == "canopy_height_90m_coef" ~  "Vegetation Height Trend"))
 summary(dt_mesh_res_fin)
 
 fwrite(dt_mesh_res_fin, "builds/model_outputs/cv_mesh_selection_sdmtmb_results_100m_local_density_smoothed.csv")
 
 p_loglik <- dt_mesh_res_fin %>% 
   mutate(clean_response = factor(clean_response, levels = c(
-    "Woody Cover Trend", "Canopy Height Trend"))) %>% 
+    "Woody Cover Trend", "Vegetation Height Trend"))) %>% 
   ggplot() +
   geom_point(aes(x = cutoff, y = sum_loglik, color = max_inner_edge), size = 2, alpha = 0.8) +
   scale_color_viridis_c(option = "B", direction = - 1, begin = 0.2, end = 0.8) +
@@ -437,15 +435,13 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                 s(local_density_km2_scaled, k = 3) +
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
-                                s(mat_coef_scaled, k = 3) + 
-                                s(n_deposition_scaled, k = 3)"))
+                                s(prec_coef_scaled, k = 3)"))
                                    
                                    full_formula <- as.formula(paste0(resp, " ~ 
                                 s(local_density_km2_scaled, k = 3) +
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
-                                s(mat_coef_scaled, k = 3) + 
-                                s(n_deposition_scaled, k = 3)"))
+                                s(prec_coef_scaled, k = 3)"))
                                    
                                    #https://github.com/pbs-assess/sdmTMB/issues/466#issuecomment-3119589818
                                    
@@ -583,7 +579,7 @@ dt_res <- rbindlist(best_mesh_res_list) %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_100m_coef" ~ "Woody Cover Trend",
-    response == "canopy_height_90m_coef" ~  "Canopy Height Trend"
+    response == "canopy_height_90m_coef" ~  "Vegetation Height Trend"
   ), 
   clean_term = case_when(
     .default = term,

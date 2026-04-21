@@ -143,10 +143,11 @@ var_res_list <- future_map(unique(responses),
                              
                              for (var in unique(vars)) {
                                
-                               int_formula <- as.formula(paste0(resp, " ~ 1 + (1 | park_id)"))
-                               formula <- as.formula(paste0(resp, " ~ ", var, " + (1 | park_id)"))
+                              # int_formula <- as.formula(paste0(resp, " ~ 1 + (1 | park_id)"))
+                              # formula <- as.formula(paste0(resp, " ~ ", var, " + (1 | park_id)"))
                                
-                               
+                               int_formula <- as.formula(paste0(resp, " ~ 1"))
+                               formula <- as.formula(paste0(resp, " ~ ", var))
                                
                                fit_int <- sdmTMB::sdmTMB(int_formula,
                                                       data = dt_mod,
@@ -195,7 +196,7 @@ dt_var_res <- rbindlist(var_res_list) %>%
   mutate(clean_response = case_when(
     .default = resp,
     resp == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    resp == "canopy_height_900m_coef" ~  "Canopy Height Trend"
+    resp == "canopy_height_900m_coef" ~  "Vegetation Height Trend"
   ), 
   clean_term = case_when(
     .default = var,
@@ -289,7 +290,11 @@ list_mesh_res_sub <- future_map(
       mesh = inla_mesh
     )
     
-    formula <- as.formula(paste0(resp, " ~ s(mean_density_km2, k = 3)"))
+    formula <- as.formula(paste0(resp, " ~ 
+                                s(local_density_km2_scaled, k = 3) +
+                                s(months_extreme_drought_scaled, k = 3) +
+                                s(fire_frequency_scaled, k = 3) +
+                                s(prec_coef_scaled, k = 3)"))
     
     fit_cv <- tryCatch({
       sdmTMB::sdmTMB_cv(
@@ -353,14 +358,14 @@ dt_mesh_res_fin <- dt_mesh_res  %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"))
+    response == "canopy_height_900m_coef" ~  "Vegetation Height Trend"))
 summary(dt_mesh_res_fin)
 
 fwrite(dt_mesh_res_fin, "builds/model_outputs/cv_mesh_selection_sdmtmb_results_1000m_local_density_smoothed.csv")
 
 p_loglik <- dt_mesh_res_fin %>% 
   mutate(clean_response = factor(clean_response, levels = c(
-    "Woody Cover Trend", "Canopy Height Trend"))) %>% 
+    "Woody Cover Trend", "Vegetation Height Trend"))) %>% 
   ggplot() +
   geom_point(aes(x = cutoff, y = sum_loglik, color = max_inner_edge), size = 2, alpha = 0.8) +
   scale_color_viridis_c(option = "B", direction = - 1, begin = 0.2, end = 0.8) +
@@ -426,15 +431,13 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                 s(local_density_km2_scaled, k = 3) +
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
-                                s(mat_coef_scaled, k = 3) + 
-                                s(n_deposition_scaled, k = 3)"))
+                                s(prec_coef_scaled, k = 3)"))
 
                                 full_formula <- as.formula(paste0(resp, " ~ 
                                 s(local_density_km2_scaled, k = 3) +
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
-                                s(mat_coef_scaled, k = 3) + 
-                                s(n_deposition_scaled, k = 3)"))
+                                s(prec_coef_scaled, k = 3)"))
                                 
                                 #https://github.com/pbs-assess/sdmTMB/issues/466#issuecomment-3119589818
                                 
@@ -571,7 +574,7 @@ dt_res <- rbindlist(best_mesh_res_list) %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"
+    response == "canopy_height_900m_coef" ~  "Vegetation Height Trend"
   ), 
   clean_term = case_when(
     .default = term,

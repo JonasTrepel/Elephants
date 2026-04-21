@@ -117,7 +117,7 @@ p_ch <- dt_pred %>%
             fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
   geom_rect(data = dt_rects, aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax), 
             fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
-  labs(y = "Canopy Height Trend", title = "", x = "Predictor Value") +
+  labs(y = "Vegetation Height Trend", title = "", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
@@ -132,4 +132,4 @@ p_ch
 p_comb <- (p_ch / p_tc)
 p_comb
 ggsave(plot = p_comb, "builds/plots/local_scale_predictions_main_figures.png", 
-       height = 5, width = 9, dpi = 900)
+       height = 5, width = 8, dpi = 900)

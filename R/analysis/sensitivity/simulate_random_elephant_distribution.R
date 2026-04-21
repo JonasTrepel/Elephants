@@ -90,7 +90,7 @@ dt_mesh_res <- dt_mesh_res_fin %>%
   ungroup()
 
 iter = c(1:101)
-resp = c(unique(dt_best_mesh$response))
+resp = c(unique(dt_mesh_res$response))
 
 model_guide = CJ(iter = iter, 
                  response = resp) 
@@ -214,7 +214,7 @@ dt_res <- rbindlist(best_mesh_res_list) %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"
+    response == "canopy_height_900m_coef" ~  "Vegetation Height Trend"
   ), 
   clean_term = case_when(
     .default = term,
@@ -338,7 +338,7 @@ dt_pad <-  dt %>%
   ungroup() 
 
 iter = c(1:101)
-resp = c(unique(dt_best_mesh$response))
+resp = c(unique(dt_mesh_res$response))
 
 model_guide = CJ(iter = iter, 
                  response = resp) 
@@ -446,7 +446,7 @@ dt_pad_res <- rbindlist(pad_res_list) %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"
+    response == "canopy_height_900m_coef" ~  "Vegetation Height Trend"
   ))
 
 
@@ -510,3 +510,4 @@ p_both = p_dev/p_aic
 
 ggsave(plot = p_both, "builds/plots/supplement/deviance_explained_and_delta_aic_simulated_ele_density.png", 
        dpi = 900, width = 12, height = 6)
+

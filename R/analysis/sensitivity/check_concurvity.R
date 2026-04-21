@@ -96,8 +96,7 @@ m_tc <- bam(tree_cover_1000m_coef  ~
                  s(local_density_km2_scaled, k = 3) +
                  s(months_extreme_drought_scaled, k = 3) +
                  s(fire_frequency_scaled, k = 3) +
-                 s(mat_coef_scaled, k = 3) + 
-                 s(n_deposition_scaled, k = 3), 
+                 s(prec_coef_scaled, k = 3), 
                data = dt_mod, 
             method="fREML",
             spatial = "off")
@@ -111,8 +110,7 @@ m_ch <- bam(canopy_height_900m_coef  ~
               s(local_density_km2_scaled, k = 3) +
               s(months_extreme_drought_scaled, k = 3) +
               s(fire_frequency_scaled, k = 3) +
-              s(mat_coef_scaled, k = 3) + 
-              s(n_deposition_scaled, k = 3), 
+              s(prec_coef_scaled, k = 3),
             data = dt_mod, 
             method="fREML",
             spatial = "off")

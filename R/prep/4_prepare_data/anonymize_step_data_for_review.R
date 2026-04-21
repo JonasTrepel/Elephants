@@ -19,8 +19,8 @@ dt <- fread("data/processed_data/data_fragments/steps_1hr_habitat_covariates.csv
 glimpse(dt)
 dt_anon <- dt %>% 
   dplyr::select(individual_id, case_, step_id_, burst_, source, sex, 
-                obs_id, n_true, n_total, sl_km, min_kmh, dt_hour, 
-                unique_id, n_false_step, elevation, map, slope, 
+                obs_id, 
+                unique_id, slope, 
                 distance_to_water_km, distance_to_settlement_km,
                 human_modification, evi_mean, season)
 

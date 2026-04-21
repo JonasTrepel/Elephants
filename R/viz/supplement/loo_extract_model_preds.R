@@ -14,7 +14,7 @@ library(ggeffects)
 
 dt_bm_loo <- fread("builds/model_outputs/loo_results_1000m_local_density_smoothed.csv") %>% 
   mutate(clean_response = factor(clean_response, levels = c(
-    "Woody Cover Trend", "Canopy Height Trend", "EVI Trend"))) %>% 
+    "Woody Cover Trend", "Vegetation Height Trend", "EVI Trend"))) %>% 
   dplyr::select(excluded_park, model_id, model_path, response, dev_explained_full, dev_explained_var, n_park) %>% 
   unique()
 
@@ -22,8 +22,7 @@ dt_bm_loo <- fread("builds/model_outputs/loo_results_1000m_local_density_smoothe
 vars <- c("local_density_km2_scaled",
           "months_extreme_drought_scaled",
           "fire_frequency_scaled", 
-          "mat_coef_scaled", 
-          "n_deposition_scaled")
+          "prec_coef_scaled")
 
 dt_pred_loo_sub <- data.frame()
 
@@ -150,8 +149,8 @@ dt_diff_p <- dt_diff %>%
     excluded_park == "Umbabat Private Nature Reserve"~ "Umbabat Private Nature Reserve")) %>% 
   mutate(park_label = paste0(clean_excluded_park, " (n = ", n_park, ")"), 
          clean_response = case_when(
-           response == "tree_cover_1000m_coef" ~ "Tree Cover Trend", 
-           response == "canopy_height_900m_coef" ~ "Canopy Height Trend"),
+           response == "tree_cover_1000m_coef" ~ "Woody Cover Trend", 
+           response == "canopy_height_900m_coef" ~ "Vegetation Height Trend"),
          park_label = fct_reorder(park_label, n_park)
   )
   
@@ -203,8 +202,7 @@ ggsave(plot = p_loo, "builds/plots/supplement/loo_results_1000m.png", dpi = 600,
 vars <- c("local_density_km2_scaled",
           "months_extreme_drought_scaled",
           "fire_frequency_scaled", 
-          "mat_coef_scaled", 
-          "n_deposition_scaled")
+          "prec_coef_scaled")
 
 responses <- c("tree_cover_1000m_coef", "canopy_height_900m_coef")
 
@@ -215,7 +213,7 @@ parks <- c("No Park","Luengue-Luiana National Park", "Hwange", "Limpopo",
 
 dt_bm_loo <- fread("builds/model_outputs/loo_results_1000m_local_density_smoothed.csv") %>% 
   mutate(clean_response = factor(clean_response, levels = c(
-    "Woody Cover Trend", "Canopy Height Trend", "EVI Trend"))) %>% 
+    "Woody Cover Trend", "Vegetation Height Trend", "EVI Trend"))) %>% 
   dplyr::select(excluded_park, model_id, model_path, response, dev_explained_full, dev_explained_var, n_park) %>% 
   unique()
 
@@ -291,14 +289,14 @@ print(paste0("loop done ", Sys.time()))
 dt_pred_comp <- rbindlist(for_results_pred) %>% 
   mutate(scale = "km2", 
          response_clean = case_when(
-           response_name == "canopy_height_900m_coef" ~ "Canopy Height Trend",
+           response_name == "canopy_height_900m_coef" ~ "Vegetation Height Trend",
            response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
          ),
          var_clean = case_when(
            var_name == "local_density_km2_scaled" ~ "Local Elephant Density",
            var_name == "months_extreme_drought_scaled" ~ "N Drought Months",
            var_name == "fire_frequency_scaled" ~ "Fire Frequency",
-           var_name == "mat_coef_scaled" ~ "Temperature Change",
+           var_name == "prec_coef_scaled" ~ "Rainfall Change",
            var_name == "n_deposition_scaled" ~ "N Deposition",
          ), 
          clean_excluded_park = case_when(

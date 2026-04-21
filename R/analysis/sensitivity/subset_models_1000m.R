@@ -202,8 +202,7 @@ for (j in 1:nrow(mesh_guide)) {
       formula <- as.formula(paste0(resp, " ~ s(local_density_km2_scaled, k = 3) +
                      s(months_extreme_drought_scaled, k = 3) +
                      s(fire_frequency_scaled, k = 3) +
-                     s(mat_coef_scaled, k = 3) + 
-                     s(n_deposition_scaled, k = 3)"))
+                     s(prec_coef_scaled, k = 3)"))
       
       fit_cv <- tryCatch({
         sdmTMB::sdmTMB_cv(
@@ -271,7 +270,7 @@ dt_mesh_res_fin <- dt_mesh_res  %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"))
+    response == "canopy_height_900m_coef" ~  "Vegetation Height Trend"))
 summary(dt_mesh_res_fin)
 
 fwrite(dt_mesh_res_fin, "builds/model_outputs/cv_mesh_selection_sdmtmb_1000m_subsets.csv")
@@ -344,15 +343,13 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                 s(local_density_km2_scaled, k = 3) +
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
-                                s(mat_coef_scaled, k = 3) + 
-                                s(n_deposition_scaled, k = 3)"))
+                                s(prec_coef_scaled, k = 3)"))
                                    
                                    full_formula <- as.formula(paste0(resp, " ~ 
                                 s(local_density_km2_scaled, k = 3) +
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
-                                s(mat_coef_scaled, k = 3) + 
-                                s(n_deposition_scaled, k = 3)"))
+                                s(prec_coef_scaled, k = 3)"))
                                    
                                    #https://github.com/pbs-assess/sdmTMB/issues/466#issuecomment-3119589818
                                    
@@ -461,7 +458,7 @@ dt_res <- rbindlist(best_mesh_res_list) %>%
   mutate(clean_response = case_when(
     .default = response,
     response == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
-    response == "canopy_height_900m_coef" ~  "Canopy Height Trend"
+    response == "canopy_height_900m_coef" ~  "Vegetation Height Trend"
   ), 
   clean_term = case_when(
     .default = term,

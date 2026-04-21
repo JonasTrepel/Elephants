@@ -13,9 +13,7 @@ library(ggeffects)
 ### get raw data 
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_100m.csv") %>% 
-  mutate(tree_cover_100m_coef = tree_cover_100m_coef*100, 
-  ) %>% 
-  filter(park_id != "Thornybush Nature Reserve")
+  mutate(tree_cover_100m_coef = tree_cover_100m_coef*100)
 
 names(dt)
 
@@ -72,7 +70,7 @@ dt_mod <- dt %>%
   mutate(
     local_density_km2_scaled       = as.numeric(scale(local_density_km2)),
     mean_density_km2_scaled       = as.numeric(scale(mean_density_km2)),
-    months_severe_drought_scaled   = as.numeric(scale(months_severe_drought)),
+    prec_coef_scaled   = as.numeric(scale(prec_coef)),
     months_extreme_drought_scaled = as.numeric(scale(months_extreme_drought)),
     fire_frequency_scaled          = as.numeric(scale(fire_frequency)),
     n_deposition_scaled            = as.numeric(scale(n_deposition)), 
@@ -84,7 +82,7 @@ dt_mod <- dt %>%
 
 dt_bm_smooth <- fread("builds/model_outputs/sdmtmb_results_100m_local_density_smoothed.csv") %>% 
   mutate(clean_response = factor(clean_response, levels = c(
-    "Woody Cover Trend", "Canopy Height Trend", "EVI Trend"))) %>% 
+    "Woody Cover Trend", "Vegetation Height Trend", "EVI Trend"))) %>% 
   dplyr::select(model_id, model_path, response, dev_explained_var, dev_explained_full) %>% 
   unique()
 
@@ -92,8 +90,7 @@ dt_bm_smooth <- fread("builds/model_outputs/sdmtmb_results_100m_local_density_sm
 vars <- c("local_density_km2_scaled",
           "months_extreme_drought_scaled",
           "fire_frequency_scaled", 
-          "mat_coef_scaled", 
-          "n_deposition_scaled")
+          "prec_coef_scaled")
 
 dt_pred_smooth <- data.frame()
 
@@ -162,17 +159,17 @@ for(i in 1:nrow(dt_bm_smooth)){
 
 
 dt_100m <- dt_pred_smooth %>% 
-  mutate(scale = "km2", 
+  mutate(scale = "ha", 
          response_clean = case_when(
-           response_name == "canopy_height_90m_coef" ~ "Canopy Height Trend",
-           response_name == "tree_cover_100m_coef" ~ "Tree Cover Trend",
+           response_name == "canopy_height_90m_coef" ~ "Vegetation Height Trend",
+           response_name == "tree_cover_100m_coef" ~ "Woody Cover Trend",
            response_name == "evi_90m_coef" ~ "EVI Trend"
          ),
          var_clean = case_when(
            var_name == "local_density_km2_scaled" ~ "Local Elephant Density",
            var_name == "months_extreme_drought_scaled" ~ "N Drought Months",
            var_name == "fire_frequency_scaled" ~ "Fire Frequency",
-           var_name == "mat_coef_scaled" ~ "Temperature Change",
+           var_name == "prec_coef_scaled" ~ "Rainfall Change",
            var_name == "n_deposition_scaled" ~ "N Deposition",
          ))
 unique(dt_100m$response_name)
@@ -183,26 +180,22 @@ fwrite(dt_100m, "builds/model_outputs/sdmtmb_100m_predictions.csv")
 dt_long <- dt_mod %>% pivot_longer(
   cols = c("local_density_km2",
            "months_extreme_drought", "fire_frequency", 
-           "mat_coef", "n_deposition"), 
+           "prec_coef"), 
   names_to = "var_name", 
   values_to = "var_value") %>% 
   mutate(var_clean = case_when(
     var_name == "local_density_km2" ~ "Local Elephant Density",
     var_name == "months_extreme_drought" ~ "N Drought Months",
     var_name == "fire_frequency" ~ "Fire Frequency",
-    var_name == "mat_coef" ~ "Temperature Change",
-    var_name == "n_deposition" ~ "N Deposition",
+    var_name == "prec_coef" ~ "Rainfall Change",
   )) %>% 
   pivot_longer(
-    cols = c("canopy_height_90m_coef", "tree_cover_100m_coef", 
-             "evi_90m_coef"), 
+    cols = c("canopy_height_90m_coef", "tree_cover_100m_coef"), 
     names_to = "response_name", 
     values_to = "response_value") %>% 
   mutate(response_clean = case_when(
-    response_name == "canopy_height_90m_coef" ~ "Canopy Height Trend",
-    response_name == "tree_cover_100m_coef" ~ "Tree Cover Trend",
-    response_name == "evi_90m_coef" ~ "EVI Trend"
-  ))
+    response_name == "canopy_height_90m_coef" ~ "Vegetation Height Trend",
+    response_name == "tree_cover_100m_coef" ~ "Woody Cover Trend"  ))
 
 rects <- dt_long %>%
   group_by(var_clean) %>%
@@ -225,7 +218,7 @@ rects <- dt_long %>%
 ### plot -----------------------------
 
 p_smooth_points <- dt_100m %>% 
-  # filter(response_name %in% c("evi_90m_coef") & tier == "Simple") %>% 
+  #filter(response_name %in% c("evi_90m_coef") & tier == "Simple") %>% 
   ggplot() +
   geom_point(data = dt_long %>% 
                group_by(response_clean, var_clean) %>% 
@@ -248,7 +241,7 @@ p_smooth_points <- dt_100m %>%
         strip.background = element_rect(fill = "linen", color = "linen"))
 
 p_smooth_points
-ggsave(plot = p_smooth_points, "builds/plots/100m_model_predictions_and_points_smooth.png", dpi = 900, height = 6, width = 9)
+ggsave(plot = p_smooth_points, "builds/plots/100m_model_predictions_and_points_smooth.png", dpi = 900, height = 6, width = 8)
 
 
 p_smooth <- dt_100m %>% 
@@ -276,5 +269,5 @@ p_smooth <- dt_100m %>%
 
 p_smooth
 
-ggsave(plot = p_smooth, "builds/plots/100m_model_predictions_smooth.png", dpi = 900, height = 6, width = 9)
+ggsave(plot = p_smooth, "builds/plots/100m_model_predictions_smooth.png", dpi = 900, height = 6, width = 8)
 

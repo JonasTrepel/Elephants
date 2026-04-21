@@ -27,7 +27,7 @@ dt_dev <- dt_pred %>%
 
 ####### Get rectangles ready: 
 dt_rect_ch_lt <- dt_pred %>%
-  filter(tier_clean %in% c("Lower Third") & response_clean %in% c("Canopy Height Trend")) %>% 
+  filter(tier_clean %in% c("Lower Third") & response_clean %in% c("Vegetation Height Trend")) %>% 
   dplyr::select(q975_unscaled, q025_unscaled, response_clean, var_clean) %>% 
   unique() %>% 
   group_by(var_clean) %>%
@@ -38,7 +38,7 @@ dt_rect_ch_lt <- dt_pred %>%
   ungroup()
 
 dt_rect_ch_mt <- dt_pred %>%
-  filter(tier_clean %in% c("Middle Third") & response_clean %in% c("Canopy Height Trend")) %>% 
+  filter(tier_clean %in% c("Middle Third") & response_clean %in% c("Vegetation Height Trend")) %>% 
   dplyr::select(q975_unscaled, q025_unscaled, response_clean, var_clean) %>% 
   unique() %>% 
   group_by(var_clean) %>%
@@ -49,7 +49,7 @@ dt_rect_ch_mt <- dt_pred %>%
   ungroup()
 
 dt_rect_ch_ut <- dt_pred %>%
-  filter(tier_clean %in% c("Upper Third") & response_clean %in% c("Canopy Height Trend")) %>% 
+  filter(tier_clean %in% c("Upper Third") & response_clean %in% c("Vegetation Height Trend")) %>% 
   dplyr::select(q975_unscaled, q025_unscaled, response_clean, var_clean) %>% 
   unique() %>% 
   group_by(var_clean) %>%
@@ -96,7 +96,7 @@ dt_rect_tc_ut <- dt_pred %>%
 ##### Plot different tiers -------------
 
 p_ch_lt <- dt_pred %>% 
-  filter(tier_clean %in% c("Lower Third") & response_clean %in% c("Canopy Height Trend")) %>% 
+  filter(tier_clean %in% c("Lower Third") & response_clean %in% c("Vegetation Height Trend")) %>% 
   ggplot() +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.3, fill = "#0C4C00") +
@@ -107,7 +107,7 @@ p_ch_lt <- dt_pred %>%
   geom_rect(data = dt_rect_ch_lt,
             aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax),
             fill = "snow", alpha = 0.7, inherit.aes = FALSE) +
-  labs(y = "Canopy Height Trend", x = "Variable Value", title = "Cells With Low Initial Canopy Height") +
+  labs(y = "Vegetation Height Trend", x = "Variable Value", title = "Cells With Low Initial Vegetation Height") +
   theme_bw() +
   facet_wrap(~var_clean, scales = "free_x", ncol = 45) +
   theme(legend.position = "right", 
@@ -121,7 +121,7 @@ p_ch_lt <- dt_pred %>%
 p_ch_lt
 
 p_ch_mt <- dt_pred %>% 
-  filter(tier_clean %in% c("Middle Third") & response_clean %in% c("Canopy Height Trend")) %>% 
+  filter(tier_clean %in% c("Middle Third") & response_clean %in% c("Vegetation Height Trend")) %>% 
   ggplot() +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.3, fill = "#0C4C00") +
@@ -132,7 +132,7 @@ p_ch_mt <- dt_pred %>%
   geom_rect(data = dt_rect_ch_mt,
             aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax),
             fill = "snow", alpha = 0.7, inherit.aes = FALSE) +
-  labs(y = "Canopy Height Trend", x = "Variable Value", title = "Cells With Intermediate Initial Canopy Height") +
+  labs(y = "Vegetation Height Trend", x = "Variable Value", title = "Cells With Intermediate Initial Vegetation Height") +
   theme_bw() +
   facet_wrap(~var_clean, scales = "free_x", ncol = 45) +
   theme(legend.position = "right", 
@@ -146,7 +146,7 @@ p_ch_mt <- dt_pred %>%
 p_ch_mt
 
 p_ch_ut <- dt_pred %>% 
-  filter(tier_clean %in% c("Upper Third") & response_clean %in% c("Canopy Height Trend")) %>% 
+  filter(tier_clean %in% c("Upper Third") & response_clean %in% c("Vegetation Height Trend")) %>% 
   ggplot() +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.3, fill = "#0C4C00") +
@@ -157,7 +157,7 @@ p_ch_ut <- dt_pred %>%
   geom_rect(data = dt_rect_ch_ut,
             aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax),
             fill = "snow", alpha = 0.7, inherit.aes = FALSE) +
-  labs(y = "Canopy Height Trend", x = "Variable Value", title = "Cells With High Initial Canopy Height") +
+  labs(y = "Vegetation Height Trend", x = "Variable Value", title = "Cells With High Initial Vegetation Height") +
   theme_bw() +
   facet_wrap(~var_clean, scales = "free_x", ncol = 45) +
   theme(legend.position = "right", 
