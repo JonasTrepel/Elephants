@@ -29,6 +29,7 @@ acceptable_numbers = seq(1, 10000000, 5)
 table(dt$population_trend_n)
 dt_mod <- dt %>% 
   filter(dw_min_median_mode_fraction >= 50) %>% 
+  filter(include == TRUE) %>% 
   dplyr::select(
     #mean values /habitat characteristics 
     mean_tree_cover_1000m, mean_evi_900m, mean_canopy_height_900m, 
@@ -301,7 +302,7 @@ dt_pad <-  dt %>%
     mat_coef, prec_coef,
     
     #Elephant predictors 
-    mean_density_km2, local_density_km2,# density_trend_estimate, density_trend_estimate,
+    mean_density_km2, # local_density_km2,# density_trend_estimate, density_trend_estimate,
     
     #Trends - Responses 
     tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
@@ -330,11 +331,11 @@ dt_pad <-  dt %>%
             months_extreme_drought = mean(months_extreme_drought),
             mat_coef = mean(mat_coef),
             prec_coef = mean(prec_coef), 
-            sd_local_density_km2 = sd(local_density_km2), 
-            local_density_km2 = mean(local_density_km2),
+           # sd_local_density_km2 = sd(local_density_km2), 
+           # local_density_km2 = mean(local_density_km2),
             n = n()
   ) %>% 
-  mutate(cv_local_density_km2 = (sd_local_density_km2/local_density_km2)*100) %>% 
+ # mutate(cv_local_density_km2 = (sd_local_density_km2/local_density_km2)*100) %>% 
   ungroup() 
 
 iter = c(1:101)

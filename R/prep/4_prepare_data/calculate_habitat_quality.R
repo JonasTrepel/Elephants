@@ -9,10 +9,31 @@ library(patchwork)
 library(ggcorrplot)
 
 #get data frame with cluster specific median estimates ready. 
-dt_ele <- fread("data/processed_data/clean_data/elephant_id_meta_data.csv")
+dt_ele_raw <- fread("data/processed_data/clean_data/elephant_id_meta_data.csv")
+
+dt_est_raw <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") 
+
+dt_ele <- dt_ele_raw %>%
+  filter(individual_id %in% unique(dt_est_raw$individual_id)) %>% 
+  mutate(pop_data_avail = ifelse(park_id %in% c(
+    "Luengue-Luiana National Park", "Chobe", "Nxai Pan", "Makgadikgadi Pans",
+    "Moremi", "Northern Tuli", "Maputo", "Limpopo",
+    "Kasungu National Park", "Khaudum", "Nkasa Rupara", "Bwabwata",
+    "Kruger National Park", "Itala Nature Reserve", "Manyeleti Nature Reserve", "Pilanesberg National Park",
+    "Tembe Elephant Park", "Madikwe Nature Reserve", "Klaserie Private Nature Reserve", "Mapungupwe National Park",
+    "Sabie Sands Private Nature Reserve", "Timbavati Private Nature Reserve", "Umbabat Private Nature Reserve", "Kaingo Private Game Reserve",
+    "Letaba Ranch Nature Reserve", "Hluhluwe – iMfolozi Park", "Lapalala Nature Reserve", "Balule Nature Reserve",
+    "South Luangwa", "Sioma Ngwezi", "North Luangwa", "Luambe",
+    "Gonarezhou", "Hwange"), "yes", "no")) %>% 
+  group_by(park_id) %>% 
+  mutate(n_ele_per_park = n_distinct(individual_id)) %>% 
+  ungroup()
+
 
 dt_est_raw <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") %>% 
-  left_join(dt_ele)
+  left_join(dt_ele) %>% 
+  filter(pop_data_avail == "yes" & n_ele_per_park >= 5) 
+  
 
 n_distinct(dt_est_raw$individual_id)
 
@@ -23,7 +44,7 @@ dt_est_raw %>% dplyr::select(cluster_id, individual_id) %>%
 
 dt_est_wy <- dt_est_raw %>% 
   filter(season == "whole_year") %>% 
-  group_by(cluster_id, term) %>% 
+  group_by(park_id, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T)) %>% 
   ungroup() %>%
   pivot_wider(
@@ -33,7 +54,7 @@ dt_est_wy <- dt_est_raw %>%
 
 dt_est_ds <- dt_est_raw %>% 
   filter(season == "dry_season") %>% 
-  group_by(cluster_id, term) %>% 
+  group_by(park_id, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T)) %>% 
   ungroup() %>%
   pivot_wider(
@@ -43,7 +64,7 @@ dt_est_ds <- dt_est_raw %>%
 
 dt_est_ws <- dt_est_raw %>% 
   filter(season == "wet_season") %>% 
-  group_by(cluster_id, term) %>% 
+  group_by(park_id, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T)) %>% 
   ungroup() %>%
   pivot_wider(
@@ -54,7 +75,7 @@ dt_est_ws <- dt_est_raw %>%
 
 dt_est_m <- dt_est_raw %>% 
   filter(season == "whole_year" & sex == "M") %>% 
-  group_by(cluster_id, term) %>% 
+  group_by(park_id, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T)) %>% 
   ungroup() %>%
   pivot_wider(
@@ -64,7 +85,7 @@ dt_est_m <- dt_est_raw %>%
 
 dt_est_f <- dt_est_raw %>% 
   filter(season == "whole_year" & sex == "F") %>% 
-  group_by(cluster_id, term) %>% 
+  group_by(park_id, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T)) %>% 
   ungroup() %>%
   pivot_wider(
@@ -75,7 +96,7 @@ dt_est_f <- dt_est_raw %>%
 
 dt_est_f_ds <- dt_est_raw %>% 
   filter(season == "dry_season" & sex == "F") %>% 
-  group_by(cluster_id, term) %>% 
+  group_by(park_id, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T)) %>% 
   ungroup() %>%
   pivot_wider(
@@ -85,7 +106,7 @@ dt_est_f_ds <- dt_est_raw %>%
 
 dt_est_f_ws <- dt_est_raw %>% 
   filter(season == "wet_season" & sex == "F") %>% 
-  group_by(cluster_id, term) %>% 
+  group_by(park_id, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T)) %>% 
   ungroup() %>%
   pivot_wider(
@@ -95,7 +116,7 @@ dt_est_f_ws <- dt_est_raw %>%
 
 dt_est_m_ds <- dt_est_raw %>% 
   filter(season == "dry_season" & sex == "F") %>% 
-  group_by(cluster_id, term) %>% 
+  group_by(park_id, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T)) %>% 
   ungroup() %>%
   pivot_wider(
@@ -105,7 +126,7 @@ dt_est_m_ds <- dt_est_raw %>%
 
 dt_est_m_ws <- dt_est_raw %>% 
   filter(season == "wet_season" & sex == "M") %>% 
-  group_by(cluster_id, term) %>% 
+  group_by(park_id, term) %>% 
   summarise(median_estimate = median(estimate, na.rm = T)) %>% 
   ungroup() %>%
   pivot_wider(
@@ -126,8 +147,11 @@ dt_est <- dt_est_wy %>%
 
 #load grid vars 100 m ---------------------------
 dt_grid_100m_vars <- fread("data/processed_data/data_fragments/pa_grids_100m_with_covariates.csv") %>% 
-  mutate(wdpa_pid = as.character(wdpa_pid))
-
+  mutate(wdpa_pid = as.character(wdpa_pid)) %>% 
+  left_join(dt_ele %>%
+              select(park_id, pop_data_avail, n_ele_per_park) %>%
+              unique()) %>% 
+  filter(pop_data_avail == "yes" & n_ele_per_park >= 5) 
 
 dt_grid_100m_hq <- dt_grid_100m_vars %>% 
   left_join(dt_est) %>% 
@@ -227,7 +251,7 @@ dt_grid_100m_hq <- dt_grid_100m_vars %>%
   ) %>% 
   ungroup()
 
-glimpse(dt_grid_100m_hq[dt_grid_100m_hq$park_id == "Kafue", ])
+glimpse(dt_grid_100m_hq[dt_grid_100m_hq$park_id == "Kruger National Park", ])
 
 
 fwrite(dt_grid_100m_hq, "data/processed_data/data_fragments/pa_grid_100m_with_habitat_quality.csv")
@@ -453,8 +477,12 @@ for (park in unique(dt_grid_100m_hq_plot$park_id)) {
 
 #load grid vars 1000 m ---------------------------
 dt_grid_1000m_vars <- fread("data/processed_data/data_fragments/pa_grids_1000m_with_covariates.csv") %>% 
-  mutate(wdpa_pid = as.character(wdpa_pid))
+ # mutate(wdpa_pid = as.character(wdpa_pid)) %>% 
+  left_join(dt_ele %>%
+              select(park_id, pop_data_avail, n_ele_per_park) %>%
+              unique()) #%>% filter(pop_data_avail == "yes" & n_ele_per_park >= 5) 
 
+table(dt_grid_1000m_vars$park_id)
 
 dt_grid_1000m_hq <- dt_grid_1000m_vars %>% 
   left_join(dt_est) %>% 
@@ -472,7 +500,7 @@ dt_grid_1000m_hq <- dt_grid_1000m_vars %>%
         whole_year_estimate_human_modification*human_mod_scaled +
         whole_year_estimate_slope*slope_scaled
     ),
-    habitat_quality_norm = scales::rescale(habitat_quality),
+    habitat_quality_norm = scales::rescale(habitat_quality, na.rm = T),
     
     ### Season 
     habitat_quality_dry_season = (
@@ -482,7 +510,7 @@ dt_grid_1000m_hq <- dt_grid_1000m_vars %>%
         dry_season_estimate_human_modification*human_mod_scaled +
         dry_season_estimate_slope*slope_scaled
     ),
-    habitat_quality_dry_season_norm = scales::rescale(habitat_quality_dry_season),
+    habitat_quality_dry_season_norm = scales::rescale(habitat_quality_dry_season, na.rm = T),
     
     habitat_quality_wet_season = (
       wet_season_estimate_distance_to_settlement_km*dist_settlement_scaled +
@@ -491,7 +519,7 @@ dt_grid_1000m_hq <- dt_grid_1000m_vars %>%
         wet_season_estimate_human_modification*human_mod_scaled +
         wet_season_estimate_slope*slope_scaled
     ),
-    habitat_quality_wet_season_norm = scales::rescale(habitat_quality_wet_season),
+    habitat_quality_wet_season_norm = scales::rescale(habitat_quality_wet_season, na.rm = T),
     
     ### Sex 
     
@@ -502,7 +530,7 @@ dt_grid_1000m_hq <- dt_grid_1000m_vars %>%
         males_estimate_human_modification*human_mod_scaled +
         males_estimate_slope*slope_scaled
     ),
-    habitat_quality_males_norm = scales::rescale(habitat_quality_males),
+    habitat_quality_males_norm = scales::rescale(habitat_quality_males, na.rm = T),
     
     habitat_quality_females = (
       females_estimate_distance_to_settlement_km*dist_settlement_scaled +
@@ -511,7 +539,7 @@ dt_grid_1000m_hq <- dt_grid_1000m_vars %>%
         females_estimate_human_modification*human_mod_scaled +
         females_estimate_slope*slope_scaled
     ),
-    habitat_quality_females_norm = scales::rescale(habitat_quality_females),
+    habitat_quality_females_norm = scales::rescale(habitat_quality_females, na.rm = T),
     
     ### Sex x Season
     
@@ -522,7 +550,7 @@ dt_grid_1000m_hq <- dt_grid_1000m_vars %>%
         females_wet_season_estimate_human_modification*human_mod_scaled +
         females_wet_season_estimate_slope*slope_scaled
     ),
-    habitat_quality_females_wet_season_norm = scales::rescale(habitat_quality_females_wet_season),
+    habitat_quality_females_wet_season_norm = scales::rescale(habitat_quality_females_wet_season, na.rm = T),
     
     habitat_quality_females_dry_season = (
       females_dry_season_estimate_distance_to_settlement_km*dist_settlement_scaled +
@@ -531,7 +559,7 @@ dt_grid_1000m_hq <- dt_grid_1000m_vars %>%
         females_dry_season_estimate_human_modification*human_mod_scaled +
         females_dry_season_estimate_slope*slope_scaled
     ),
-    habitat_quality_females_dry_season_norm = scales::rescale(habitat_quality_females_dry_season),
+    habitat_quality_females_dry_season_norm = scales::rescale(habitat_quality_females_dry_season, na.rm = T),
     
     habitat_quality_males_dry_season = (
       males_dry_season_estimate_distance_to_settlement_km*dist_settlement_scaled +
@@ -540,7 +568,7 @@ dt_grid_1000m_hq <- dt_grid_1000m_vars %>%
         males_dry_season_estimate_human_modification*human_mod_scaled +
         males_dry_season_estimate_slope*slope_scaled
     ),
-    habitat_quality_males_dry_season_norm = scales::rescale(habitat_quality_males_dry_season),
+    habitat_quality_males_dry_season_norm = scales::rescale(habitat_quality_males_dry_season, na.rm = T),
     
     habitat_quality_males_wet_season = (
       males_wet_season_estimate_distance_to_settlement_km*dist_settlement_scaled +
@@ -549,13 +577,31 @@ dt_grid_1000m_hq <- dt_grid_1000m_vars %>%
         males_wet_season_estimate_human_modification*human_mod_scaled +
         males_wet_season_estimate_slope*slope_scaled
     ),
-    habitat_quality_males_wet_season_norm = scales::rescale(habitat_quality_males_wet_season),
+    habitat_quality_males_wet_season_norm = scales::rescale(habitat_quality_males_wet_season, na.rm = T),
     
   ) %>% 
-  ungroup()
+  ungroup() %>% 
+  mutate(
+    # habitat_quality = case_when(
+    #   pop_data_avail == "yes" & n_ele_per_park >= 5 ~ habitat_quality,
+    #   TRUE ~ mean(habitat_quality, na.rm = TRUE)
+    # ),
+    # habitat_quality_norm = case_when(
+    #   pop_data_avail == "yes" & n_ele_per_park >= 5 ~ habitat_quality_norm,
+    #   TRUE ~ mean(habitat_quality_norm, na.rm = TRUE)
+    # ),
+    include = case_when(
+      pop_data_avail == "yes" & n_ele_per_park >= 5 ~ TRUE,
+      TRUE ~ FALSE
+    )
+  )
 
+dt_grid_1000m_hq[which(dt_grid_1000m_hq$include == FALSE), ]
+table(dt_grid_1000m_hq[is.na(dt_grid_1000m_hq$include), c("park_id", "pop_data_avail", "n_ele_per_park")]$park_id)
 glimpse(dt_grid_1000m_hq[dt_grid_1000m_hq$park_id == "Maputo", ])
 glimpse(dt_grid_1000m_hq[dt_grid_1000m_hq$park_id == "Limpopo", ])
+
+
 
 
 

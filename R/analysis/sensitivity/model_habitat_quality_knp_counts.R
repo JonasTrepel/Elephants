@@ -102,7 +102,7 @@ p_4_1000m <- dt_grid_1000m %>%
   geom_point(aes(x = habitat_quality_counts_norm, y = habitat_quality_norm), size = 0.1, alpha = 0.35) +
   scico::scale_fill_scico(palette = "bamako", direction = -1) +
   geom_abline(linetype = "dashed", color = "pink3") +
-  labs(x = "HQ Count Data", y = "HQ Movement Data", title = paste0("cor = ", round(corr_4_1000m$estimate, 2))) +
+  labs(x = "HQ Count Data", y = "HQ Movement Data", title = paste0("cor = ", round(corr_4_1000m$estimate, 3))) +
   theme_bw() +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
@@ -118,10 +118,10 @@ corr_5_1000m$estimate
 
 p_5_1000m <- dt_grid_1000m %>% 
   ggplot() +
-  geom_point(aes(x = habitat_quality_counts_norm, y = habitat_quality_norm), size = 0.1, alpha = 0.35) +
+  geom_point(aes(x = habitat_quality_counts_norm, y = habitat_quality_dry_season_norm), size = 0.1, alpha = 0.35) +
   scico::scale_fill_scico(palette = "bamako", direction = -1) +
   geom_abline(linetype = "dashed", color = "pink3") +
-  labs(x = "HQ Count Data", y = "HQ Movement Data (Dry Season)", title = paste0("cor = ", round(corr_5_1000m$estimate, 2))) +
+  labs(x = "HQ Count Data", y = "HQ Movement Data (Dry Season)", title = paste0("cor = ", round(corr_5_1000m$estimate, 3))) +
   theme_bw() +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 

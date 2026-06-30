@@ -10,16 +10,41 @@ library(rnaturalearth)
 library(sf)
 library(ggspatial)
 
-review = TRUE
+review = FALSE
+
 if(review){
-  dt_ele <- fread("data/processed_data/for_review_only/anon_elephant_id_meta_data.csv")
+  dt_ele_raw <- fread("data/processed_data/for_review_only/anon_elephant_id_meta_data.csv")
   
 }else{
 
-dt_ele <- fread("data/processed_data/clean_data/elephant_id_meta_data.csv")
+dt_ele_raw <- fread("data/processed_data/clean_data/elephant_id_meta_data.csv")
+
 }
 
-dt_est <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") %>% 
+dt_est_raw <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") 
+
+dt_ele <- dt_ele_raw %>%
+  filter(individual_id %in% unique(dt_est_raw$individual_id)) %>% 
+  mutate(pop_data_avail = ifelse(park_id %in% c(
+    "Luengue-Luiana National Park", "Chobe", "Nxai Pan", "Makgadikgadi Pans",
+    "Moremi", "Northern Tuli", "Maputo", "Limpopo",
+    "Kasungu National Park", "Khaudum", "Nkasa Rupara", "Bwabwata",
+    "Kruger National Park", "Itala Nature Reserve", "Manyeleti Nature Reserve", "Pilanesberg National Park",
+    "Tembe Elephant Park", "Madikwe Nature Reserve", "Klaserie Private Nature Reserve", "Mapungupwe National Park",
+    "Sabie Sands Private Nature Reserve", "Timbavati Private Nature Reserve", "Umbabat Private Nature Reserve", "Kaingo Private Game Reserve",
+    "Letaba Ranch Nature Reserve", "Hluhluwe – iMfolozi Park", "Lapalala Nature Reserve", "Balule Nature Reserve",
+    "South Luangwa", "Sioma Ngwezi", "North Luangwa", "Luambe",
+    "Gonarezhou", "Hwange"), "yes", "no")) %>% 
+  group_by(park_id) %>% 
+  mutate(n_ele_per_park = n_distinct(individual_id)) %>% 
+  ungroup()
+
+dt_ele %>% 
+  filter(pop_data_avail == "yes" & n_ele_per_park >= 5) %>% 
+  pull(park_id) %>% 
+  unique()
+
+dt_est <- dt_est_raw %>% 
   left_join(dt_ele) %>%
   #filter(cluster_id %in% c("chobe", "limpopo", "kzn", "luangwa")) %>% 
   mutate(cluster_id = case_when(
@@ -32,6 +57,7 @@ dt_est <- fread("builds/model_outputs/issf_estimates_24hr_steps.csv") %>%
     cluster_id == "kafue" ~ "Kafue", 
     cluster_id == "zambezi" ~ "Zambezi"
   )) 
+
 
 
 ### Median estimate ------------------------
@@ -222,6 +248,147 @@ p_est_cluster <- dt_me_cluster %>%
   facet_wrap(~cluster_id, ncol = 5)
 p_est_cluster
 
+
+#### park specific estimates -----------------------
+
+dt_me_park <- dt_est %>% 
+  filter(pop_data_avail == "yes" & n_ele_per_park >= 5) %>% 
+  group_by(term, season, park_id) %>% 
+  summarise(n = n(), 
+            std_error = sd(estimate, na.rm = T)/sqrt(n), 
+            cluster_id = unique(cluster_id), 
+            n_ele_per_park = unique(n_ele_per_park),
+            
+            mean_estimate = mean(estimate, na.rm = T), 
+            mean_ci_lb = mean_estimate - 1.96*std_error, 
+            mean_ci_ub = mean_estimate + 1.96*std_error, 
+            
+            
+            median_estimate = median(estimate, na.rm = T), 
+            median_ci_lb = median_estimate - 1.96*std_error, 
+            median_ci_ub = median_estimate + 1.96*std_error,
+            
+            p_value = median(p_value))  %>% 
+  mutate(clean_term = case_when(
+    .default = term,
+    term == "evi_mean" ~ "EVI",
+    term == "distance_to_water_km" ~ "Distance to Water",
+    term == "distance_to_settlement_km" ~ "Distance to Settlement",
+    term == "human_modification" ~ "Human Modification Index",
+    term == "enerscape" ~ "Energy Landscape",
+    term == "slope" ~ "Slope",
+  ), 
+  sig = ifelse(p_value < 0.05, "significant", "non-significant"), 
+  sig_mean = case_when(
+    .default = "non-significant", 
+    mean_ci_lb > 0 ~ "positive", 
+    mean_ci_ub < 0 ~ "negative"),
+  sig_median = case_when(
+    .default = "non-significant", 
+    median_ci_lb > 0 ~ "positive", 
+    median_ci_ub < 0 ~ "negative"))
+
+
+dt_est %>%
+  filter(pop_data_avail == "yes" & n_ele_per_park >= 5) %>% 
+  dplyr::select(individual_id, park_id) %>% 
+  unique() %>% 
+  pull(park_id) %>% 
+  table()
+
+#Chobe     KZN Limpopo Luangwa Zambezi 
+#118      28      87      42       2 
+
+p_est_park <- dt_me_park %>%
+  mutate(
+    park_clean = case_when(
+      .default = park_id, 
+      park_id == "Luengue-Luiana National Park" ~ "Luengue-Luiana National Park",
+      park_id == "Chobe" ~ "Chobe National Park",
+      park_id == "Nxai Pan" ~ "Nxai Pan National Park",
+      park_id == "Makgadikgadi Pans" ~ "Makgadikgadi Pans National Park",
+      park_id == "Moremi" ~ "Moremi Game Reserve",
+      park_id == "Northern Tuli" ~ "Northern Tuli Game Reserve",
+      park_id == "Maputo" ~ "Maputo National Park",
+      park_id == "Limpopo" ~ "Limpopo National Park",
+      park_id == "Kasungu National Park" ~ "Kasungu National Park",
+      park_id == "Khaudum"  ~ "Khaudum National Park",
+      park_id == "Nkasa Rupara" ~ "Nkasa Rupara National Park",
+      park_id == "Bwabwata" ~ "Bwabwata National Park",
+      park_id == "Kruger National Park" ~ "Kruger National Park",
+      park_id == "Itala Nature Reserve" ~ "Ithala Game Reserve",
+      park_id == "Manyeleti Nature Reserve" ~ "Manyeleti Private Nature Reserve",
+      park_id == "Pilanesberg National Park" ~ "Pilanesberg Provincial Reserve",
+      park_id == "Tembe Elephant Park"  ~ "Tembe Elephant Park",
+      park_id == "Madikwe Nature Reserve" ~ "Madikwe Provincial Reserve",
+      park_id == "Klaserie Private Nature Reserve"  ~ "Klaserie Private Nature Reserve",
+      park_id == "Mapungupwe National Park"  ~ "Mapungubwe National Park",
+      park_id == "Sabie Sands Private Nature Reserve" ~ "Sabie Sands Private Nature Reserve",
+      park_id == "Timbavati Private Nature Reserve" ~ "Timbavati Private Nature Reserve",
+      park_id == "Umbabat Private Nature Reserve" ~ "Umbabat Private Nature Reserve",
+      park_id == "Kaingo Private Game Reserve" ~ "Kaingo Private Game Reserve",
+      park_id == "Letaba Ranch Nature Reserve" ~ "Letaba Ranch Nature Reserve",
+      park_id == "Hluhluwe – iMfolozi Park" ~ "Hluhluwe–iMfolozi Park",
+      park_id == "Lapalala Nature Reserve" ~ "Lapalala Private Nature Reserve",
+      park_id == "Balule Nature Reserve" ~ "Balule Private Nature Reserve",
+      park_id == "South Luangwa" ~ "South Luangwa National Park",
+      park_id == "Sioma Ngwezi" ~ "Sioma Ngwezi National Park",
+      park_id == "North Luangwa" ~ "North Luangwa National Park",
+      park_id == "Luambe" ~ "Luambe National Park",
+      park_id == "Gonarezhou" ~ "Gonarezhou National Park",
+      park_id == "Hwange" ~ "Hwange National Park"
+    )
+  ) %>%
+  ungroup() %>% 
+  mutate(
+    park_clean = factor(
+      park_clean,
+      levels = distinct(., park_clean, cluster_id) %>% 
+        arrange(cluster_id) %>% 
+        distinct(park_clean) %>% 
+        pull(park_clean)),
+    park_label = paste0(park_clean, "\n(n = ", n_ele_per_park, " elephants)")
+    ) %>%
+  mutate(
+    park_label = factor(
+           park_label,
+           levels = distinct(., park_label, cluster_id) %>% 
+             arrange(cluster_id) %>% 
+             distinct(park_label) %>% 
+             pull(park_label))) %>% 
+  filter(season == "whole_year" & !is.na(park_id)) %>%
+  ggplot() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_pointrange(
+    aes(x = clean_term, y = median_estimate, ymin = median_ci_lb, ymax = median_ci_ub,
+        color = cluster_id, fill = cluster_id, shape = sig_median, alpha = sig_median),
+    position = position_dodge(width = 0.75),
+    size = 1, linewidth = 1.1
+  ) +
+  scale_shape_manual(values = c("positive" = 23, "negative" = 23, "non-significant" = 21), guide = "none") +
+  scale_alpha_manual(values = c("significant" = 0.9, "non-significant" = 0.5), guide = "none") +
+  theme_bw() +
+  scico::scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  scico::scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  labs(x = "", y = "Estimate", color = "Season", fill = "Season",
+       subtitle = paste0("Park-Specific Median Estimates (± 95 % CI)")) +
+  guides(
+    fill = guide_legend(nrow = 2),
+    color = guide_legend(nrow = 2)
+  ) +
+  theme_minimal() +
+  coord_flip() +
+  theme(legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_rect(fill = "snow", color = "snow"),
+        strip.background = element_rect(fill = "linen", color = "linen"),
+        strip.text = element_text(size = 8, lineheight = 0.9)) +
+  facet_wrap(~park_label, ncol = 5)
+
+p_est_park
+
 ### Maps ----------------------------
 
 #### necessary data cannot be shared :(
@@ -232,6 +399,26 @@ sf_loc <- fread("data/processed_data/clean_data/all_location_data.csv") %>%
   st_as_sf(coords = c("lon", "lat"), 
            crs = 4326) %>% 
   st_transform(., crs = 4326)
+
+sf_pas <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") %>% 
+  mutate(park_id = NAME) %>%
+  left_join(sf_loc %>%
+              as.data.frame() %>%
+              st_drop_geometry() %>%
+              select(cluster_id, park_id) %>% 
+              unique() %>% 
+              filter(!park_id == "") %>% 
+              mutate(cluster_id = case_when(
+                cluster_id == "greater_kruger" ~ "GL & GM", 
+                cluster_id == "greater_waterberg" ~ "GL & GM", 
+                cluster_id == "limpopo" ~ "GL & GM", 
+                cluster_id == "kzn" ~ "Lebombo", 
+                cluster_id == "luangwa" ~ "MAZA", 
+                cluster_id == "chobe" ~ "KAZA", 
+                cluster_id == "kafue" ~ "Kafue", 
+                cluster_id == "zambezi" ~ "Zambezi"
+              )))
+
 
 #24hr estimates 
 
@@ -270,12 +457,16 @@ p_loc <- sf_loc %>%
   annotation_scale(location = "br", bar_cols = c("ivory4", "white")) +
   geom_sf(data = sf_africa, fill = "linen", color = "ivory3", alpha = .25) +
   geom_sf(data = sf_clust, aes(color = cluster_id, fill = cluster_id), alpha = 0.25, size = 1.5,
-         # fill = "transparent", 
+          fill = "transparent", 
           linetype = "dashed", 
           linewidth = 1.002) +
   scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
-  geom_sf(size = 0.1, alpha = 0.1, color = "black") +
+  geom_sf(size = 0.1, alpha = 0.025, color = "grey25") +
+  geom_sf(data = sf_pas %>% 
+            filter(park_id %in% unique(dt_me_park$park_id)), aes(color = cluster_id, fill = cluster_id), alpha = 0.25, size = 1.5,
+          linetype = "solid", 
+          linewidth = 1.001) +
   theme_void()+
   theme(legend.position = "none")
 p_loc

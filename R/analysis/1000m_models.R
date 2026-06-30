@@ -18,7 +18,8 @@ library(glmmTMB)
 #sf_parks <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") 
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
-  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100) #counts likely wrong - mean density of 6.3 elephants seems unrealistic
+  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100) %>% 
+  filter(include == TRUE)#
 
 
 
@@ -430,11 +431,21 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
                                 s(prec_coef_scaled, k = 3)"))
-
+                                
                                 full_formula <- as.formula(paste0(resp, " ~ 
                                 s(local_density_km2_scaled, k = 3) +
                                 s(months_extreme_drought_scaled, k = 3) +
                                 s(fire_frequency_scaled, k = 3) +
+                                s(prec_coef_scaled, k = 3)"))
+                                
+                                no_prec_formula <- as.formula(paste0(resp, " ~ 
+                                s(local_density_km2_scaled, k = 3) +
+                                s(months_extreme_drought_scaled, k = 3) +
+                                s(fire_frequency_scaled, k = 3)"))
+                                
+                                no_fire_formula <- as.formula(paste0(resp, " ~ 
+                                s(local_density_km2_scaled, k = 3) +
+                                s(months_extreme_drought_scaled, k = 3) +
                                 s(prec_coef_scaled, k = 3)"))
                                 
                                 #https://github.com/pbs-assess/sdmTMB/issues/466#issuecomment-3119589818
@@ -473,6 +484,20 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                                data = dt_mod,
                                                mesh = mesh, 
                                                reml = T)
+                                
+                                #no precipitation
+                                fit_no_prec <- sdmTMB(no_prec_formula, 
+                                                    spatial = "off", 
+                                                    data = dt_mod,
+                                                    mesh = mesh, 
+                                                    reml = T)
+                                 
+                                #no fire
+                                fit_no_fire <- sdmTMB(no_fire_formula, 
+                                                      spatial = "off", 
+                                                      data = dt_mod,
+                                                      mesh = mesh, 
+                                                      reml = T)
                                 
                                 # total proportion deviance explained by our full model:
                                 (dev_explained_full <- 1 - deviance(fit_full) / deviance(fit_int))
@@ -554,6 +579,12 @@ best_mesh_res_list <- future_map(1:nrow(dt_best_mesh),
                                   )
                                 
                                 saveRDS(fit_full, file = unique(tmp_tidy$model_path))
+                                
+
+                                saveRDS(fit_no_fire, file = paste0("builds/models/corr_sensitivity/", resp, "_best_mesh_1000m_no_fire.Rds"))
+                                saveRDS(fit_no_prec, file = paste0("builds/models/corr_sensitivity/", resp, "_best_mesh_1000m_no_prec.Rds"))
+                                
+
                                 
                                 print(paste0(i, " done"))
                                 

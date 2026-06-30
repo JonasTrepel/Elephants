@@ -31,7 +31,7 @@ dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>%
 
 
 
-# get dataframe with comlete and clean data fro mdoeling 
+# get dataframe with complete and clean data fro modeling 
 
 quantile(dt$dw_min_median_mode_fraction, na.rm = T)
 table(dt$population_trend_n)
@@ -50,7 +50,7 @@ dt_pad <- dt %>%
     mat_coef, prec_coef,
     
     #Elephant predictors 
-    mean_density_km2, local_density_km2,# density_trend_estimate, density_trend_estimate,
+    mean_density_km2, #local_density_km2,# density_trend_estimate, density_trend_estimate,
     
     #Trends - Responses 
     tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
@@ -79,11 +79,11 @@ dt_pad <- dt %>%
             months_extreme_drought = mean(months_extreme_drought),
             mat_coef = mean(mat_coef),
             prec_coef = mean(prec_coef), 
-            sd_local_density_km2 = sd(local_density_km2), 
-            local_density_km2 = mean(local_density_km2),
+           # sd_local_density_km2 = sd(local_density_km2), 
+            #local_density_km2 = mean(local_density_km2),
             n = n()
             ) %>% 
-  mutate(cv_local_density_km2 = (sd_local_density_km2/local_density_km2)*100) %>% 
+ # mutate(cv_local_density_km2 = (sd_local_density_km2/local_density_km2)*100) %>% 
   left_join(cents) %>% 
   ungroup() %>% 
   mutate(mean_density_km2_scaled = as.numeric(scale(mean_density_km2)),
@@ -92,7 +92,6 @@ dt_pad <- dt %>%
 
 glimpse(dt_pad)
 
-dt_pad$sd_local_density_km2
 
 dt_pad %>% ggplot() + 
   geom_point(aes(x = mean_density_km2_scaled, y = tree_cover_1000m_coef))
@@ -111,10 +110,10 @@ dt_cor <- dt_pad %>%
     `Months of extreme drought` = months_extreme_drought,
     `Temperature Trend`= mat_coef,
     `Precipitation Trend` = prec_coef,
-    `SD local density` = sd_local_density_km2,
-    `Local elephant density `= local_density_km2,
+   # `SD local density` = sd_local_density_km2,
+  #  `Local elephant density `= local_density_km2,
     `Sample size` = n,
-    `CV local density`= cv_local_density_km2,
+   # `CV local density`= cv_local_density_km2,
     `Park area` = area_km2, 
     Latitude = y_moll_scaled
   ) %>% 
@@ -127,7 +126,7 @@ ggcorrplot(corr, type = "lower", lab = TRUE)
 #nothing seems to correlate with mean elephant density too badly...   
 
 #### Models -------
-#WOody coer 
+#WOody cover 
 m_pad_tc = gam(tree_cover_1000m_coef ~ s(mean_density_km2_scaled, k = 3), 
                select=TRUE,
                data = dt_pad,
@@ -140,6 +139,14 @@ m_pad_tc_sp = gam(tree_cover_1000m_coef ~ s(mean_density_km2_scaled, k = 3) +
                data = dt_pad,
                method = "REML")
 summary(m_pad_tc_sp)
+
+m_pad_tc_lin = gam(tree_cover_1000m_coef ~ mean_density_km2_scaled, 
+               select=TRUE,
+               data = dt_pad,
+               method = "REML")
+summary(m_pad_tc_lin)
+
+AIC(m_pad_tc, m_pad_tc_sp, m_pad_tc_lin)
 
 # Vegetation Height 
 m_pad_ch = gam(canopy_height_900m_coef ~ s(mean_density_km2_scaled, k = 3), 
@@ -154,6 +161,14 @@ m_pad_ch_sp = gam(canopy_height_900m_coef ~ s(mean_density_km2_scaled, k = 3) +
                   data = dt_pad,
                   method = "REML")
 summary(m_pad_ch_sp)
+
+m_pad_ch_lin = gam(canopy_height_900m_coef ~ mean_density_km2_scaled, 
+                   select=TRUE,
+                   data = dt_pad,
+                   method = "REML")
+summary(m_pad_ch_lin)
+
+AIC(m_pad_ch, m_pad_ch_sp, m_pad_ch_lin)
 
 
 

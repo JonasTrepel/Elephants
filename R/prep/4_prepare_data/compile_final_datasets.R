@@ -122,6 +122,7 @@ dt_grid_hq_1000m <- dt_grid_hq_1000m_raw %>%
                density_trend_estimate, density_trend_p_val, density_trend_r2,
                lm_population_trend_estimate, lm_population_trend_p_val, 
                population_trend_n, 
+               include, pop_data_avail, n_ele_per_park,                                                                               
                percent_population_growth, glm_population_trend_estimate,
                glm_population_trend_p_val, glm_population_trend_r2, 
                evi_mean) %>% 
