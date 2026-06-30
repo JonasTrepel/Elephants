@@ -389,6 +389,8 @@ p_est_park <- dt_me_park %>%
 
 p_est_park
 
+ggsave()
+
 ### Maps ----------------------------
 
 #### necessary data cannot be shared :(
@@ -485,6 +487,17 @@ p_est_comb
 
 ggsave(p_est_comb, filename = "builds/plots/main_estimate_figure.png",
        dpi = 600, height = 10, width = 10)
+
+###### combine estimate figure
+p_empty <- ggplot() + theme_void()
+(p_est_map <- ((p_est / p_est_ridges)  | p_loc) +
+    plot_layout(widths = c(1, 2.8)))
+
+(p_est_comb <- p_est_map / p_est_park )#+ plot_layout(heights = c(2.5, 1)))
+p_est_comb  
+
+ggsave(p_est_comb, filename = "builds/plots/main_estimate_figure_park_level.png",
+       dpi = 600, height = 12, width = 10)
 
 
 # Sex and Season specifics ------------------------------

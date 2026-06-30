@@ -19,12 +19,13 @@ library(glmmTMB)
 #sf_parks <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") 
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
-  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100)
+  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100) %>% 
+  filter(include == TRUE)
 
 setDT(dt)
 
 
-# get dataframe with comlete and clean data fro mdoeling 
+# get dataframe with complete and clean data for modelling 
 
 quantile(dt$dw_min_median_mode_fraction, na.rm = T)
 acceptable_numbers = seq(1, 10000000, 5)

@@ -103,6 +103,9 @@ p_bar = sf_b2 %>%
         strip.background = element_rect(fill = "linen", color = "linen"))
 p_bar
 
+cor.test(sf_b2$ele_count_2022, sf_b2$predicted_block_count, method = "s")
+
+
 p_cor = sf_b2 %>% 
   rename(Count = ele_count_2022, 
          Predicted = predicted_block_count) %>%
@@ -111,7 +114,7 @@ p_cor = sf_b2 %>%
   scale_fill_scico_d(palette = "batlow", end = .7, begin = 0.3) +
   geom_abline(linetype = "dashed") +
   coord_equal() +
-  labs(x = "Predicted", y = "Count (2022 Dry Season)") +
+  labs(y = "Predicted", x = "Count (2022 Dry Season)") +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
