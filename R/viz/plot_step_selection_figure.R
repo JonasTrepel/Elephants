@@ -389,7 +389,6 @@ p_est_park <- dt_me_park %>%
 
 p_est_park
 
-ggsave()
 
 ### Maps ----------------------------
 
@@ -407,7 +406,7 @@ sf_pas <- st_read("data/spatial_data/protected_areas/park_boundaries.gpkg") %>%
   left_join(sf_loc %>%
               as.data.frame() %>%
               st_drop_geometry() %>%
-              select(cluster_id, park_id) %>% 
+              dplyr::select(cluster_id, park_id) %>% 
               unique() %>% 
               filter(!park_id == "") %>% 
               mutate(cluster_id = case_when(
@@ -477,7 +476,7 @@ p_loc
 
 library(patchwork)
 
-###### combine estimate figure
+###### combine estimate figure cluster level summary 
 p_empty <- ggplot() + theme_void()
 (p_est_map <- ((p_est / p_est_ridges)  | p_loc) +
   plot_layout(widths = c(1, 2.8)))
@@ -488,7 +487,7 @@ p_est_comb
 ggsave(p_est_comb, filename = "builds/plots/main_estimate_figure.png",
        dpi = 600, height = 10, width = 10)
 
-###### combine estimate figure
+###### combine estimate figure park level summary
 p_empty <- ggplot() + theme_void()
 (p_est_map <- ((p_est / p_est_ridges)  | p_loc) +
     plot_layout(widths = c(1, 2.8)))
@@ -497,7 +496,7 @@ p_empty <- ggplot() + theme_void()
 p_est_comb  
 
 ggsave(p_est_comb, filename = "builds/plots/main_estimate_figure_park_level.png",
-       dpi = 600, height = 12, width = 10)
+       dpi = 600, height = 12, width = 10.5)
 
 
 # Sex and Season specifics ------------------------------

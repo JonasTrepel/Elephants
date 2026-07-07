@@ -12,7 +12,8 @@ library(ggeffects)
 ### get raw data 
 
 dt <- fread("data/processed_data/clean_data/analysis_ready_grid_1000m.csv") %>% 
-  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100)
+  mutate(tree_cover_1000m_coef = tree_cover_1000m_coef*100) %>% 
+  filter(include = TRUE)
 
 names(dt)
 
@@ -26,21 +27,21 @@ dt_mod <- dt %>%
   filter(dw_min_median_mode_fraction >= 50) %>% 
   dplyr::select(
     #mean values /habitat characteristics 
-    mean_tree_cover_1000m, mean_evi_900m, mean_canopy_height_900m, 
+    mean_tree_cover_1000m, mean_canopy_height_900m, 
 
     #starting conditions
-    tree_cover_1000m_2015_2016, evi_900m_2013_2014, canopy_height_900m_2000,
+    tree_cover_1000m_2015_2016, canopy_height_900m_2000,
 
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-    fire_frequency, months_severe_drought, months_extreme_drought, 
+    fire_frequency, months_extreme_drought, 
     prec_coef, prec_coef,
     
     #Elephant predictors 
     mean_density_km2, local_density_km2,
     
     #Trends - Responses 
-    tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
+    tree_cover_1000m_coef, canopy_height_900m_coef, 
 
     #Coords 
     x_mollweide, y_mollweide, lon, lat, 
@@ -66,7 +67,6 @@ dt_mod <- dt %>%
   mutate(
     local_density_km2_scaled       = as.numeric(scale(local_density_km2)),
     mean_density_km2_scaled       = as.numeric(scale(mean_density_km2)),
-    months_severe_drought_scaled   = as.numeric(scale(months_severe_drought)),
     months_extreme_drought_scaled = as.numeric(scale(months_extreme_drought)),
     fire_frequency_scaled          = as.numeric(scale(fire_frequency)),
     n_deposition_scaled            = as.numeric(scale(n_deposition)), 

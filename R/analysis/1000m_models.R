@@ -31,21 +31,21 @@ dt_mod <- dt %>%
   filter(dw_min_median_mode_fraction >= 50) %>% 
   dplyr::select(
     #mean values /habitat characteristics 
-    mean_tree_cover_1000m, mean_evi_900m, mean_canopy_height_900m, 
+    mean_tree_cover_1000m, mean_canopy_height_900m, 
 
     #starting conditions
-    tree_cover_1000m_2015_2016, evi_900m_2013_2014, canopy_height_900m_2000,
+    tree_cover_1000m_2015_2016, canopy_height_900m_2000,
 
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-    fire_frequency, months_severe_drought, months_extreme_drought,
+    fire_frequency, months_extreme_drought,
     mat_coef, prec_coef,
     
     #Elephant predictors 
     mean_density_km2, local_density_km2,# density_trend_estimate, density_trend_estimate,
     
     #Trends - Responses 
-    tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
+    tree_cover_1000m_coef, canopy_height_900m_coef, 
 
     #Coords 
     x_mollweide, y_mollweide, lon, lat, 
@@ -626,3 +626,96 @@ dt_res <- rbindlist(best_mesh_res_list) %>%
 unique(dt_res$clean_term)
 summary(dt_res)
 fwrite(dt_res, "builds/model_outputs/sdmtmb_results_1000m_local_density_smoothed.csv")
+
+##5. Double check spatial autocorrelation ------------------
+library(gstat)
+library(sf)
+dt_res <- fread("builds/model_outputs/sdmtmb_results_1000m_local_density_smoothed.csv")
+# Tree cover 
+
+m_tc <- readRDS(unique(dt_res[response == "tree_cover_1000m_coef", ]$model_path))
+summary(m_tc)
+dt_tc = m_tc$data
+
+dt_tc$residuals_tc = residuals(m_tc)
+
+(p_tc_res = dt_tc %>% 
+  ggplot() + 
+  geom_point(aes(x = x_mollweide, y = y_mollweide,
+                 # size = abs(residuals_tc),
+                 color = residuals_tc), 
+             alpha = 0.3) +
+  scico::scale_color_scico(palette = "vik", midpoint = 0) +
+  labs(x = "X", y = "Y", color = "Residual\nValue", title = "Woody Cover Change Residuals") +
+  theme_minimal())
+
+
+#vriogram
+sf_tc <- st_as_sf(dt_tc %>% 
+                       filter(is.finite(residuals_tc)), coords = c("x_mollweide", "y_mollweide"), crs = NA)
+
+
+v_tc <- variogram(residuals_tc ~ 1, data = sf_tc, 
+                  width = 10000,      # 10 km bins 
+                  cutoff = 1000000)   # 500 km max distance
+
+# P
+(p_v_tc = v_tc %>%
+  ggplot(aes(x = dist/1000, y = gamma)) +
+  geom_point(alpha = 0.6, color = "steelblue") +
+  geom_line(color = "steelblue") +
+  labs(
+    x = "Distance (km)",y = "Semivariance",
+    title = "Woody Cover Change Residuals Variogram"
+  ) +
+  ylim(0, 2) +
+  theme_minimal())
+
+# Canopy Height 
+
+m_ch <- readRDS(unique(dt_res[response == "canopy_height_900m_coef", ]$model_path))
+summary(m_ch)
+dt_ch = m_ch$data
+
+dt_ch$residuals_ch = residuals(m_ch)
+
+(p_ch_res = dt_ch %>% 
+  ggplot() + 
+  geom_point(aes(x = x_mollweide, y = y_mollweide,
+                 # size = abs(residuals_ch),
+                 color = residuals_ch), 
+             alpha = 0.3) +
+  scico::scale_color_scico(palette = "vik", midpoint = 0) +
+  labs(x = "X", y = "Y", color = "Residual\nValue", title = "Canopy Height Change Residuals") +
+  theme_minimal())
+
+
+#vriogram
+sf_ch <- st_as_sf(dt_ch %>% 
+                    filter(is.finite(residuals_ch)), coords = c("x_mollweide", "y_mollweide"), crs = NA)
+
+
+v_ch <- variogram(residuals_ch ~ 1, data = sf_ch, 
+                  width = 10000,      # 10 km bins 
+                  cutoff = 1000000)   # 500 km max distance
+
+
+(p_v_ch = v_ch %>%
+    ggplot(aes(x = dist/1000, y = gamma)) +
+    geom_point(alpha = 0.6, color = "steelblue") +
+    geom_line(color = "steelblue") +
+    labs(
+      x = "Distance (km)",y = "Semivariance",
+      title = "Canopy Height Change Residuals Variogram"
+    ) +
+    ylim(0, 2) +
+    theme_minimal())
+
+library(patchwork)
+p_res_comb = ((p_tc_res + p_ch_res) / (p_v_tc + p_v_ch)) +
+  plot_annotation(tag_levels = "A")
+
+p_res_comb
+
+ggsave(plot = p_res_comb, "builds/plots/supplement/residuals_and_variogram_1000m_models.png", 
+       dpi = 900, height = 10, width = 10)

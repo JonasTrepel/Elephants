@@ -18,7 +18,7 @@ library(exactextractr)
 # param <- "steps_24hrs"
 #param <- "knp_elephants
 
-params <- c("pa_grid_100m")
+params <- c("pa_grid_1000m", "knp_elephants")
 for(param in unique(params)){ 
   
 if(param == "knp_elephants"){
@@ -137,8 +137,6 @@ col_names <- c(
   "elevation", ## Elevation
   "map", ## MAP
   "mat", ## MAT
-  "mean_spei", #average standardized precipitation evapotranspiration index
-  "months_severe_drought", #n months with SPEI <-1.6 between 2000 and 2023
   "months_extreme_drought", #n months with SPEI <-2 between 2000 and 2023
   
   "slope", #Slope
@@ -180,9 +178,7 @@ cov_paths <- c(
   "data/spatial_data/covariates/raster/CHELSA_bio12_1981-2010_V.2.1.tif", ## MAP
   "data/spatial_data/covariates/raster/CHELSA_bio1_1981-2010_V.2.1.tif", ## MAT
   
-  "data/spatial_data/covariates/raster/mean_spei_2000_2023.tif", #average standardized precipitation evapotranspiration index
-  "data/spatial_data/covariates/raster/spei_months_severe_drought_2000_2023.tif", #n months with SPEI <-1.6 between 2000 and 2023
-  "data/spatial_data/covariates/raster/spei_months_extreme_drought_2000_2023.tif", #n months with SPEI <-2 between 2000 and 2023
+  "data/spatial_data/covariates/raster/spei_months_extreme_drought_2001_2025.tif", #n months with SPEI <-2 between 2000 and 2023
   
   "data/spatial_data/covariates/raster/slope_degree.tif", #Slope
   "data/spatial_data/covariates/raster/energyscape_kcal.tif", #Energy landscape 
@@ -216,7 +212,7 @@ cov_paths <- c(
 )
 
 
-funcs <- c(rep("mean", 17), rep("mode", 5))
+funcs <- c(rep("mean", 15), rep("mode", 5))
 
 covs <- data.table(
   col_name = col_names, 
@@ -309,6 +305,7 @@ all_dt_covs_list <- list()
 toc()
 
 dt_covs <- rbindlist(all_dt_covs_list)
+plan(sequential)
 
 
 ## Combine -------------------

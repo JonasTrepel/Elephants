@@ -34,21 +34,21 @@ dt_mod <- dt %>%
   filter(dw_min_median_mode_fraction >= 50) %>% 
   dplyr::select(
     #mean values /habitat characteristics 
-    mean_tree_cover_1000m, mean_evi_900m, mean_canopy_height_900m, 
+    mean_tree_cover_1000m, mean_canopy_height_900m, 
 
     #starting conditions
-    tree_cover_1000m_2015_2016, evi_900m_2013_2014, canopy_height_900m_2000,
+    tree_cover_1000m_2015_2016, canopy_height_900m_2000,
 
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-    fire_frequency, months_severe_drought, months_extreme_drought,
+    fire_frequency, months_extreme_drought,
     mat_coef, prec_coef,
     
     #Elephant predictors 
     mean_density_km2, local_density_km2,# density_trend_estimate, density_trend_estimate,
     
     #Trends - Responses 
-    tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
+    tree_cover_1000m_coef, canopy_height_900m_coef, 
 
     #Coords 
     x_mollweide, y_mollweide, lon, lat, country_code_iso3,
@@ -79,11 +79,6 @@ dt_mod <- dt %>%
            tree_cover_1000m_2015_2016 > quantile(tree_cover_1000m_2015_2016, .33) & 
              tree_cover_1000m_2015_2016 < quantile(tree_cover_1000m_2015_2016, .66) ~  "mq", 
            tree_cover_1000m_2015_2016 >= quantile(tree_cover_1000m_2015_2016, .66) ~  "uq"),
-         evi_q = case_when(
-           evi_900m_2013_2014 <= quantile(evi_900m_2013_2014, .33) ~  "lq", 
-           evi_900m_2013_2014 > quantile(evi_900m_2013_2014, .33) & 
-             evi_900m_2013_2014 < quantile(evi_900m_2013_2014, .66) ~  "mq", 
-           evi_900m_2013_2014 >= quantile(evi_900m_2013_2014, .66) ~  "uq"), 
          canopy_height_q = case_when(
            canopy_height_900m_2000 <= quantile(canopy_height_900m_2000, .33) ~  "lq", 
            canopy_height_900m_2000 > quantile(canopy_height_900m_2000, .33) & 
@@ -92,7 +87,6 @@ dt_mod <- dt %>%
 
 table(dt_mod$fenced)
 table(dt_mod$tree_cover_q)
-table(dt_mod$evi_q)
 table(dt_mod$canopy_height_q)
 
 dt_mod %>% 
@@ -105,10 +99,6 @@ dt_mod %>%
   summarize(mean = mean(tree_cover_1000m_2015_2016), 
             sd = sd(tree_cover_1000m_2015_2016))
 
-dt_mod %>% 
-  group_by(evi_q) %>% 
-  summarize(mean = mean(evi_900m_2013_2014), 
-            sd = sd(evi_900m_2013_2014))
 
 ### 2 - Choose Mesh ------------------
 #https://www.biorxiv.org/content/10.1101/2022.03.24.485545v4.full.pdf
