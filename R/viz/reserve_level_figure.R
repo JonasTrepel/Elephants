@@ -31,21 +31,21 @@ dt_pad <- dt %>%
   filter(dw_min_median_mode_fraction >= 50) %>% 
   dplyr::select(
     #mean values /habitat characteristics 
-    mean_tree_cover_1000m, mean_evi_900m, mean_canopy_height_900m, 
+    mean_tree_cover_1000m, mean_canopy_height_900m, 
     
     #starting conditions
-    tree_cover_1000m_2015_2016, evi_900m_2013_2014, canopy_height_900m_2000,
+    tree_cover_1000m_2015_2016, canopy_height_900m_2000,
     
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-    fire_frequency, months_severe_drought, months_extreme_drought,
+    fire_frequency, months_extreme_drought,
     mat_coef, prec_coef,
     
     #Elephant predictors 
-    mean_density_km2, local_density_km2,# density_trend_estimate, density_trend_estimate,
+    mean_density_km2, #local_density_km2,# density_trend_estimate, density_trend_estimate,
     
     #Trends - Responses 
-    tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
+    tree_cover_1000m_coef, canopy_height_900m_coef, 
     
     #Coords 
     x_mollweide, y_mollweide, lon, lat, 
@@ -71,16 +71,30 @@ dt_pad <- dt %>%
             months_extreme_drought = mean(months_extreme_drought),
             mat_coef = mean(mat_coef),
             prec_coef = mean(prec_coef), 
-            sd_local_density_km2 = sd(local_density_km2), 
-            local_density_km2 = mean(local_density_km2),
             n = n()
   ) %>% 
-  mutate(cv_local_density_km2 = (sd_local_density_km2/local_density_km2)*100) %>% 
   ungroup() %>% 
   mutate(mean_density_km2_scaled = as.numeric(scale(mean_density_km2))) #%>% mutate(mean_density_km2_scaled = mean_density_km2)
 
 
 dt_pred <- fread("builds/model_outputs/gam_park_average_density_predictions.csv")
+
+
+dt_long <- dt_pad %>% pivot_longer(
+  cols = c("mean_density_km2"), 
+  names_to = "var_name", 
+  values_to = "var_value") %>% 
+  mutate(var_clean = case_when(
+    var_name == "mean_density_km2" ~ "Elephant Density"
+  )) %>% 
+  pivot_longer(
+    cols = c("canopy_height_900m_coef", "tree_cover_1000m_coef"), 
+    names_to = "response_name", 
+    values_to = "response_value") %>% 
+  mutate(response_clean = case_when(
+    response_name == "canopy_height_900m_coef" ~ "Vegetation Height Trend",
+    response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend"
+  ))
 
 
 dt_rects <- dt_pred %>%
@@ -98,13 +112,15 @@ dt_rects <- dt_pred %>%
   ungroup()
 
 
-scico(palette = "broc", n = 9)
+scico(palette = "batlow", n = 9)
 c("#65014B", "#A4428B", "#D07EBB", "#EBC5E1", "#F5F0F0", "#D7E7C0", "#8CB464", "#4B802E", "#0C4C00")
 c("#2C194C", "#294A7C", "#5A81A8", "#A3BACF", "#EAEDEB", "#D3D3A8", "#9A9A61", "#5C5C2C", "#262600")
 
 p_pred <- dt_pred %>% 
  # filter(response_name == "tree_cover_1000m_coef") %>% 
   ggplot() +
+  geom_point(data = dt_long, aes(x = var_value, y = response_value),
+             alpha = 0.75, size = 1.5, shape = 23, fill = "#001959", color = "#001959") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, 
                   fill = response_clean), alpha = 0.3, linetype = "dashed") +
@@ -112,10 +128,10 @@ p_pred <- dt_pred %>%
   facet_wrap(~response_clean, scales = "free") +
   scale_color_manual(values = c("#0C4C00", "#262600")) +
   scale_fill_manual(values = c("#0C4C00", "#262600")) + 
-  geom_rect(data = dt_rects, aes(xmin = xmin1, xmax = xmax1, ymin = ymin, ymax = ymax), 
-            fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
-  geom_rect(data = dt_rects, aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax), 
-            fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
+ # geom_rect(data = dt_rects, aes(xmin = xmin1, xmax = xmax1, ymin = ymin, ymax = ymax), 
+#            fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
+ # geom_rect(data = dt_rects, aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax), 
+#            fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
   labs(y = "Response Value", title = "", x = "Elephant Density (Individuals/km²)", 
        subtitle = "D") +
   theme_bw() +

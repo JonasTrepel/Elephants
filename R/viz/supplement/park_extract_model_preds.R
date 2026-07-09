@@ -12,7 +12,7 @@ library(ggeffects)
 
 dt_bm_park <- fread("builds/model_outputs/park_results_1000m_local_density.csv") %>% 
   mutate(clean_response = factor(clean_response, levels = c(
-    "Woody Cover Trend", "Canopy Height Trend"))) %>% 
+    "Woody Cover Trend", "Vegetation Height Trend"))) %>% 
   dplyr::select(park, model_id, model_path, response, dev_explained_full, dev_explained_var) %>% 
   unique()
 
@@ -111,7 +111,7 @@ print(paste0("park done ", Sys.time()))
 dt_pred_comp <- rbindlist(for_results_pred) %>% 
   mutate(scale = "km2", 
          response_clean = case_when(
-           response_name == "canopy_height_900m_coef" ~ "Canopy Height Trend",
+           response_name == "canopy_height_900m_coef" ~ "Vegetation Height Trend",
            response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
          ),
          var_clean = case_when(
@@ -324,19 +324,19 @@ p_tc <- (p_smooth_tc_1 /
 
 ggsave(plot = p_tc, "builds/plots/supplement/park_level_tc_1000m_model_predictions.png", dpi = 900, height = 10, width = 8)
 
-#Canopy Height
+#Vegetation Height
 p_smooth_ch_1 <- dt_pred_comp %>% 
   filter(park %in% c("Chobe")) %>% 
   filter(response_clean == "Canopy Height Trend") %>% 
   ggplot() +
   geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Chobe") & response_clean == "Canopy Height Trend"),
+               filter(park_id %in% c("Chobe") & response_clean == "Vegetation Height Trend"),
              aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
-  labs(y = "Canopy Height Change", title = "Chobe National Park", x = "Predictor Value") +
+  labs(y = "Vegetation Height Change", title = "Chobe National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "none", 
         plot.title = element_text(hjust = 0.5),
@@ -353,13 +353,13 @@ p_smooth_ch_2 <- dt_pred_comp %>%
   filter(response_clean == "Canopy Height Trend") %>% 
   ggplot() +
   geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Hwange") & response_clean == "Canopy Height Trend"),
+               filter(park_id %in% c("Hwange") & response_clean == "Vegetation Height Trend"),
              aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
-  labs(y = "Canopy Height Change", title = "Hwange National Park", x = "Predictor Value") +
+  labs(y = "Vegetation Height Change", title = "Hwange National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "none", 
         plot.title = element_text(hjust = 0.5),
@@ -376,13 +376,13 @@ p_smooth_ch_3 <- dt_pred_comp %>%
   filter(response_clean == "Canopy Height Trend") %>% 
   ggplot() +
   geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Kruger National Park") & response_clean == "Canopy Height Trend"),
+               filter(park_id %in% c("Kruger National Park") & response_clean == "Vegetation Height Trend"),
              aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
-  labs(y = "Canopy Height Change", title = "Kruger National Park", x = "Predictor Value") +
+  labs(y = "Vegetation Height Change", title = "Kruger National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "none", 
         plot.title = element_text(hjust = 0.5),
@@ -399,13 +399,13 @@ p_smooth_ch_4 <- dt_pred_comp %>%
   filter(response_clean == "Canopy Height Trend") %>% 
   ggplot() +
   geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Limpopo") & response_clean == "Canopy Height Trend"),
+             filter(park_id %in% c("Limpopo") & response_clean == "Vegetation Height Trend"),
              aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
-  labs(y = "Canopy Height Change", title = "Limpopo National Park", x = "Predictor Value") +
+  labs(y = "Vegetation Height Change", title = "Limpopo National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "none", 
         plot.title = element_text(hjust = 0.5),
@@ -423,13 +423,13 @@ p_smooth_ch_5 <- dt_pred_comp %>%
   filter(response_clean == "Canopy Height Trend") %>% 
   ggplot() +
   geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Luengue-Luiana National Park") & response_clean == "Canopy Height Trend"),
+               filter(park_id %in% c("Luengue-Luiana National Park") & response_clean == "Vegetation Height Trend"),
              aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
-  labs(y = "Canopy Height Change", title = "Luengue-Luiana National Park", x = "Predictor Value") +
+  labs(y = "Vegetation Height Change", title = "Luengue-Luiana National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "none", 
         plot.title = element_text(hjust = 0.5),
