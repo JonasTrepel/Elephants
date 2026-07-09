@@ -360,6 +360,9 @@ p_smooth <- dt_pred_comp %>%
   scico::scale_color_scico_d(begin = .1, end = .9, palette = "batlow") +
   scico::scale_fill_scico_d(begin = .1, end = .9, palette = "batlow") +
   theme_bw() +
+  guides(
+    color = guide_legend(nrow = 2, byrow = TRUE),
+    fill  = guide_legend(nrow = 2, byrow = TRUE)) +
   theme(legend.position = "bottom", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -369,4 +372,4 @@ p_smooth <- dt_pred_comp %>%
 
 p_smooth
 
-ggsave(plot = p_smooth, "builds/plots/supplement/loo_1000m_model_predictions.png", dpi = 900, height = 5, width = 8)
+ggsave(plot = p_smooth, "builds/plots/supplement/loo_1000m_model_predictions.png", dpi = 900, height = 6, width = 9.5)
