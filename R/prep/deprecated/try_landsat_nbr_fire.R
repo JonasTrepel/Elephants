@@ -85,7 +85,7 @@ get_nbr_collection <- function(start_year, end_year) {
     original <- img
     img <- rename_oli(img)
     img <- mask_clouds(img)
-    refl <- img#scale_to_refl(img)
+    refl <- scale_to_refl(img)
     img <- refl$addBands(img$select("QA_PIXEL"))
     img <- calc_nbr(img)
     ee$Image(img$copyProperties(original, original$propertyNames()))
