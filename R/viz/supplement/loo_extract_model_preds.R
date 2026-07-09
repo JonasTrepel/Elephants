@@ -14,7 +14,7 @@ library(ggeffects)
 
 dt_bm_loo <- fread("builds/model_outputs/loo_results_1000m_local_density_smoothed.csv") %>% 
   mutate(clean_response = factor(clean_response, levels = c(
-    "Woody Cover Trend", "Vegetation Height Trend", "EVI Trend"))) %>% 
+    "Woody Cover Trend", "Vegetation Height Trend"))) %>% 
   dplyr::select(excluded_park, model_id, model_path, response, dev_explained_full, dev_explained_var, n_park) %>% 
   unique()
 

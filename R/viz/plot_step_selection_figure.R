@@ -248,6 +248,8 @@ p_est_cluster <- dt_me_cluster %>%
   facet_wrap(~cluster_id, ncol = 5)
 p_est_cluster
 
+ggsave(plot = p_est_cluster, "builds/plots/supplement/cluster_ssf_estimates.png", 
+       dpi = 900, height = 3, width = 9)
 
 #### park specific estimates -----------------------
 
