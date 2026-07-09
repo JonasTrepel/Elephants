@@ -207,7 +207,7 @@ vars <- c("local_density_km2_scaled",
 responses <- c("tree_cover_1000m_coef", "canopy_height_900m_coef")
 
 parks <- c("No Park","Luengue-Luiana National Park", "Hwange", "Limpopo",
-           "South Luangwa", "Kruger National Park", "Bwabwata")
+           "South Luangwa", "Kruger National Park")
 
 
 

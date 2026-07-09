@@ -90,7 +90,7 @@ range(park_counts$N)
 median(park_counts$N)
 #check model data 
 glimpse(dt_mod)
-cor.test(dt_mod$mat_coef, dt_mod$prec_coef)
+cor.test(dt_mod$mat_coef, dt_mod$prec_coef, method = "s")
 
 dt_corr_pred <- dt_mod %>% 
   dplyr::select(mat, map, n_deposition, human_modification, 
