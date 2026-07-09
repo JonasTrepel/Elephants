@@ -95,6 +95,9 @@ dt_rect_tc_ut <- dt_pred %>%
 
 ##### Plot different tiers -------------
 
+ch_lb = min(dt_pred[response_clean %in% c("Vegetation Height Trend"),  ]$conf.low, na.rm = T)*1.1
+ch_ub = max(dt_pred[response_clean %in% c("Vegetation Height Trend"),  ]$conf.high, na.rm = T)*1.1
+
 p_ch_lt <- dt_pred %>% 
   filter(tier_clean %in% c("Lower Third") & response_clean %in% c("Vegetation Height Trend")) %>% 
   ggplot() +
@@ -109,6 +112,7 @@ p_ch_lt <- dt_pred %>%
             fill = "snow", alpha = 0.7, inherit.aes = FALSE) +
   labs(y = "Vegetation Height Trend", x = "Variable Value", title = "Cells With Low Initial Vegetation Height") +
   theme_bw() +
+  ylim(ch_lb, 0.001) +
   facet_wrap(~var_clean, scales = "free_x", ncol = 45) +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
@@ -134,6 +138,7 @@ p_ch_mt <- dt_pred %>%
             fill = "snow", alpha = 0.7, inherit.aes = FALSE) +
   labs(y = "Vegetation Height Trend", x = "Variable Value", title = "Cells With Intermediate Initial Vegetation Height") +
   theme_bw() +
+  ylim(ch_lb, 0.001) +
   facet_wrap(~var_clean, scales = "free_x", ncol = 45) +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
@@ -159,6 +164,7 @@ p_ch_ut <- dt_pred %>%
             fill = "snow", alpha = 0.7, inherit.aes = FALSE) +
   labs(y = "Vegetation Height Trend", x = "Variable Value", title = "Cells With High Initial Vegetation Height") +
   theme_bw() +
+  ylim(ch_lb, 0.001) +
   facet_wrap(~var_clean, scales = "free_x", ncol = 45) +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
@@ -170,6 +176,8 @@ p_ch_ut <- dt_pred %>%
 
 p_ch_ut
 
+tc_lb = min(dt_pred[response_clean %in% c("Woody Cover Trend"),  ]$conf.low, na.rm = T)*1.1
+tc_ub = max(dt_pred[response_clean %in% c("Woody Cover Trend"),  ]$conf.high, na.rm = T)*1.1
 
 p_tc_lt <- dt_pred %>% 
   filter(tier_clean %in% c("Lower Third") & response_clean %in% c("Woody Cover Trend")) %>% 
@@ -185,6 +193,7 @@ p_tc_lt <- dt_pred %>%
             fill = "snow", alpha = 0.7, inherit.aes = FALSE) +
   labs(y = "Woody Cover Trend", x = "Variable Value", title = "Cells With Low Initial Woody Cover") +
   theme_bw() +
+  ylim(tc_lb, tc_ub) +
   facet_wrap(~var_clean, scales = "free_x", ncol = 45) +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
@@ -210,6 +219,7 @@ p_tc_mt <- dt_pred %>%
             fill = "snow", alpha = 0.7, inherit.aes = FALSE) +
   labs(y = "Woody Cover Trend", x = "Variable Value", title = "Cells With Intermediate Initial Woody Cover") +
   theme_bw() +
+  ylim(tc_lb, tc_ub) +
   facet_wrap(~var_clean, scales = "free_x", ncol = 45) +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
@@ -235,6 +245,7 @@ p_tc_ut <- dt_pred %>%
             fill = "snow", alpha = 0.7, inherit.aes = FALSE) +
   labs(y = "Woody Cover Trend", x = "Variable Value", title = "Cells With High Initial Woody Cover") +
   theme_bw() +
+  ylim(tc_lb, tc_ub) +
   facet_wrap(~var_clean, scales = "free_x", ncol = 45) +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
