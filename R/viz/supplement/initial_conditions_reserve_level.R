@@ -37,21 +37,21 @@ dt_pad <- dt %>%
   filter(dw_min_median_mode_fraction >= 50) %>% 
   dplyr::select(
     #mean values /habitat characteristics 
-    mean_tree_cover_1000m, mean_evi_900m, mean_canopy_height_900m, 
+    mean_tree_cover_1000m, mean_canopy_height_900m, 
     
     #starting conditions
-    tree_cover_1000m_2015_2016, evi_900m_2013_2014, canopy_height_900m_2000,
+    tree_cover_1000m_2015_2016, canopy_height_900m_2000,
     
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
-    fire_frequency, months_severe_drought, months_extreme_drought,
+    fire_frequency, months_extreme_drought,
     mat_coef, prec_coef,
     
     #Elephant predictors 
-    mean_density_km2, local_density_km2,# density_trend_estimate, density_trend_estimate,
+    mean_density_km2,# density_trend_estimate, density_trend_estimate,
     
     #Trends - Responses 
-    tree_cover_1000m_coef, evi_900m_coef, canopy_height_900m_coef, 
+    tree_cover_1000m_coef, canopy_height_900m_coef, 
     
     #Coords 
     x_mollweide, y_mollweide, lon, lat, area_km2,
@@ -85,7 +85,6 @@ dt_pad <- dt %>%
             local_density_km2 = mean(local_density_km2),
             n = n()
   ) %>% 
-  mutate(cv_local_density_km2 = (sd_local_density_km2/local_density_km2)*100) %>% 
   ungroup() %>% 
   mutate(mean_density_km2_scaled = as.numeric(scale(mean_density_km2))) #%>% mutate(mean_density_km2_scaled = mean_density_km2)
 fwrite(dt_pad,"data/processed_data/clean_data/reserve_level_average_data.csv")
@@ -105,27 +104,54 @@ dt = fread("data/processed_data/clean_data/reserve_level_average_data.csv") %>%
     initial_tree_cover = initial_tree_cover*100)
 
 
-p_in <- dt %>% 
+p_in_ch <- dt %>% 
+  pivot_longer(cols = c("initial_tree_cover", "initial_canopy_height"), 
+               names_to = "var_name", values_to = "var_value") %>%
+  mutate(var_name = case_when(
+    var_name == "initial_canopy_height" ~ "Initial Vegetation Height (m)", 
+    var_name == "initial_tree_cover" ~ "Initial Woody Cover (%)"
+  )) %>% 
+  filter(var_name == "Initial Vegetation Height (m)") %>% 
+  ggplot() +
+  geom_point(aes(x = mean_density_km2, y = var_value, color = cluster_id)) +
+  labs(x = "Elephant Density (Individuals/km²)", 
+       y = "Initial Vegetation Height (m)", 
+       color = "Cluster") +
+  facet_wrap(~var_name, scales = "free_y") +
+  scico::scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.border = element_blank(), 
+        panel.background = element_rect(fill = "snow", color = "snow"), 
+        strip.background = element_rect(fill = "linen", color = "linen"))
+p_in_ch
+
+p_in_tc <- dt %>% 
   pivot_longer(cols = c("initial_tree_cover", "initial_canopy_height"), 
                names_to = "var_name", values_to = "var_value") %>% 
   mutate(var_name = case_when(
     var_name == "initial_canopy_height" ~ "Initial Vegetation Height (m)", 
     var_name == "initial_tree_cover" ~ "Initial Woody Cover (%)"
   )) %>% 
+  filter(var_name == "Initial Woody Cover (%)") %>% 
   ggplot() +
   geom_point(aes(x = mean_density_km2, y = var_value, color = cluster_id)) +
   labs(x = "Elephant Density (Individuals/km²)", 
-       y = "Variable Value", 
+       y = "Initial Woody Cover (%)", 
        color = "Cluster") +
   facet_wrap(~var_name, scales = "free_y") +
   scico::scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
-  theme(legend.position = "right", 
+  theme(legend.position = "bottom", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
         panel.border = element_blank(), 
         panel.background = element_rect(fill = "snow", color = "snow"), 
         strip.background = element_rect(fill = "linen", color = "linen"))
-p_in
+p_in_tc
+
+library(patchwork)
+(p_in = p_in_ch + p_in_tc)
 
 ggsave(plot = p_in, "builds/plots/supplement/intital_reserve_conditions.png", 
        dpi = 900, height = 4, width = 8.5)

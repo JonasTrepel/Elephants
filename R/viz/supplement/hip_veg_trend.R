@@ -65,7 +65,7 @@ p_ch <- dt_mod %>%
   coord_equal() +
   labs(title = "Vegetation Height Change (2000-2022)", fill = "Vegetation\nHeight\nChange") +
   theme_void() +
-  theme(legend.position = "bottom", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5))
 p_ch
 
@@ -76,12 +76,12 @@ p_tc <- dt_mod %>%
   scale_color_scico(palette = "broc", midpoint = 0, begin = 0.05, end = 0.95) +
   scale_fill_scico(palette = "broc", midpoint = 0, begin = 0.05, end = 0.95) + 
   coord_equal() +
-  labs(title = "Woody Cover Change (2016-2025)", fill = "Woody\nCover\nChange") +
+  labs(title = "Woody Cover Change (2015-2025)", fill = "Woody\nCover\nChange") +
   theme_void() +
-  theme(legend.position = "bottom", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5))
 p_tc
 
 library(patchwork)
 p = p_ch + p_tc
-ggsave(plot = p, "builds/plots/supplement/hip_veg_change.png", dpi = 900, height = 6, width = 8)
+ggsave(plot = p, "builds/plots/supplement/hip_veg_change.png", dpi = 900, height = 6, width = 10)
