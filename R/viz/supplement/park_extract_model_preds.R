@@ -34,7 +34,7 @@ vars <- c("local_density_km2_scaled",
           "fire_frequency_scaled", 
           "prec_coef_scaled")
 
-responses <- c("tree_cover_1000m_coef", "canopy_height_900m_coef")
+responses <- c("tree_cover_1000m_coef", "Vegetation_height_900m_coef")
 
 parks <- c(parks)
 
@@ -111,7 +111,7 @@ print(paste0("park done ", Sys.time()))
 dt_pred_comp <- rbindlist(for_results_pred) %>% 
   mutate(scale = "km2", 
          response_clean = case_when(
-           response_name == "canopy_height_900m_coef" ~ "Vegetation Height Trend",
+           response_name == "Vegetation_height_900m_coef" ~ "Vegetation Height Trend",
            response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
          ),
          var_clean = case_when(
@@ -139,10 +139,10 @@ dt_mod <- dt %>%
   filter(dw_min_median_mode_fraction >= 50) %>% 
   dplyr::select(
     #mean values /habitat characteristics 
-    mean_tree_cover_1000m, mean_canopy_height_900m, 
+    mean_tree_cover_1000m, mean_Vegetation_height_900m, 
     
     #starting conditions
-    tree_cover_1000m_2015_2016, canopy_height_900m_2000,
+    tree_cover_1000m_2015_2016, Vegetation_height_900m_2000,
     
     # environmental predictors
     elevation, mat, map, slope, distance_to_water_km, n_deposition, human_modification, 
@@ -153,7 +153,7 @@ dt_mod <- dt %>%
     mean_density_km2, local_density_km2,# density_trend_estimate, density_trend_estimate,
     
     #Trends - Responses 
-    tree_cover_1000m_coef, canopy_height_900m_coef, 
+    tree_cover_1000m_coef, Vegetation_height_900m_coef, 
     
     #Coords 
     x_mollweide, y_mollweide, lon, lat, country_code_iso3,
@@ -187,11 +187,11 @@ dt_long <- dt_mod %>% pivot_longer(
     var_name == "prec_coef" ~ "Rainfall Change",
   )) %>% 
   pivot_longer(
-    cols = c("canopy_height_900m_coef", "tree_cover_1000m_coef"), 
+    cols = c("Vegetation_height_900m_coef", "tree_cover_1000m_coef"), 
     names_to = "response_name", 
     values_to = "response_value") %>% 
   mutate(response_clean = case_when(
-    response_name == "canopy_height_900m_coef" ~ "Vegetation Height Trend",
+    response_name == "Vegetation_height_900m_coef" ~ "Vegetation Height Trend",
     response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend"  ))
 
 
@@ -347,7 +347,7 @@ ggsave(plot = p_tc, "builds/plots/supplement/park_level_tc_1000m_model_predictio
 #Vegetation Height
 p_smooth_ch_1 <- dt_pred_comp %>% 
   filter(park %in% c("Chobe")) %>% 
-  filter(response_clean == "Canopy Height Trend") %>% 
+  filter(response_clean == "Vegetation Height Trend") %>% 
   ggplot() +
  # geom_point(data = dt_long %>% 
   #             filter(park_id %in% c("Chobe") & response_clean == "Vegetation Height Trend"),
@@ -374,7 +374,7 @@ p_smooth_ch_1
 
 p_smooth_ch_2 <- dt_pred_comp %>% 
   filter(park %in% c("Hwange")) %>% 
-  filter(response_clean == "Canopy Height Trend") %>% 
+  filter(response_clean == "Vegetation Height Trend") %>% 
   ggplot() +
  # geom_point(data = dt_long %>% 
   #             filter(park_id %in% c("Hwange") & response_clean == "Vegetation Height Trend"),
@@ -401,7 +401,7 @@ p_smooth_ch_2
 
 p_smooth_ch_3 <- dt_pred_comp %>% 
   filter(park %in% c("Kruger National Park")) %>% 
-  filter(response_clean == "Canopy Height Trend") %>% 
+  filter(response_clean == "Vegetation Height Trend") %>% 
   ggplot() +
  # geom_point(data = dt_long %>% 
   #             filter(park_id %in% c("Kruger National Park") & response_clean == "Vegetation Height Trend"),
@@ -428,7 +428,7 @@ p_smooth_ch_3
 
 p_smooth_ch_4 <- dt_pred_comp %>% 
   filter(park %in% c("Limpopo")) %>% 
-  filter(response_clean == "Canopy Height Trend") %>% 
+  filter(response_clean == "Vegetation Height Trend") %>% 
   ggplot() +
   # geom_point(data = dt_long %>% 
   #           filter(park_id %in% c("Limpopo") & response_clean == "Vegetation Height Trend"),
@@ -456,7 +456,7 @@ p_smooth_ch_4
 
 p_smooth_ch_5 <- dt_pred_comp %>% 
   filter(park %in% c("Luengue-Luiana National Park")) %>% 
-  filter(response_clean == "Canopy Height Trend") %>% 
+  filter(response_clean == "Vegetation Height Trend") %>% 
   ggplot() +
  # geom_point(data = dt_long %>% 
 #               filter(park_id %in% c("Luengue-Luiana National Park") & response_clean == "Vegetation Height Trend"),
@@ -466,8 +466,10 @@ p_smooth_ch_5 <- dt_pred_comp %>%
            aes(x = var_value, y = response_value), alpha = 0.5) +
   scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
-  geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
-  geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
+  geom_ribbon(
+              aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
+  geom_line(
+            aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Luengue-Luiana National Park", x = "Predictor Value") +
   theme_bw() +
