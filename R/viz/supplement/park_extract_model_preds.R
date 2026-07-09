@@ -200,16 +200,20 @@ p_smooth_tc_1 <- dt_pred_comp %>%
   filter(park %in% c("Chobe")) %>% 
   filter(response_clean == "Woody Cover Trend") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Chobe") & response_clean == "Woody Cover Trend"),
-             aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+ # geom_point(data = dt_long %>% 
+  #             filter(park_id %in% c("Chobe") & response_clean == "Woody Cover Trend"),
+   #          aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long %>% 
+             filter(park_id %in% c("Chobe") & response_clean == "Woody Cover Trend"),
+           aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#262600") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
   labs(y = "Woody Cover Change", title = "Chobe National Park", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -223,16 +227,20 @@ p_smooth_tc_2 <- dt_pred_comp %>%
   filter(park %in% c("Hwange")) %>% 
   filter(response_clean == "Woody Cover Trend") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Hwange") & response_clean == "Woody Cover Trend"),
-             aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+ # geom_point(data = dt_long %>% 
+  #             filter(park_id %in% c("Hwange") & response_clean == "Woody Cover Trend"),
+   #          aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long %>% 
+             filter(park_id %in% c("Hwange") & response_clean == "Woody Cover Trend"),
+           aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#262600") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
   labs(y = "Woody Cover Change", title = "Hwange National Park", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -246,16 +254,20 @@ p_smooth_tc_3 <- dt_pred_comp %>%
   filter(park %in% c("Kruger National Park")) %>% 
   filter(response_clean == "Woody Cover Trend") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Kruger National Park") & response_clean == "Woody Cover Trend"),
-             aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+ # geom_point(data = dt_long %>% 
+  #             filter(park_id %in% c("Kruger National Park") & response_clean == "Woody Cover Trend"),
+   #          aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long %>% 
+             filter(park_id %in% c("Kruger National Park") & response_clean == "Woody Cover Trend"),
+           aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#262600") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
   labs(y = "Woody Cover Change", title = "Kruger National Park", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -269,16 +281,20 @@ p_smooth_tc_4 <- dt_pred_comp %>%
   filter(park %in% c("Limpopo")) %>% 
   filter(response_clean == "Woody Cover Trend") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Limpopo") & response_clean == "Woody Cover Trend"),
-             aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+ # geom_point(data = dt_long %>% 
+  #             filter(park_id %in% c("Limpopo") & response_clean == "Woody Cover Trend"),
+   #          aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long %>% 
+             filter(park_id %in% c("Limpopo") & response_clean == "Woody Cover Trend"),
+           aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#262600") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
   labs(y = "Woody Cover Change", title = "Limpopo National Park", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -293,16 +309,20 @@ p_smooth_tc_5 <- dt_pred_comp %>%
   filter(park %in% c("Luengue-Luiana National Park")) %>% 
   filter(response_clean == "Woody Cover Trend") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Luengue-Luiana National Park") & response_clean == "Woody Cover Trend"),
-             aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+ # geom_point(data = dt_long %>% 
+  #             filter(park_id %in% c("Luengue-Luiana National Park") & response_clean == "Woody Cover Trend"),
+   #          aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long %>% 
+             filter(park_id %in% c("Luengue-Luiana National Park") & response_clean == "Woody Cover Trend"),
+           aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#262600") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
   labs(y = "Woody Cover Change", title = "Luengue-Luiana National Park", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -329,16 +349,20 @@ p_smooth_ch_1 <- dt_pred_comp %>%
   filter(park %in% c("Chobe")) %>% 
   filter(response_clean == "Canopy Height Trend") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Chobe") & response_clean == "Vegetation Height Trend"),
-             aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+ # geom_point(data = dt_long %>% 
+  #             filter(park_id %in% c("Chobe") & response_clean == "Vegetation Height Trend"),
+   #          aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long %>% 
+             filter(park_id %in% c("Chobe") & response_clean == "Vegetation Height Trend"),
+           aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Chobe National Park", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -352,16 +376,20 @@ p_smooth_ch_2 <- dt_pred_comp %>%
   filter(park %in% c("Hwange")) %>% 
   filter(response_clean == "Canopy Height Trend") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Hwange") & response_clean == "Vegetation Height Trend"),
-             aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+ # geom_point(data = dt_long %>% 
+  #             filter(park_id %in% c("Hwange") & response_clean == "Vegetation Height Trend"),
+   #          aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long %>% 
+             filter(park_id %in% c("Hwange") & response_clean == "Vegetation Height Trend"),
+             aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Hwange National Park", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -375,16 +403,20 @@ p_smooth_ch_3 <- dt_pred_comp %>%
   filter(park %in% c("Kruger National Park")) %>% 
   filter(response_clean == "Canopy Height Trend") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Kruger National Park") & response_clean == "Vegetation Height Trend"),
-             aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+ # geom_point(data = dt_long %>% 
+  #             filter(park_id %in% c("Kruger National Park") & response_clean == "Vegetation Height Trend"),
+   #          aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long %>% 
+             filter(park_id %in% c("Kruger National Park") & response_clean == "Vegetation Height Trend"),
+           aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Kruger National Park", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -398,16 +430,20 @@ p_smooth_ch_4 <- dt_pred_comp %>%
   filter(park %in% c("Limpopo")) %>% 
   filter(response_clean == "Canopy Height Trend") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
+  # geom_point(data = dt_long %>% 
+  #           filter(park_id %in% c("Limpopo") & response_clean == "Vegetation Height Trend"),
+  #           aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long %>% 
              filter(park_id %in% c("Limpopo") & response_clean == "Vegetation Height Trend"),
-             aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+           aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Limpopo National Park", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
@@ -422,16 +458,20 @@ p_smooth_ch_5 <- dt_pred_comp %>%
   filter(park %in% c("Luengue-Luiana National Park")) %>% 
   filter(response_clean == "Canopy Height Trend") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
-               filter(park_id %in% c("Luengue-Luiana National Park") & response_clean == "Vegetation Height Trend"),
-             aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+ # geom_point(data = dt_long %>% 
+#               filter(park_id %in% c("Luengue-Luiana National Park") & response_clean == "Vegetation Height Trend"),
+ #            aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long %>% 
+             filter(park_id %in% c("Luengue-Luiana National Park") & response_clean == "Vegetation Height Trend"),
+           aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
   facet_wrap(~var_clean, scales = "free", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Luengue-Luiana National Park", x = "Predictor Value") +
   theme_bw() +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         plot.title = element_text(hjust = 0.5),
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),

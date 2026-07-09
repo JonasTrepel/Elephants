@@ -218,22 +218,21 @@ rects <- dt_long %>%
 ### plot -----------------------------
 
 p_smooth_points <- dt_100m %>% 
-  #filter(response_name %in% c("evi_90m_coef") & tier == "Simple") %>% 
   ggplot() +
-  geom_point(data = dt_long %>% 
-               group_by(response_clean, var_clean) %>% 
-               sample_n(100000) %>% 
-               ungroup(), aes(x = var_value, y = response_value), alpha = 0.1, size = 0.1, color = "grey25") +
+  geom_hex(data = dt_long,
+            # filter(response_name == "canopy_height_900m_coef"),
+           aes(x = var_value, y = response_value), alpha = 0.5) +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey5") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.1) +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1.1) +
   scale_color_manual(values = c("#40631F", "#0F443E")) +
-  scale_fill_manual(values = c("#40631F", "#0F443E")) + 
+  #scale_fill_manual(values = c("#40631F", "#0F443E")) + 
   facet_grid(rows = vars(response_clean), cols = vars(var_clean), scales = "free") +
   # labs(y = "Evi Trend", title = "Simple", x = "") +
   theme_bw() +
   labs(y = "Response Value", title = "", x = "Predictor Value") +
-  theme(legend.position = "none", 
+  theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),
         panel.border = element_blank(), 
