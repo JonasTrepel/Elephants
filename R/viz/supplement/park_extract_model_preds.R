@@ -210,7 +210,7 @@ p_smooth_tc_1 <- dt_pred_comp %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#262600") +
-  facet_wrap(~var_clean, scales = "free", ncol = 4) +
+  facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Woody Cover Change", title = "Chobe National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
@@ -237,7 +237,7 @@ p_smooth_tc_2 <- dt_pred_comp %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#262600") +
-  facet_wrap(~var_clean, scales = "free", ncol = 4) +
+  facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Woody Cover Change", title = "Hwange National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
@@ -264,7 +264,7 @@ p_smooth_tc_3 <- dt_pred_comp %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#262600") +
-  facet_wrap(~var_clean, scales = "free", ncol = 4) +
+  facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Woody Cover Change", title = "Kruger National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
@@ -291,7 +291,7 @@ p_smooth_tc_4 <- dt_pred_comp %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#262600") +
-  facet_wrap(~var_clean, scales = "free", ncol = 4) +
+  facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Woody Cover Change", title = "Limpopo National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
@@ -319,7 +319,7 @@ p_smooth_tc_5 <- dt_pred_comp %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#262600") +
-  facet_wrap(~var_clean, scales = "free", ncol = 4) +
+  facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Woody Cover Change", title = "Luengue-Luiana National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
@@ -342,7 +342,7 @@ p_tc <- (p_smooth_tc_1 /
 
 
 
-ggsave(plot = p_tc, "builds/plots/supplement/park_level_tc_1000m_model_predictions.png", dpi = 900, height = 10, width = 8)
+ggsave(plot = p_tc, "builds/plots/supplement/park_level_tc_1000m_model_predictions.png", dpi = 900, height = 10, width = 8.5)
 
 #Vegetation Height
 p_smooth_ch_1 <- dt_pred_comp %>% 
@@ -359,7 +359,7 @@ p_smooth_ch_1 <- dt_pred_comp %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
-  facet_wrap(~var_clean, scales = "free", ncol = 4) +
+  facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Chobe National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
@@ -386,7 +386,7 @@ p_smooth_ch_2 <- dt_pred_comp %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
-  facet_wrap(~var_clean, scales = "free", ncol = 4) +
+  facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Hwange National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
@@ -413,7 +413,7 @@ p_smooth_ch_3 <- dt_pred_comp %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
-  facet_wrap(~var_clean, scales = "free", ncol = 4) +
+  facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Kruger National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
@@ -440,7 +440,7 @@ p_smooth_ch_4 <- dt_pred_comp %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
-  facet_wrap(~var_clean, scales = "free", ncol = 4) +
+  facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Limpopo National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
@@ -468,7 +468,7 @@ p_smooth_ch_5 <- dt_pred_comp %>%
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1,color = "#0C4C00") +
-  facet_wrap(~var_clean, scales = "free", ncol = 4) +
+  facet_wrap(~var_clean, scales = "free_x", ncol = 4) +
   labs(y = "Vegetation Height Change", title = "Luengue-Luiana National Park", x = "Predictor Value") +
   theme_bw() +
   theme(legend.position = "right", 
@@ -491,5 +491,5 @@ p_ch <- (p_smooth_ch_1 /
 
 
 
-ggsave(plot = p_ch, "builds/plots/supplement/park_level_ch_1000m_model_predictions.png", dpi = 900, height = 10, width = 8)
+ggsave(plot = p_ch, "builds/plots/supplement/park_level_ch_1000m_model_predictions.png", dpi = 900, height = 10, width = 8.5)
 
