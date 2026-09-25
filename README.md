@@ -1,6 +1,6 @@
-# Elephant Impacts on Woody Plant Dynamics Across Southern Africa
+# Elephants reshape woody vegetation dynamics in southern African savannas at local and landscape scales
 
-This repository contains the code used for the analyses presented in the manuscript *“Elephants have scale dependent impacts on woody vegetation structure across southern African savannas”*, (Ecography; doi: 10.1002/ecog.08948).
+This repository contains the code used for the analyses presented in the manuscript *“Elephants reshape woody vegetation dynamics in southern African savannas at local and landscape scales”*, (Ecography; doi: 10.1002/ecog.08948).
 
 Due to privacy constraints and data-sharing agreements, the raw data underlying this study cannot be made publicly available. However, we provide the processed datasets required to reproduce the main analysis reported in the manuscript.
 
