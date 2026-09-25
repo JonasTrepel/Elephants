@@ -1,6 +1,6 @@
 # Elephant Impacts on Woody Plant Dynamics Across Southern Africa
 
-This repository contains the code used for the analyses presented in the manuscript *“Elephants have scale dependent impacts on woody vegetation structure across southern African savannas”*, currently under review.
+This repository contains the code used for the analyses presented in the manuscript *“Elephants have scale dependent impacts on woody vegetation structure across southern African savannas”*, (Ecography; doi: 10.1002/ecog.08948).
 
 Due to privacy constraints and data-sharing agreements, the raw data underlying this study cannot be made publicly available. However, we provide the processed datasets required to reproduce the main analysis reported in the manuscript.
 
@@ -27,7 +27,7 @@ Customized functions called in scripts in the preparation steps.
 ### `R/analysis/`
 Scripts used to fit the statistical models reported in the manuscript. Key files include:
 
-NB! Both the 1000m_models stript as well as the step_selection_functions script exceed the processing capacity of personal computers (at least of mine) and may have to be run on a supercomputer, server or cloud  
+NB! Both the 1000m_models script as well as the step_selection_functions script exceed the processing capacity of personal computers (at least of mine) and may have to be run on a supercomputer, server or cloud  
 - `park_level_average_models.R`: Runs models at the regional / reserve-level scale.
 - `step_selection_functions.R`: Run step selection analysis for different time steps (incl. 24 hours, which we used in the main analysis)
 - `1000m_models.R`: Runs local-scale models using predicted, spatially explicit elephant density estimates.
