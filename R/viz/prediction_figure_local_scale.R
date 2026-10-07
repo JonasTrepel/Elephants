@@ -130,10 +130,10 @@ dt_long <- dt_mod %>% pivot_longer(
   names_to = "var_name", 
   values_to = "var_value") %>% 
   mutate(var_clean = case_when(
-    var_name == "local_density_km2" ~ "Local Elephant Density",
-    var_name == "months_extreme_drought" ~ "N Drought Months",
-    var_name == "fire_frequency" ~ "Fire Frequency",
-    var_name == "prec_coef" ~ "Rainfall Change",
+    var_name == "local_density_km2" ~ "Local elephant density",
+    var_name == "months_extreme_drought" ~ "N drought months",
+    var_name == "fire_frequency" ~ "Fire frequency",
+    var_name == "prec_coef" ~ "Rainfall change",
     var_name == "n_deposition" ~ "N Deposition",
   )) %>% 
   pivot_longer(
@@ -141,8 +141,8 @@ dt_long <- dt_mod %>% pivot_longer(
     names_to = "response_name", 
     values_to = "response_value") %>% 
   mutate(response_clean = case_when(
-    response_name == "canopy_height_900m_coef" ~ "Vegetation Height Trend",
-    response_name == "tree_cover_1000m_coef" ~ "Woody Cover Trend",
+    response_name == "canopy_height_900m_coef" ~ "Vegetation height trend",
+    response_name == "tree_cover_1000m_coef" ~ "Woody cover trend",
     response_name == "evi_900m_coef" ~ "EVI Trend"
   ))
 
@@ -169,14 +169,14 @@ c("#0019759", "#114260", "#215F61", "#4C724D", "#818231", "#BE9035", "#F19D6B", 
 p_tc <- dt_pred %>% 
   filter(response_name == "tree_cover_1000m_coef") %>% 
   mutate(response_clean = case_when(
-    .default = response_clean, 
-    response_clean == "Tree Cover Trend" ~ "Woody Cover Trend"
-  )) %>% 
+    .default = str_to_sentence(response_clean), 
+    response_clean == "Tree Cover Trend" ~ "Woody cover trend"),
+    var_clean = str_to_sentence(var_clean) ) %>% 
   ggplot() +
   geom_hex(data = dt_long %>% 
              filter(response_name == "tree_cover_1000m_coef"),
            aes(x = var_value, y = response_value), alpha = 0.5) +
-  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nobservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.3, fill = "#262600") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1.1, color = "#262600") +
@@ -185,7 +185,7 @@ p_tc <- dt_pred %>%
   #           fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
   # geom_rect(data = dt_rects, aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax), 
   #           fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
-  labs(y = "Woody Cover Trend", title = "", x = "Predictor Value") +
+  labs(y = "Woody cover trend", title = "", x = "Predictor value") +
   theme_bw() +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
@@ -199,11 +199,15 @@ p_tc
 
 p_ch <- dt_pred %>% 
   filter(response_name == "canopy_height_900m_coef") %>% 
+  mutate(response_clean = case_when(
+    .default = str_to_sentence(response_clean), 
+    response_clean == "Tree Cover Trend" ~ "Woody cover trend"),
+    var_clean = str_to_sentence(var_clean) ) %>% 
   ggplot() +
   geom_hex(data = dt_long %>% 
              filter(response_name == "canopy_height_900m_coef"),
            aes(x = var_value, y = response_value), alpha = 0.5) +
-  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nObservations") +
+  scale_fill_scico(palette = "batlow", trans = "log10", name = "Number of\nobservations") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey25") +
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high), alpha = 0.3, fill = "#0C4C00") +
   geom_line(aes(x = x_unscaled, y = predicted), linewidth = 1.1, color = "#0C4C00") +
@@ -212,7 +216,7 @@ p_ch <- dt_pred %>%
   #           fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
   # geom_rect(data = dt_rects, aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax), 
   #           fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
-  labs(y = "Vegetation Height Trend", title = "", x = "Predictor Value") +
+  labs(y = "Vegetation height trend", title = "", x = "Predictor value") +
   theme_bw() +
   theme(legend.position = "right", 
         panel.grid.major.x = element_blank(), 
@@ -224,7 +228,8 @@ p_ch <- dt_pred %>%
 p_ch
 
 library(patchwork)
-p_comb <- (p_ch / p_tc)
+p_comb <- (p_ch / p_tc) +
+  plot_annotation(tag_levels = "A")
 p_comb
 ggsave(plot = p_comb, "builds/plots/local_scale_predictions_main_figures.png", 
-       height = 5, width = 8, dpi = 900)
+       height = 5.25, width = 8, dpi = 1200)
