@@ -290,10 +290,10 @@ p_smooth_points <- dt_pred %>%
   geom_line(aes(x = x_unscaled, y = predicted, color = response_clean), linewidth = 1.1) +
   scale_color_manual(values = c("#0C4C00", "#262600")) +
   scale_fill_manual(values = c("#0C4C00", "#262600")) + 
-  facet_wrap(~response_clean, scales = "free") +
-  # labs(y = "Evi Trend", title = "Simple", x = "") +
+  facet_wrap(~response_clean, scales = "free",
+             labeller = as_labeller(str_to_sentence)) +
   theme_bw() +
-  labs(y = "Response Value", title = "", x = "Elephant Density") +
+  labs(y = "Response value", title = "", x = "Elephant density (individuals per km)") +
   theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
         panel.grid.minor.x = element_blank(),

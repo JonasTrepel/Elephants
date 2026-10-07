@@ -68,9 +68,9 @@ p_est_ridges <- dt_est %>%
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
-    term == "distance_to_water_km" ~ "Distance to Water",
-    term == "distance_to_settlement_km" ~ "Distance to Settlement",
-    term == "human_modification" ~ "Human Modification Index",
+    term == "distance_to_water_km" ~ "Distance to water",
+    term == "distance_to_settlement_km" ~ "Distance to settlement",
+    term == "human_modification" ~ "Human modification index",
     term == "enerscape" ~ "Energy Landscape",
     term == "slope" ~ "Slope",
   )) %>% 
@@ -80,7 +80,7 @@ p_est_ridges <- dt_est %>%
   scico::scale_fill_scico(palette = "vik", midpoint = 0, direction = 1) +
   #scico::scale_color_scico(palette = "vik", midpoint = 0, direction = 1) +
   geom_vline(xintercept = 0, linetype = "dashed") +
-  labs(subtitle = "Estimate Distribution", y = "", x = "Estimate", fill = "") +
+  labs(subtitle = "Estimate distribution", y = "", x = "Estimate", fill = "") +
   theme_minimal() +
   theme(legend.position = "none", 
         panel.grid.major.x = element_blank(), 
@@ -109,9 +109,9 @@ dt_me <- dt_est %>%
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
-    term == "distance_to_water_km" ~ "Distance to Water",
-    term == "distance_to_settlement_km" ~ "Distance to Settlement",
-    term == "human_modification" ~ "Human Modification Index",
+    term == "distance_to_water_km" ~ "Distance to water",
+    term == "distance_to_settlement_km" ~ "Distance to settlement",
+    term == "human_modification" ~ "Human modification index",
     term == "enerscape" ~ "Energy Landscape",
     term == "slope" ~ "Slope",
   ), 
@@ -148,7 +148,7 @@ p_est <- dt_me %>%
                                 "negative" = "#06558B", 
                                 "non-significant" = "grey75")) +
   labs(x = "", y = "Estimate", color = "Season", fill = "Season", 
-       subtitle = paste0("Median Estimates (± 95 % CI)\nn = ", n_distinct(dt_est$individual_id))) +
+       subtitle = paste0("Median estimates (± 95 % CI)\nn = ", n_distinct(dt_est$individual_id))) +
   guides(
     fill = guide_legend(nrow = 2),
     color = guide_legend(nrow = 2)
@@ -189,9 +189,9 @@ dt_me_cluster <- dt_est %>%
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
-    term == "distance_to_water_km" ~ "Distance to Water",
-    term == "distance_to_settlement_km" ~ "Distance to Settlement",
-    term == "human_modification" ~ "Human Modification Index",
+    term == "distance_to_water_km" ~ "Distance to water",
+    term == "distance_to_settlement_km" ~ "Distance to settlement",
+    term == "human_modification" ~ "Human modification index",
     term == "enerscape" ~ "Energy Landscape",
     term == "slope" ~ "Slope",
   ), 
@@ -232,7 +232,7 @@ p_est_cluster <- dt_me_cluster %>%
   scico::scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   scico::scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   labs(x = "", y = "Estimate", color = "Season", fill = "Season", 
-       subtitle = paste0("Cluster-Specific Median Estimates (± 95 % CI)")) +
+       subtitle = paste0("Cluster-specific median estimates (± 95 % CI)")) +
   guides(
     fill = guide_legend(nrow = 2),
     color = guide_legend(nrow = 2)
@@ -274,9 +274,9 @@ dt_me_park <- dt_est %>%
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
-    term == "distance_to_water_km" ~ "Distance to Water",
-    term == "distance_to_settlement_km" ~ "Distance to Settlement",
-    term == "human_modification" ~ "Human Modification Index",
+    term == "distance_to_water_km" ~ "Distance to water",
+    term == "distance_to_settlement_km" ~ "Distance to settlement",
+    term == "human_modification" ~ "Human modification index",
     term == "enerscape" ~ "Energy Landscape",
     term == "slope" ~ "Slope",
   ), 
@@ -373,7 +373,7 @@ p_est_park <- dt_me_park %>%
   scico::scale_color_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   scico::scale_fill_scico_d(palette = "batlow", begin = 0.2, end = 0.8) +
   labs(x = "", y = "Estimate", color = "Season", fill = "Season",
-       subtitle = paste0("Park-Specific Median Estimates (± 95 % CI)")) +
+       subtitle = paste0("Park-specific median estimates (± 95 % CI)")) +
   guides(
     fill = guide_legend(nrow = 2),
     color = guide_legend(nrow = 2)
@@ -498,7 +498,7 @@ p_empty <- ggplot() + theme_void()
 p_est_comb  
 
 ggsave(p_est_comb, filename = "builds/plots/main_estimate_figure_park_level.png",
-       dpi = 600, height = 12, width = 10.5)
+       dpi = 1200, height = 12, width = 10.5)
 
 
 # Sex and Season specifics ------------------------------
@@ -513,9 +513,9 @@ p_est_ridges_season <- dt_est %>%
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
-    term == "distance_to_water_km" ~ "Distance to Water",
-    term == "distance_to_settlement_km" ~ "Distance to Settlement",
-    term == "human_modification" ~ "Human Modification Index",
+    term == "distance_to_water_km" ~ "Distance to water",
+    term == "distance_to_settlement_km" ~ "Distance to settlement",
+    term == "human_modification" ~ "Human modification index",
     term == "enerscape" ~ "Energy Landscape",
     term == "slope" ~ "Slope",
   )) %>% 
@@ -542,9 +542,9 @@ p_est_ridges_sex <- dt_est %>%
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
-    term == "distance_to_water_km" ~ "Distance to Water",
-    term == "distance_to_settlement_km" ~ "Distance to Settlement",
-    term == "human_modification" ~ "Human Modification Index",
+    term == "distance_to_water_km" ~ "Distance to water",
+    term == "distance_to_settlement_km" ~ "Distance to settlement",
+    term == "human_modification" ~ "Human modification index",
     term == "enerscape" ~ "Energy Landscape",
     term == "slope" ~ "Slope",
   )) %>% 
@@ -574,9 +574,9 @@ p_est_ridges_sex_season <- dt_est %>%
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
-    term == "distance_to_water_km" ~ "Distance to Water",
-    term == "distance_to_settlement_km" ~ "Distance to Settlement",
-    term == "human_modification" ~ "Human Modification Index",
+    term == "distance_to_water_km" ~ "Distance to water",
+    term == "distance_to_settlement_km" ~ "Distance to settlement",
+    term == "human_modification" ~ "Human modification index",
     term == "enerscape" ~ "Energy Landscape",
     term == "slope" ~ "Slope",
   )) %>% 
@@ -612,9 +612,9 @@ p_est_ridges_season_cluster <- dt_est %>%
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
-    term == "distance_to_water_km" ~ "Distance to Water",
-    term == "distance_to_settlement_km" ~ "Distance to Settlement",
-    term == "human_modification" ~ "Human Modification Index",
+    term == "distance_to_water_km" ~ "Distance to water",
+    term == "distance_to_settlement_km" ~ "Distance to settlement",
+    term == "human_modification" ~ "Human modification index",
     term == "enerscape" ~ "Energy Landscape",
     term == "slope" ~ "Slope",
   )) %>% 
@@ -642,9 +642,9 @@ p_est_ridges_sex_cluster <- dt_est %>%
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
-    term == "distance_to_water_km" ~ "Distance to Water",
-    term == "distance_to_settlement_km" ~ "Distance to Settlement",
-    term == "human_modification" ~ "Human Modification Index",
+    term == "distance_to_water_km" ~ "Distance to water",
+    term == "distance_to_settlement_km" ~ "Distance to settlement",
+    term == "human_modification" ~ "Human modification index",
     term == "enerscape" ~ "Energy Landscape",
     term == "slope" ~ "Slope",
   )) %>% 
@@ -677,9 +677,9 @@ p_est_ridges_sex_season_cluster <- dt_est %>%
   mutate(clean_term = case_when(
     .default = term,
     term == "evi_mean" ~ "EVI",
-    term == "distance_to_water_km" ~ "Distance to Water",
-    term == "distance_to_settlement_km" ~ "Distance to Settlement",
-    term == "human_modification" ~ "Human Modification Index",
+    term == "distance_to_water_km" ~ "Distance to water",
+    term == "distance_to_settlement_km" ~ "Distance to settlement",
+    term == "human_modification" ~ "Human modification index",
     term == "enerscape" ~ "Energy Landscape",
     term == "slope" ~ "Slope",
   )) %>% 

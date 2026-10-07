@@ -125,14 +125,15 @@ p_pred <- dt_pred %>%
   geom_ribbon(aes(x = x_unscaled, ymin = conf.low, ymax = conf.high, 
                   fill = response_clean), alpha = 0.3, linetype = "dashed") +
   geom_line(aes(x = x_unscaled, y = predicted, response_clean), linewidth = 1.1) +
-  facet_wrap(~response_clean, scales = "free") +
+  facet_wrap(~response_clean, scales = "free",
+             labeller = as_labeller(str_to_sentence)) +
   scale_color_manual(values = c("#0C4C00", "#262600")) +
   scale_fill_manual(values = c("#0C4C00", "#262600")) + 
  # geom_rect(data = dt_rects, aes(xmin = xmin1, xmax = xmax1, ymin = ymin, ymax = ymax), 
 #            fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
  # geom_rect(data = dt_rects, aes(xmin = xmin2, xmax = xmax2, ymin = ymin, ymax = ymax), 
 #            fill = "snow", alpha = 0.6, inherit.aes = FALSE) +
-  labs(y = "Response Value", title = "", x = "Elephant Density (Individuals/km²)", 
+  labs(y = "Response value", title = "", x = "Elephant density (individuals/km²)", 
        subtitle = "D") +
   theme_bw() +
   theme(legend.position = "none", 
@@ -182,8 +183,8 @@ p_pa_dens <- sf_pas %>%
                          pad_y = unit(0.5, "cm"),
                          style = north_arrow_fancy_orienteering) +
   theme_void() +
-  labs(fill = "Mean Elephant Density\n(individuals/km²)", 
-       color = "Mean Elephant Density\n(individuals/km²)",
+  labs(fill = "Mean elephant density\n(individuals/km²)", 
+       color = "Mean elephant density\n(individuals/km²)",
        subtitle = "A") +
   theme(legend.position = "bottom")
 p_pa_dens
@@ -205,8 +206,8 @@ p_pa_ch <- sf_pas %>%
                          pad_y = unit(0.5, "cm"),
                          style = north_arrow_fancy_orienteering) +
   theme_void() +
-  labs(fill = "Vegetation Height Trend", 
-       color = "Vegetation Height Trend", 
+  labs(fill = "Vegetation height trend", 
+       color = "Vegetation height trend", 
        subtitle = "B") +
   theme(legend.position = "bottom")
 p_pa_ch
@@ -227,8 +228,8 @@ p_pa_tc <- sf_pas %>%
                          pad_y = unit(0.5, "cm"),
                          style = north_arrow_fancy_orienteering) +
   theme_void() +
-  labs(fill = "Woody Cover Trend", 
-       color = "Woody Cover Trend", 
+  labs(fill = "Woody cover trend", 
+       color = "Woody cover trend", 
        subtitle = "C") +
   theme(legend.position = "bottom")
 p_pa_tc
@@ -256,5 +257,5 @@ p_maps <- plot_grid(
 
 p_maps
 ggsave(plot = p_maps, "builds/plots/reserve_density_figure.png", 
-       dpi = 900, height = 10, width = 10)
+       dpi = 1200, height = 10, width = 10)
 
